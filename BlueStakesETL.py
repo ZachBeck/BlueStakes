@@ -3,7 +3,7 @@ from arcpy import env
 from arcpy import da
 from agrc import parse_address
 
-
+#I made some changes here.
 
 sgid10 = r'Database Connections\dc_agrc@SGID10@sgid.agrc.utah.gov.sde'
 sgid10_GEO = r'C:\ZBECK\BlueStakes\stagingBS.gdb\SGID10_GEOGRAPHIC'
@@ -35,10 +35,10 @@ else:
 #            'Wasatch': '49051', 'Washington': '49053', 'Wayne': '49055', 'Weber': '49057'}
 
 
-fipsNum = ['49053', '49035']
+fipsNum = ['49007', '49053', '49035', '49049']
 
 
-fipsDict = {'Washington': '49053', 'SaltLake': '49035'}
+fipsDict = {'Carbon': '49007', 'Washington': '49053', 'SaltLake': '49035', 'Utah': '49049'}
 
 
 typeList = ('ALY', 'AVE', 'BLVD', 'CIR', 'CT', 'CV', 'DR', 'EST', 'ESTS', 'EXPY', 'FWY', 'HWY', 'HOLW', \
@@ -2332,12 +2332,12 @@ def cleanOutFldr():
 #railroads();
 #airstrips();
 #miscTransportation();
-#addressPoints();
+addressPoints();
 #townships();
 #sections();
 #deciPoints();
 #addedPoints();
 #counties();
-addressZones();
+#addressZones();
 #oilAndGasWells();
 
