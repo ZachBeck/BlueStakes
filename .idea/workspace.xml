@@ -4,30 +4,96 @@
     <list default="true" id="a1fe5724-4f4f-4623-878f-3614918de781" name="Default" comment="" />
     <ignored path="Blue Stakes Python.iws" />
     <ignored path=".idea/workspace.xml" />
+    <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
-  <component name="ChangesViewManager" flattened_view="true" show_ignored="false" />
   <component name="CreatePatchCommitExecutor">
     <option name="PATCH_PATH" value="" />
   </component>
-  <component name="DaemonCodeAnalyzer">
-    <disable_hints />
+  <component name="DockManager">
+    <window id="1">
+      <content type="file-editors">
+        <state>
+          <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
+            <file leaf-file-name="DominionLabelConverter.py" pinned="false" current-in-tab="true">
+              <entry file="file://$PROJECT_DIR$/DominionLabelConverter.py">
+                <provider selected="true" editor-type-id="text-editor">
+                  <state relative-caret-position="136">
+                    <caret line="14" column="0" lean-forward="false" selection-start-line="14" selection-start-column="0" selection-end-line="14" selection-end-column="0" />
+                    <folding>
+                      <element signature="e#0#12#0" expanded="true" />
+                    </folding>
+                  </state>
+                </provider>
+              </entry>
+            </file>
+          </leaf>
+        </state>
+      </content>
+    </window>
   </component>
   <component name="ExecutionTargetManager" SELECTED_TARGET="default_target" />
   <component name="FavoritesManager">
     <favorites_list name="Blue Stakes Python" />
   </component>
   <component name="FileEditorManager">
-    <leaf>
-      <file leaf-file-name="BlueStakesETL.py" pinned="false" current="true" current-in-tab="true">
+    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
+      <file leaf-file-name="BlueStakesETL.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/BlueStakesETL.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="5.667705" vertical-offset="33897" max-vertical-offset="39882">
-              <caret line="2318" column="0" selection-start-line="2318" selection-start-column="0" selection-end-line="2318" selection-end-column="0" />
+            <state relative-caret-position="703">
+              <caret line="621" column="75" lean-forward="false" selection-start-line="621" selection-start-column="75" selection-end-line="621" selection-end-column="75" />
+              <folding>
+                <element signature="e#0#36#0" expanded="true" />
+                <element signature="e#3177#3269#0" expanded="false" />
+                <element signature="e#3309#3459#0" expanded="false" />
+                <element signature="e#3481#9995#0" expanded="false" />
+                <element signature="e#10023#12919#0" expanded="false" />
+                <element signature="e#14679#14793#0" expanded="false" />
+                <element signature="e#14870#15490#0" expanded="false" />
+                <element signature="e#15889#25100#0" expanded="false" />
+                <element signature="e#25803#27928#0" expanded="false" />
+                <element signature="e#27952#30908#0" expanded="false" />
+                <element signature="e#30939#34816#0" expanded="false" />
+                <element signature="e#34849#39874#0" expanded="false" />
+                <element signature="e#39898#42920#0" expanded="false" />
+                <element signature="e#42945#44604#0" expanded="false" />
+                <element signature="e#44628#47957#0" expanded="false" />
+                <element signature="e#47981#49582#0" expanded="false" />
+                <element signature="e#49615#55564#0" expanded="false" />
+                <element signature="e#55588#56997#0" expanded="false" />
+                <element signature="e#57020#58676#0" expanded="false" />
+                <element signature="e#58701#59974#0" expanded="false" />
+                <element signature="e#60000#64839#0" expanded="false" />
+                <element signature="e#64862#69030#0" expanded="false" />
+                <element signature="e#69057#71069#0" expanded="false" />
+                <element signature="e#71098#72532#0" expanded="false" />
+                <element signature="e#72573#73873#0" expanded="false" />
+                <element signature="e#73899#74121#0" expanded="false" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="xmlRoutes.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/../../MISC_WORK/PLPCO/xmlRoutes.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="425">
+              <caret line="29" column="0" lean-forward="false" selection-start-line="29" selection-start-column="0" selection-end-line="29" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="parcelDates.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/parcelDates.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="391">
+              <caret line="25" column="24" lean-forward="false" selection-start-line="25" selection-start-column="24" selection-end-line="25" selection-end-column="24" />
               <folding />
             </state>
           </provider>
@@ -35,10 +101,41 @@
       </file>
     </leaf>
   </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Python Script" />
+      </list>
+    </option>
+  </component>
+  <component name="FindInProjectRecents">
+    <findStrings>
+      <find>ACSALIAS</find>
+      <find>acsalias</find>
+      <find>srcRow[20</find>
+      <find>trail</find>
+      <find>updatecursor</find>
+      <find>questar_RoadSegsALL</find>
+      <find>A9</find>
+      <find>error</find>
+      <find>inRow</find>
+      <find>srcRow[11]</find>
+      <find>lowerAbrev</find>
+      <find>directionCase</find>
+      <find>directioncase</find>
+      <find>outQuestarRoadSegs</find>
+      <find>SR 154 NB X16 Off 5400 S EB Ramp</find>
+      <find>today</find>
+      <find>badVals</find>
+    </findStrings>
+  </component>
   <component name="FindManager">
     <FindUsagesManager>
       <setting name="OPEN_NEW_TAB" value="true" />
     </FindUsagesManager>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="GotoFileConfiguration">
     <file-type-list>
@@ -71,30 +168,26 @@
     </file-type-list>
   </component>
   <component name="IdeDocumentHistory">
-    <option name="changedFiles">
+    <option name="CHANGED_PATHS">
       <list>
-        <option value="C:/PYTHONz/LandOwnLoader93-10_Append.py" />
-        <option value="C:/sgidout/CreatePackages_json.py" />
-        <option value="C:/sgidout/ftpStats/module1.py" />
+        <option value="$PROJECT_DIR$/../../MISC_WORK/PLPCO/xmlRoutes.py" />
+        <option value="D:/VectorTiles/reclassifyHillshadeToPolygons.py" />
+        <option value="$PROJECT_DIR$/Roads_NewSchema.py" />
+        <option value="$PROJECT_DIR$/RoadsOldSchema_Archive.py" />
+        <option value="$PROJECT_DIR$/mergePolys.py" />
+        <option value="$PROJECT_DIR$/QuestarLabelConverter.py" />
         <option value="$PROJECT_DIR$/BlueStakesETL.py" />
+        <option value="$PROJECT_DIR$/DominionLabelConverter.py" />
+        <option value="$PROJECT_DIR$/../../Addressing/AddressPointsPython/CountyAddressPointETL.py" />
       </list>
     </option>
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="310" />
-    <option name="width" value="1555" />
-    <option name="height" value="1160" />
+    <option name="x" value="1968" />
+    <option name="width" value="1495" />
+    <option name="height" value="1207" />
   </component>
-  <component name="ProjectLevelVcsManager" settingsEditedManually="false">
-    <OptionsSetting value="true" id="Add" />
-    <OptionsSetting value="true" id="Remove" />
-    <OptionsSetting value="true" id="Checkout" />
-    <OptionsSetting value="true" id="Update" />
-    <OptionsSetting value="true" id="Status" />
-    <OptionsSetting value="true" id="Edit" />
-    <ConfirmationsSetting value="0" id="Add" />
-    <ConfirmationsSetting value="0" id="Remove" />
-  </component>
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectReloadState">
     <option name="STATE" value="0" />
   </component>
@@ -109,17 +202,12 @@
       <autoscrollToSource />
       <autoscrollFromSource />
       <sortByType />
+      <manualOrder />
+      <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="Blue Stakes Python" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-          </PATH>
           <PATH>
             <PATH_ELEMENT>
               <option name="myItemId" value="Blue Stakes Python" />
@@ -132,6 +220,8 @@
           </PATH>
         </subPane>
       </pane>
+      <pane id="Scope" />
+      <pane id="Scratches" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -139,16 +229,28 @@
     <property name="options.splitter.main.proportions" value="0.3" />
     <property name="options.splitter.details.proportions" value="0.2" />
     <property name="options.searchVisible" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/../../Addressing/AddressPointsPython" />
-    <property name="FullScreen" value="false" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="recentsLimit" value="5" />
+    <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
   </component>
-  <component name="PyConsoleOptionsProvider">
-    <option name="myPythonConsoleState">
-      <console-settings />
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\ZBECK\BlueStakes\Blue Stakes Python" />
+    </key>
+  </component>
+  <component name="RunDashboard">
+    <option name="ruleStates">
+      <list>
+        <RuleState>
+          <option name="name" value="ConfigurationTypeDashboardGroupingRule" />
+        </RuleState>
+        <RuleState>
+          <option name="name" value="StatusDashboardGroupingRule" />
+        </RuleState>
+      </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.BlueStakesETL">
+  <component name="RunManager" selected="Python.CountyAddressPointETL">
     <configuration default="false" name="BlueStakesETL" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -163,113 +265,86 @@
       <module name="Blue Stakes Python" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/BlueStakesETL.py" />
       <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
       <RunnerSettings RunnerId="PyDebugRunner" />
       <RunnerSettings RunnerId="PythonRunner" />
       <ConfigurationWrapper RunnerId="PyDebugRunner" />
       <ConfigurationWrapper RunnerId="PythonRunner" />
       <method />
     </configuration>
-    <configuration default="false" name="LandOwnLoader93-10_Append" type="PythonConfigurationType" factoryName="Python" temporary="true">
+    <configuration default="false" name="QuestarLabelConverter" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <envs>
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="C:/PYTHONz" />
-      <option name="IS_MODULE_SDK" value="false" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <module name="Blue Stakes Python" />
-      <option name="SCRIPT_NAME" value="C:/PYTHONz/LandOwnLoader93-10_Append.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/QuestarLabelConverter.py" />
       <option name="PARAMETERS" value="" />
-      <RunnerSettings RunnerId="PyDebugRunner" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
       <RunnerSettings RunnerId="PythonRunner" />
-      <ConfigurationWrapper RunnerId="PyDebugRunner" />
       <ConfigurationWrapper RunnerId="PythonRunner" />
       <method />
     </configuration>
-    <configuration default="false" name="CreatePackages_json" type="PythonConfigurationType" factoryName="Python" temporary="true">
+    <configuration default="false" name="Roads_NewSchema" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <envs>
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="C:/sgidout" />
-      <option name="IS_MODULE_SDK" value="false" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <module name="Blue Stakes Python" />
-      <option name="SCRIPT_NAME" value="C:/sgidout/CreatePackages_json.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/Roads_NewSchema.py" />
       <option name="PARAMETERS" value="" />
-      <RunnerSettings RunnerId="PyDebugRunner" />
-      <RunnerSettings RunnerId="PythonRunner" />
-      <ConfigurationWrapper RunnerId="PyDebugRunner" />
-      <ConfigurationWrapper RunnerId="PythonRunner" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
       <method />
     </configuration>
-    <configuration default="false" name="module1" type="PythonConfigurationType" factoryName="Python" temporary="true">
+    <configuration default="false" name="mergePolys" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <envs>
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="C:/sgidout/ftpStats" />
-      <option name="IS_MODULE_SDK" value="false" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <module name="Blue Stakes Python" />
-      <option name="SCRIPT_NAME" value="C:/sgidout/ftpStats/module1.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/mergePolys.py" />
       <option name="PARAMETERS" value="" />
-      <RunnerSettings RunnerId="PythonRunner" />
-      <ConfigurationWrapper RunnerId="PythonRunner" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
       <method />
     </configuration>
-    <configuration default="true" type="tests" factoryName="py.test">
+    <configuration default="false" name="CountyAddressPointETL" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
-      <envs />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/../../Addressing/AddressPointsPython" />
       <option name="IS_MODULE_SDK" value="false" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <module name="Blue Stakes Python" />
-      <option name="SCRIPT_NAME" value="" />
-      <option name="CLASS_NAME" value="" />
-      <option name="METHOD_NAME" value="" />
-      <option name="FOLDER_NAME" value="" />
-      <option name="TEST_TYPE" value="TEST_SCRIPT" />
-      <option name="PATTERN" value="" />
-      <option name="USE_PATTERN" value="false" />
-      <option name="testToRun" value="" />
-      <option name="keywords" value="" />
-      <option name="params" value="" />
-      <option name="USE_PARAM" value="false" />
-      <option name="USE_KEYWORD" value="false" />
-      <method />
-    </configuration>
-    <configuration default="true" type="tests" factoryName="Nosetests">
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs />
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="" />
-      <option name="IS_MODULE_SDK" value="false" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <module name="Blue Stakes Python" />
-      <option name="SCRIPT_NAME" value="" />
-      <option name="CLASS_NAME" value="" />
-      <option name="METHOD_NAME" value="" />
-      <option name="FOLDER_NAME" value="" />
-      <option name="TEST_TYPE" value="TEST_SCRIPT" />
-      <option name="PATTERN" value="" />
-      <option name="USE_PATTERN" value="false" />
-      <option name="PARAMS" value="" />
-      <option name="USE_PARAM" value="false" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/../../Addressing/AddressPointsPython/CountyAddressPointETL.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
       <method />
     </configuration>
     <configuration default="true" type="PythonConfigurationType" factoryName="Python">
@@ -286,9 +361,11 @@
       <module name="Blue Stakes Python" />
       <option name="SCRIPT_NAME" value="" />
       <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
       <method />
     </configuration>
-    <configuration default="true" type="tests" factoryName="Unittests">
+    <configuration default="true" type="Tox" factoryName="Tox">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <envs />
@@ -298,16 +375,6 @@
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <module name="Blue Stakes Python" />
-      <option name="SCRIPT_NAME" value="" />
-      <option name="CLASS_NAME" value="" />
-      <option name="METHOD_NAME" value="" />
-      <option name="FOLDER_NAME" value="" />
-      <option name="TEST_TYPE" value="TEST_SCRIPT" />
-      <option name="PATTERN" value="" />
-      <option name="USE_PATTERN" value="false" />
-      <option name="PUREUNITTEST" value="true" />
-      <option name="PARAMS" value="" />
-      <option name="USE_PARAM" value="false" />
       <method />
     </configuration>
     <configuration default="true" type="tests" factoryName="Doctests">
@@ -329,6 +396,69 @@
       <option name="USE_PATTERN" value="false" />
       <method />
     </configuration>
+    <configuration default="true" type="tests" factoryName="Nosetests">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="Blue Stakes Python" />
+      <option name="_new_regexPattern" value="&quot;&quot;" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;.&quot;" />
+      <option name="_new_targetType" value="&quot;PATH&quot;" />
+      <method />
+    </configuration>
+    <configuration default="true" type="tests" factoryName="Unittests">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="Blue Stakes Python" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;.&quot;" />
+      <option name="_new_targetType" value="&quot;PATH&quot;" />
+      <method />
+    </configuration>
+    <configuration default="true" type="tests" factoryName="py.test">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="Blue Stakes Python" />
+      <option name="_new_keywords" value="&quot;&quot;" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;.&quot;" />
+      <option name="_new_targetType" value="&quot;PATH&quot;" />
+      <method />
+    </configuration>
+    <list size="5">
+      <item index="0" class="java.lang.String" itemvalue="Python.BlueStakesETL" />
+      <item index="1" class="java.lang.String" itemvalue="Python.QuestarLabelConverter" />
+      <item index="2" class="java.lang.String" itemvalue="Python.Roads_NewSchema" />
+      <item index="3" class="java.lang.String" itemvalue="Python.mergePolys" />
+      <item index="4" class="java.lang.String" itemvalue="Python.CountyAddressPointETL" />
+    </list>
+    <recent_temporary>
+      <list size="5">
+        <item index="0" class="java.lang.String" itemvalue="Python.CountyAddressPointETL" />
+        <item index="1" class="java.lang.String" itemvalue="Python.BlueStakesETL" />
+        <item index="2" class="java.lang.String" itemvalue="Python.QuestarLabelConverter" />
+        <item index="3" class="java.lang.String" itemvalue="Python.mergePolys" />
+        <item index="4" class="java.lang.String" itemvalue="Python.Roads_NewSchema" />
+      </list>
+    </recent_temporary>
     <configuration default="true" type="tests" factoryName="Attests">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -348,22 +478,10 @@
       <option name="USE_PATTERN" value="false" />
       <method />
     </configuration>
-    <list size="4">
-      <item index="0" class="java.lang.String" itemvalue="Python.BlueStakesETL" />
-      <item index="1" class="java.lang.String" itemvalue="Python.LandOwnLoader93-10_Append" />
-      <item index="2" class="java.lang.String" itemvalue="Python.CreatePackages_json" />
-      <item index="3" class="java.lang.String" itemvalue="Python.module1" />
-    </list>
-    <recent_temporary>
-      <list size="4">
-        <item index="0" class="java.lang.String" itemvalue="Python.BlueStakesETL" />
-        <item index="1" class="java.lang.String" itemvalue="Python.module1" />
-        <item index="2" class="java.lang.String" itemvalue="Python.LandOwnLoader93-10_Append" />
-        <item index="3" class="java.lang.String" itemvalue="Python.CreatePackages_json" />
-      </list>
-    </recent_temporary>
   </component>
-  <component name="ShelveChangesManager" show_recycled="false" />
+  <component name="ShelveChangesManager" show_recycled="false">
+    <option name="remove_strategy" value="false" />
+  </component>
   <component name="SvnConfiguration">
     <configuration />
   </component>
@@ -371,31 +489,35 @@
     <task active="true" id="Default" summary="Default task">
       <changelist id="a1fe5724-4f4f-4623-878f-3614918de781" name="Default" comment="" />
       <created>1415654451499</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
       <updated>1415654451499</updated>
     </task>
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="310" y="0" width="1555" height="1160" extended-state="0" />
-    <editor active="false" />
+    <frame x="1968" y="0" width="1495" height="1207" extended-state="1" />
+    <editor active="true" />
     <layout>
-      <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3294347" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
-      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.22742255" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.315" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
-      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.27387914" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
-      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
-      <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3294347" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="SLIDING" type="SLIDING" visible="false" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
-      <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.1724138" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
+      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.2816773" sideWeight="0.3184584" order="7" side_tool="true" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.2816773" sideWeight="0.68154156" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
+      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32791877" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.36206895" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
+      <window_info id="Data View" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
+      <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="SLIDING" type="SLIDING" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
+      <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3294347" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
     </layout>
   </component>
   <component name="Vcs.Log.UiProperties">
@@ -409,393 +531,385 @@
   <component name="VcsContentAnnotationSettings">
     <option name="myLimit" value="2678400000" />
   </component>
-  <component name="VcsManagerConfiguration">
-    <option name="myTodoPanelSettings">
-      <TodoPanelSettings />
-    </option>
-  </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
-      <option name="time" value="6" />
+      <option name="time" value="18" />
     </breakpoint-manager>
+    <watches-manager />
   </component>
   <component name="editorHistoryManager">
     <entry file="file://$PROJECT_DIR$/BlueStakesETL.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="30583" max-vertical-offset="32521">
-          <caret line="1802" column="10" selection-start-line="1802" selection-start-column="10" selection-end-line="1802" selection-end-column="10" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://C:/PYTHONz/LandOwnLoader93-10_Append.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="51" max-vertical-offset="1581">
-          <caret line="24" column="71" selection-start-line="24" selection-start-column="71" selection-end-line="24" selection-end-column="71" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://C:/sgidout/CreatePackages_json.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="646" max-vertical-offset="5423">
-          <caret line="38" column="0" selection-start-line="38" selection-start-column="0" selection-end-line="38" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/BlueStakesETL.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="19295" max-vertical-offset="31790">
-          <caret line="1135" column="54" selection-start-line="1135" selection-start-column="54" selection-end-line="1135" selection-end-column="54" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://C:/PYTHONz/LandOwnLoader93-10_Append.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="51" max-vertical-offset="1581">
-          <caret line="4" column="0" selection-start-line="4" selection-start-column="0" selection-end-line="4" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://C:/sgidout/CreatePackages_json.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="646" max-vertical-offset="5406">
-          <caret line="38" column="0" selection-start-line="38" selection-start-column="0" selection-end-line="38" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/BlueStakesETL.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="18650" max-vertical-offset="31722">
-          <caret line="1115" column="4" selection-start-line="1115" selection-start-column="4" selection-end-line="1115" selection-end-column="4" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://C:/PYTHONz/LandOwnLoader93-10_Append.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="1139" max-vertical-offset="1598">
-          <caret line="67" column="33" selection-start-line="67" selection-start-column="33" selection-end-line="67" selection-end-column="33" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://C:/sgidout/CreatePackages_json.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="238" max-vertical-offset="5406">
-          <caret line="14" column="0" selection-start-line="14" selection-start-column="0" selection-end-line="14" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/BlueStakesETL.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="31654">
-          <caret line="151" column="30" selection-start-line="151" selection-start-column="30" selection-end-line="151" selection-end-column="30" />
-          <folding />
+        <state relative-caret-position="0">
+          <caret line="151" column="30" lean-forward="false" selection-start-line="151" selection-start-column="30" selection-end-line="151" selection-end-column="30" />
         </state>
       </provider>
     </entry>
     <entry file="file://$APPLICATION_HOME_DIR$/helpers/pydev/pydevd.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="29444" max-vertical-offset="29563">
-          <caret line="1732" column="0" selection-start-line="1732" selection-start-column="0" selection-end-line="1733" selection-end-column="0" />
+        <state relative-caret-position="0">
+          <caret line="1732" column="0" lean-forward="false" selection-start-line="1732" selection-start-column="0" selection-end-line="1733" selection-end-column="0" />
         </state>
       </provider>
     </entry>
     <entry file="file://C:/PYTHONz/LandOwnLoader93-10_Append.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="566" max-vertical-offset="1581">
-          <caret line="67" column="33" selection-start-line="67" selection-start-column="33" selection-end-line="67" selection-end-column="33" />
+        <state relative-caret-position="0">
+          <caret line="67" column="33" lean-forward="false" selection-start-line="67" selection-start-column="33" selection-end-line="67" selection-end-column="33" />
         </state>
       </provider>
     </entry>
-    <entry file="file://C:/sgidout/CreatePackages_json.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="561" max-vertical-offset="5389">
-          <caret line="33" column="0" selection-start-line="33" selection-start-column="0" selection-end-line="33" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://C:/sgidout/CreatePackages_json.py" />
     <entry file="file://$PROJECT_DIR$/BlueStakesETL.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="31654">
-          <caret line="89" column="7" selection-start-line="89" selection-start-column="7" selection-end-line="89" selection-end-column="7" />
-          <folding />
+        <state relative-caret-position="0">
+          <caret line="89" column="7" lean-forward="false" selection-start-line="89" selection-start-column="7" selection-end-line="89" selection-end-column="7" />
         </state>
       </provider>
     </entry>
     <entry file="file://$APPLICATION_HOME_DIR$/helpers/pydev/pydevd.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="29444" max-vertical-offset="29563">
-          <caret line="1732" column="0" selection-start-line="1732" selection-start-column="0" selection-end-line="1733" selection-end-column="0" />
+        <state relative-caret-position="0">
+          <caret line="1732" column="0" lean-forward="false" selection-start-line="1732" selection-start-column="0" selection-end-line="1733" selection-end-column="0" />
         </state>
       </provider>
     </entry>
     <entry file="file://C:/PYTHONz/LandOwnLoader93-10_Append.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="1139" max-vertical-offset="1598">
-          <caret line="67" column="33" selection-start-line="67" selection-start-column="33" selection-end-line="67" selection-end-column="33" />
+        <state relative-caret-position="0">
+          <caret line="67" column="33" lean-forward="false" selection-start-line="67" selection-start-column="33" selection-end-line="67" selection-end-column="33" />
         </state>
       </provider>
     </entry>
-    <entry file="file://C:/sgidout/CreatePackages_json.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="204" max-vertical-offset="5372">
-          <caret line="14" column="1" selection-start-line="14" selection-start-column="1" selection-end-line="14" selection-end-column="1" />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://C:/sgidout/CreatePackages_json.py" />
     <entry file="file://$PROJECT_DIR$/BlueStakesETL.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="1513" max-vertical-offset="31654">
-          <caret line="89" column="7" selection-start-line="89" selection-start-column="7" selection-end-line="89" selection-end-column="7" />
-          <folding />
+        <state relative-caret-position="0">
+          <caret line="89" column="7" lean-forward="false" selection-start-line="89" selection-start-column="7" selection-end-line="89" selection-end-column="7" />
         </state>
       </provider>
     </entry>
     <entry file="file://$APPLICATION_HOME_DIR$/helpers/pydev/pydevd.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="29444" max-vertical-offset="29563">
-          <caret line="1732" column="0" selection-start-line="1732" selection-start-column="0" selection-end-line="1733" selection-end-column="0" />
+        <state relative-caret-position="0">
+          <caret line="1732" column="0" lean-forward="false" selection-start-line="1732" selection-start-column="0" selection-end-line="1733" selection-end-column="0" />
         </state>
       </provider>
     </entry>
     <entry file="file://C:/PYTHONz/LandOwnLoader93-10_Append.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="1139" max-vertical-offset="1598">
-          <caret line="67" column="33" selection-start-line="67" selection-start-column="33" selection-end-line="67" selection-end-column="33" />
+        <state relative-caret-position="0">
+          <caret line="67" column="33" lean-forward="false" selection-start-line="67" selection-start-column="33" selection-end-line="67" selection-end-column="33" />
         </state>
       </provider>
     </entry>
-    <entry file="file://C:/sgidout/CreatePackages_json.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="204" max-vertical-offset="5372">
-          <caret line="14" column="0" selection-start-line="14" selection-start-column="0" selection-end-line="14" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://C:/sgidout/CreatePackages_json.py" />
     <entry file="file://$PROJECT_DIR$/BlueStakesETL.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="1513" max-vertical-offset="31654">
-          <caret line="89" column="7" selection-start-line="89" selection-start-column="7" selection-end-line="89" selection-end-column="7" />
-          <folding />
+        <state relative-caret-position="0">
+          <caret line="89" column="7" lean-forward="false" selection-start-line="89" selection-start-column="7" selection-end-line="89" selection-end-column="7" />
         </state>
       </provider>
     </entry>
     <entry file="file://$APPLICATION_HOME_DIR$/helpers/pydev/pydevd.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="29444" max-vertical-offset="29563">
-          <caret line="1732" column="0" selection-start-line="1732" selection-start-column="0" selection-end-line="1733" selection-end-column="0" />
+        <state relative-caret-position="0">
+          <caret line="1732" column="0" lean-forward="false" selection-start-line="1732" selection-start-column="0" selection-end-line="1733" selection-end-column="0" />
         </state>
       </provider>
     </entry>
     <entry file="file://C:/PYTHONz/LandOwnLoader93-10_Append.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="1258" max-vertical-offset="1598">
-          <caret line="74" column="75" selection-start-line="74" selection-start-column="75" selection-end-line="74" selection-end-column="75" />
+        <state relative-caret-position="0">
+          <caret line="74" column="75" lean-forward="false" selection-start-line="74" selection-start-column="75" selection-end-line="74" selection-end-column="75" />
         </state>
       </provider>
     </entry>
-    <entry file="file://C:/sgidout/CreatePackages_json.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="204" max-vertical-offset="5372">
-          <caret line="21" column="0" selection-start-line="21" selection-start-column="0" selection-end-line="21" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://C:/sgidout/CreatePackages_json.py" />
     <entry file="file://$PROJECT_DIR$/BlueStakesETL.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="31654">
-          <caret line="76" column="12" selection-start-line="76" selection-start-column="12" selection-end-line="76" selection-end-column="12" />
-          <folding />
+        <state relative-caret-position="0">
+          <caret line="76" column="12" lean-forward="false" selection-start-line="76" selection-start-column="12" selection-end-line="76" selection-end-column="12" />
         </state>
       </provider>
     </entry>
     <entry file="file://$APPLICATION_HOME_DIR$/helpers/pydev/pydevd.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="29444" max-vertical-offset="29563">
-          <caret line="1732" column="0" selection-start-line="1732" selection-start-column="0" selection-end-line="1733" selection-end-column="0" />
+        <state relative-caret-position="0">
+          <caret line="1732" column="0" lean-forward="false" selection-start-line="1732" selection-start-column="0" selection-end-line="1733" selection-end-column="0" />
         </state>
       </provider>
     </entry>
     <entry file="file://C:/PYTHONz/LandOwnLoader93-10_Append.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="1258" max-vertical-offset="1598">
-          <caret line="74" column="75" selection-start-line="74" selection-start-column="75" selection-end-line="74" selection-end-column="75" />
+        <state relative-caret-position="0">
+          <caret line="74" column="75" lean-forward="false" selection-start-line="74" selection-start-column="75" selection-end-line="74" selection-end-column="75" />
         </state>
       </provider>
     </entry>
-    <entry file="file://C:/sgidout/CreatePackages_json.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="34" max-vertical-offset="5372">
-          <caret line="15" column="1" selection-start-line="15" selection-start-column="1" selection-end-line="15" selection-end-column="1" />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://C:/sgidout/CreatePackages_json.py" />
     <entry file="file://$PROJECT_DIR$/BlueStakesETL.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="1124" max-vertical-offset="31603">
-          <caret line="76" column="12" selection-start-line="76" selection-start-column="12" selection-end-line="76" selection-end-column="12" />
-          <folding />
+        <state relative-caret-position="0">
+          <caret line="76" column="12" lean-forward="false" selection-start-line="76" selection-start-column="12" selection-end-line="76" selection-end-column="12" />
         </state>
       </provider>
     </entry>
     <entry file="file://$APPLICATION_HOME_DIR$/helpers/pydev/pydevd.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="29444" max-vertical-offset="29563">
-          <caret line="1732" column="0" selection-start-line="1732" selection-start-column="0" selection-end-line="1733" selection-end-column="0" />
+        <state relative-caret-position="0">
+          <caret line="1732" column="0" lean-forward="false" selection-start-line="1732" selection-start-column="0" selection-end-line="1733" selection-end-column="0" />
         </state>
       </provider>
     </entry>
     <entry file="file://C:/PYTHONz/LandOwnLoader93-10_Append.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="1258" max-vertical-offset="1598">
-          <caret line="74" column="75" selection-start-line="74" selection-start-column="75" selection-end-line="74" selection-end-column="75" />
+        <state relative-caret-position="0">
+          <caret line="74" column="75" lean-forward="false" selection-start-line="74" selection-start-column="75" selection-end-line="74" selection-end-column="75" />
         </state>
       </provider>
     </entry>
-    <entry file="file://C:/sgidout/CreatePackages_json.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="238" max-vertical-offset="5406">
-          <caret line="14" column="0" selection-start-line="14" selection-start-column="0" selection-end-line="14" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://C:/sgidout/CreatePackages_json.py" />
     <entry file="file://$PROJECT_DIR$/BlueStakesETL.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="31654">
-          <caret line="1033" column="17" selection-start-line="1033" selection-start-column="17" selection-end-line="1033" selection-end-column="17" />
-          <folding />
+        <state relative-caret-position="0">
+          <caret line="1033" column="17" lean-forward="false" selection-start-line="1033" selection-start-column="17" selection-end-line="1033" selection-end-column="17" />
         </state>
       </provider>
     </entry>
     <entry file="file://C:/PYTHONz/LandOwnLoader93-10_Append.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="1258" max-vertical-offset="1598">
-          <caret line="74" column="75" selection-start-line="74" selection-start-column="75" selection-end-line="74" selection-end-column="75" />
+        <state relative-caret-position="0">
+          <caret line="74" column="75" lean-forward="false" selection-start-line="74" selection-start-column="75" selection-end-line="74" selection-end-column="75" />
         </state>
       </provider>
     </entry>
-    <entry file="file://C:/sgidout/CreatePackages_json.py">
+    <entry file="file://C:/sgidout/CreatePackages_json.py" />
+    <entry file="file://$PROJECT_DIR$/BlueStakesETL.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="238" max-vertical-offset="5355">
-          <caret line="14" column="0" selection-start-line="14" selection-start-column="0" selection-end-line="14" selection-end-column="0" />
+        <state relative-caret-position="0">
+          <caret line="1028" column="39" lean-forward="false" selection-start-line="1028" selection-start-column="39" selection-end-line="1028" selection-end-column="39" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/BlueStakesETL.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="18921">
-          <caret line="1028" column="39" selection-start-line="1028" selection-start-column="39" selection-end-line="1028" selection-end-column="39" />
-          <folding />
+        <state relative-caret-position="0">
+          <caret line="1033" column="11" lean-forward="false" selection-start-line="1033" selection-start-column="11" selection-end-line="1033" selection-end-column="11" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/BlueStakesETL.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="31637">
-          <caret line="1033" column="11" selection-start-line="1033" selection-start-column="11" selection-end-line="1033" selection-end-column="11" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/BlueStakesETL.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="1657" max-vertical-offset="4692">
-          <caret line="1007" column="42" selection-start-line="1007" selection-start-column="42" selection-end-line="1007" selection-end-column="42" />
-          <folding />
+        <state relative-caret-position="0">
+          <caret line="1007" column="42" lean-forward="false" selection-start-line="1007" selection-start-column="42" selection-end-line="1007" selection-end-column="42" />
         </state>
       </provider>
     </entry>
     <entry file="file://$APPLICATION_HOME_DIR$/helpers/pydev/pydevd.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="29444" max-vertical-offset="29563">
-          <caret line="1732" column="0" selection-start-line="1732" selection-start-column="0" selection-end-line="1733" selection-end-column="0" />
+        <state relative-caret-position="0">
+          <caret line="1732" column="0" lean-forward="false" selection-start-line="1732" selection-start-column="0" selection-end-line="1733" selection-end-column="0" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/BlueStakesETL.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="1804" max-vertical-offset="3332">
-          <caret line="1373" column="0" selection-start-line="1373" selection-start-column="0" selection-end-line="1373" selection-end-column="0" />
-          <folding />
+        <state relative-caret-position="0">
+          <caret line="1373" column="0" lean-forward="false" selection-start-line="1373" selection-start-column="0" selection-end-line="1373" selection-end-column="0" />
         </state>
       </provider>
     </entry>
     <entry file="file://$APPLICATION_HOME_DIR$/helpers/pydev/pydevd.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="29444" max-vertical-offset="29563">
-          <caret line="1732" column="0" selection-start-line="1732" selection-start-column="0" selection-end-line="1733" selection-end-column="0" />
+        <state relative-caret-position="0">
+          <caret line="1732" column="0" lean-forward="false" selection-start-line="1732" selection-start-column="0" selection-end-line="1733" selection-end-column="0" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/BlueStakesETL.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="1629" max-vertical-offset="3332">
-          <caret line="1376" column="13" selection-start-line="1376" selection-start-column="13" selection-end-line="1376" selection-end-column="13" />
-          <folding />
+        <state relative-caret-position="0">
+          <caret line="1376" column="13" lean-forward="false" selection-start-line="1376" selection-start-column="13" selection-end-line="1376" selection-end-column="13" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/BlueStakesETL.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="1550" max-vertical-offset="3332">
-          <caret line="1362" column="57" selection-start-line="1362" selection-start-column="57" selection-end-line="1362" selection-end-column="57" />
-          <folding />
+        <state relative-caret-position="0">
+          <caret line="1362" column="57" lean-forward="false" selection-start-line="1362" selection-start-column="57" selection-end-line="1362" selection-end-column="57" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/BlueStakesETL.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="2619" max-vertical-offset="9350">
-          <caret line="390" column="26" selection-start-line="390" selection-start-column="26" selection-end-line="390" selection-end-column="26" />
-          <folding />
+        <state relative-caret-position="0">
+          <caret line="390" column="26" lean-forward="false" selection-start-line="390" selection-start-column="26" selection-end-line="390" selection-end-column="26" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/BlueStakesETL.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="8028" max-vertical-offset="9350">
-          <caret line="1809" column="42" selection-start-line="1809" selection-start-column="42" selection-end-line="1809" selection-end-column="42" />
-          <folding />
+        <state relative-caret-position="0">
+          <caret line="1809" column="42" lean-forward="false" selection-start-line="1809" selection-start-column="42" selection-end-line="1809" selection-end-column="42" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$APPLICATION_HOME_DIR$/helpers/pydev/pydevd.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="3.2979002" vertical-offset="25826" max-vertical-offset="28458">
-          <caret line="1732" column="0" selection-start-line="1732" selection-start-column="0" selection-end-line="1733" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://C:/sgidout/CreatePackages_json.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="646" max-vertical-offset="5457">
-          <caret line="38" column="0" selection-start-line="38" selection-start-column="0" selection-end-line="38" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://C:/sgidout/CreatePackages_json.py" />
     <entry file="file://C:/PYTHONz/LandOwnLoader93-10_Append.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.34979424" vertical-offset="51" max-vertical-offset="1581">
-          <caret line="24" column="71" selection-start-line="24" selection-start-column="71" selection-end-line="24" selection-end-column="71" />
+        <state relative-caret-position="0">
+          <caret line="24" column="71" lean-forward="false" selection-start-line="24" selection-start-column="71" selection-end-line="24" selection-end-column="71" />
         </state>
       </provider>
     </entry>
-    <entry file="file://C:/Program Files (x86)/ArcGIS/Desktop10.3/arcpy/arcpy/management.py">
+    <entry file="file://$APPLICATION_HOME_DIR$/helpers/pydev/pydevd.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-2.1566617" vertical-offset="76936" max-vertical-offset="285226">
-          <caret line="4442" column="85" selection-start-line="4442" selection-start-column="85" selection-end-line="4442" selection-end-column="85" />
+        <state relative-caret-position="0">
+          <caret line="1225" column="0" lean-forward="false" selection-start-line="1225" selection-start-column="0" selection-end-line="1226" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://C:/PYTHONz/RandomNumbers.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://D:/VectorTiles/reclassifyHillshadeToPolygons.py" />
+    <entry file="file://$PROJECT_DIR$/RoadsOldSchema_Archive.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="607">
+          <caret line="614" column="19" lean-forward="false" selection-start-line="614" selection-start-column="19" selection-end-line="614" selection-end-column="19" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Roads_NewSchema.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="632">
+          <caret line="110" column="0" lean-forward="false" selection-start-line="110" selection-start-column="0" selection-end-line="114" selection-end-column="21" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/mergePolys.py" />
+    <entry file="file://$PROJECT_DIR$/../../MISC_WORK/PLPCO/xmlRoutes.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="425">
+          <caret line="29" column="0" lean-forward="false" selection-start-line="29" selection-start-column="0" selection-end-line="29" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/parcelDates.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="391">
+          <caret line="25" column="24" lean-forward="false" selection-start-line="25" selection-start-column="24" selection-end-line="25" selection-end-column="24" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/QuestarLabelConverter.py" />
+    <entry file="file://$PROJECT_DIR$/../../Addressing/AddressPointsPython/CountyAddressPointETL.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-1564">
+          <caret line="147" column="0" lean-forward="false" selection-start-line="147" selection-start-column="0" selection-end-line="147" selection-end-column="0" />
+          <folding>
+            <element signature="e#4072#4153#0" expanded="false" />
+            <element signature="e#4198#4300#0" expanded="false" />
+            <element signature="e#4330#4451#0" expanded="false" />
+            <element signature="e#4481#4873#0" expanded="false" />
+            <element signature="e#4915#5023#0" expanded="false" />
+            <element signature="e#5057#5112#0" expanded="false" />
+            <element signature="e#5140#5190#0" expanded="false" />
+            <element signature="e#5230#5400#0" expanded="false" />
+            <element signature="e#5432#5831#0" expanded="false" />
+            <element signature="e#5870#6008#0" expanded="false" />
+            <element signature="e#6047#6125#0" expanded="false" />
+            <element signature="e#6164#6408#0" expanded="false" />
+            <element signature="e#6441#6721#0" expanded="false" />
+            <element signature="e#6758#6818#0" expanded="false" />
+            <element signature="e#6851#6907#0" expanded="false" />
+            <element signature="e#6946#7373#0" expanded="false" />
+            <element signature="e#7401#10330#0" expanded="false" />
+            <element signature="e#10359#14915#0" expanded="false" />
+            <element signature="e#14941#23983#0" expanded="false" />
+            <element signature="e#24010#33724#0" expanded="false" />
+            <element signature="e#33752#38461#0" expanded="false" />
+            <element signature="e#38487#46068#0" expanded="false" />
+            <element signature="e#46097#51414#0" expanded="false" />
+            <element signature="e#51440#55243#0" expanded="false" />
+            <element signature="e#55272#58331#0" expanded="false" />
+            <element signature="e#58357#63047#0" expanded="false" />
+            <element signature="e#63072#66051#0" expanded="false" />
+            <element signature="e#66076#70449#0" expanded="false" />
+            <element signature="e#70474#75255#0" expanded="false" />
+            <element signature="e#75283#80432#0" expanded="false" />
+            <element signature="e#80459#84390#0" expanded="false" />
+            <element signature="e#84416#87398#0" expanded="false" />
+            <element signature="e#87424#90773#0" expanded="false" />
+            <element signature="e#90803#100221#0" expanded="false" />
+            <element signature="e#100257#103935#0" expanded="false" />
+            <element signature="e#103970#107613#0" expanded="false" />
+            <element signature="e#107640#110111#0" expanded="false" />
+            <element signature="e#110138#114377#0" expanded="false" />
+            <element signature="e#114405#124189#0" expanded="false" />
+            <element signature="e#124215#132147#0" expanded="false" />
+            <element signature="e#132174#136014#0" expanded="false" />
+            <element signature="e#136043#139316#0" expanded="false" />
+            <element signature="e#139348#144717#0" expanded="false" />
+            <element signature="e#144743#147792#0" expanded="false" />
+            <element signature="e#147818#155351#0" expanded="false" />
+            <element signature="e#155408#155711#0" expanded="false" />
+            <element signature="e#155771#157124#0" expanded="false" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/BlueStakesETL.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="5.667705" vertical-offset="33897" max-vertical-offset="39882">
-          <caret line="2318" column="0" selection-start-line="2318" selection-start-column="0" selection-end-line="2318" selection-end-column="0" />
-          <folding />
+        <state relative-caret-position="703">
+          <caret line="621" column="75" lean-forward="false" selection-start-line="621" selection-start-column="75" selection-end-line="621" selection-end-column="75" />
+          <folding>
+            <element signature="e#0#36#0" expanded="true" />
+            <element signature="e#3177#3269#0" expanded="false" />
+            <element signature="e#3309#3459#0" expanded="false" />
+            <element signature="e#3481#9995#0" expanded="false" />
+            <element signature="e#10023#12919#0" expanded="false" />
+            <element signature="e#14679#14793#0" expanded="false" />
+            <element signature="e#14870#15490#0" expanded="false" />
+            <element signature="e#15889#25100#0" expanded="false" />
+            <element signature="e#25803#27928#0" expanded="false" />
+            <element signature="e#27952#30908#0" expanded="false" />
+            <element signature="e#30939#34816#0" expanded="false" />
+            <element signature="e#34849#39874#0" expanded="false" />
+            <element signature="e#39898#42920#0" expanded="false" />
+            <element signature="e#42945#44604#0" expanded="false" />
+            <element signature="e#44628#47957#0" expanded="false" />
+            <element signature="e#47981#49582#0" expanded="false" />
+            <element signature="e#49615#55564#0" expanded="false" />
+            <element signature="e#55588#56997#0" expanded="false" />
+            <element signature="e#57020#58676#0" expanded="false" />
+            <element signature="e#58701#59974#0" expanded="false" />
+            <element signature="e#60000#64839#0" expanded="false" />
+            <element signature="e#64862#69030#0" expanded="false" />
+            <element signature="e#69057#71069#0" expanded="false" />
+            <element signature="e#71098#72532#0" expanded="false" />
+            <element signature="e#72573#73873#0" expanded="false" />
+            <element signature="e#73899#74121#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/DominionLabelConverter.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="136">
+          <caret line="14" column="0" lean-forward="false" selection-start-line="14" selection-start-column="0" selection-end-line="14" selection-end-column="0" />
+          <folding>
+            <element signature="e#0#12#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
   </component>
 </project>
-
