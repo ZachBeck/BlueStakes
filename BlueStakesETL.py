@@ -324,6 +324,9 @@ def roads():
 
     print 'Starting Roads  ' + str(datetime.datetime.now())
 
+    global annoRdSegsSELECT
+    annoRdSegsSELECT = r'C:\ZBECK\BlueStakes\stagingBS.gdb\DOMINION_GEOGRAPHIC\RoadSegs_DominionSelect'
+
     from DominionLabelConverter import createDominionAnnoRds
     from DominionLabelConverter import outputSelectDominionRdSegs
 
@@ -332,11 +335,9 @@ def roads():
 
     roadsSGID = sgid10_GEO + '\\Roads'
     roadsBS = stageDB + '\\TGR_StWide_lkA'
-    #roadSegsQuestar = stageDB + '\\QUESTAR_GEOGRAPHIC\RoadSegs_Questar'
-    annoRdSegs = r'C:\ZBECK\BlueStakes\stagingBS.gdb\DOMINION_GEOGRAPHIC\RoadSegs_Dominion'
 
     #----Move Roads to SGID10_GEOGRAPHIC staging area
-    #arcpy.CopyFeatures_management('SGID10.TRANSPORTATION.Roads', roadsSGID)
+    arcpy.CopyFeatures_management('SGID10.TRANSPORTATION.Roads', roadsSGID)
 
     # ----Check for statewide BlueStakes roads
     if not arcpy.Exists(roadsBS):
@@ -610,17 +611,19 @@ def roads():
         del srcRows
 
     createDominionAnnoRds()
-    #outputSelectDominionRdSegs(roadsSGID, annoRdSegsALL, annoRdSegs)
+    outputSelectDominionRdSegs(roadsSGID)
 
      #---Add Questar Road Segments------------
-    if arcpy.Exists(annoRdSegs) == True:
-        arcpy.Append_management(annoRdSegs, roadsBS, 'NO_TEST')
+    count = int(arcpy.GetCount_management(annoRdSegsSELECT).getOutput(0))
+    if count > 1:
+        print 'Appending {} Dominion Road Segments'.format(count)
+        arcpy.Append_management(annoRdSegsSELECT, roadsBS, 'NO_TEST')
     else:
-        print 'NO QUESTAR ROAD SEGMENTS ADDED'
+        print 'NO DOMINION ROAD SEGMENTS ADDED'
 
      #---Copy Roads to Blues Stakes root level-----------------
     arcpy.CopyFeatures_management(roadsBS, outLoc + '\\TGR_StWide_lkA.shp')
-
+    print env.workspace
 
     #---Clip Blue Stakes Roads-----------------------------------------------------------
     print 'Start Clipping Roads'
@@ -2050,6 +2053,8 @@ def oilAndGasWells():
 
 
 def clip(clipMe, outNameSuffix):
+    env.workspace = sgid10
+    arcpy.env.overwriteOutput = True
 
     #---Clip Blue Stakes output, delete empty shapefiles, delete Shape_Leng field----
     print 'Clipping ' + clipMe

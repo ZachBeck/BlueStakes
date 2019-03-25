@@ -2,16 +2,13 @@ import arcpy
 from arcpy import env
 import re
 
-
+annoRdSegsALL = r'C:\ZBECK\BlueStakes\stagingBS.gdb\DOMINION_STAGING\RoadSegs_DominionALL'
+#annoRdSegsSELECT = r'C:\ZBECK\BlueStakes\stagingBS.gdb\DOMINION_GEOGRAPHIC\RoadSegs_DominionSelect'
 
 def createDominionAnnoRds():
-    # annoPolys = r'C:\ZBECK\BlueStakes\Questar\QuestarAnnoPolys.shp'
-    # questarRds = r'C:\ZBECK\BlueStakes\Questar\OneCall.gdb\RoadSegs'
     dominionFldr = r'C:\ZBECK\BlueStakes\DominionEnergy'
     streetAnnotation = r'C:\ZBECK\BlueStakes\DominionEnergy\OneCall.gdb\Street_Name_Anno'
     annoPolygons = r'C:\ZBECK\BlueStakes\DominionEnergy\Street_Name_Anno.shp'
-    #annoRdSegsALL = r'C:\ZBECK\BlueStakes\stagingBS.gdb\DOMINION_GEOGRAPHIC\RoadSegs_DominionALL'
-    annoRdSegsALL = r'C:\ZBECK\BlueStakes\DominionEnergy\OneCall.gdb\RoadSegs'
 
     if arcpy.Exists(annoPolygons):
         arcpy.Delete_management(annoPolygons)
@@ -50,7 +47,7 @@ def createDominionAnnoRds():
 
         textDict.update({oID:row[1]})
 
-        if row[1] not in endList:# and row[1] not in badVals:
+        if row[1] not in endList:
             name = row[1].strip()
             name = ' '.join(name.split())
             pntCnt = 0
@@ -103,9 +100,9 @@ def createDominionAnnoRds():
         else:
             iCursor.insertRow((segmentDict[seg][0].title(), segmentDict[seg][0].title(), '99', 'A', 'A9', segmentDict[seg][1]))
 
-def outputSelectDominionRdSegs(rdsSGID, rdSegsALL, outRdSegs):
+def outputSelectDominionRdSegs(rdsSGID):
     utSGID = r'C:\ZBECK\BlueStakes\stagingBS.gdb\SGID10_GEOGRAPHIC\Utah'
-    annoRdSegsALL_FL = arcpy.MakeFeatureLayer_management(rdSegsALL, 'annoRdSegsALL_FL')
+    annoRdSegsALL_FL = arcpy.MakeFeatureLayer_management(annoRdSegsALL, 'annoRdSegsALL_FL')
     roadsSGID_FL = arcpy.MakeFeatureLayer_management(rdsSGID, 'roadsSGID_FL')
     sql = """"STATE" = 'Utah'"""
     utah_FL = arcpy.MakeFeatureLayer_management(utSGID, 'utah_FL', sql)
@@ -119,41 +116,16 @@ def outputSelectDominionRdSegs(rdsSGID, rdSegsALL, outRdSegs):
     selected_Count = int(selected.getOutput(0))
     print 'Dominion Road Segments Selected = {}'.format(selected_Count)
 
-    outLocation = r'C:\ZBECK\BlueStakes\stagingBS.gdb\QUESTAR_GEOGRAPHIC'
+    outLocation = r'C:\ZBECK\BlueStakes\stagingBS.gdb\DOMINION_GEOGRAPHIC'
     env.workspace = outLocation
     arcpy.env.overwriteOutput = True
 
-    outRoadSegs = 'RoadSegs_Dominion'
+    outRoadSegs = 'RoadSegs_DominionSelect'
+    if arcpy.Exists(outRoadSegs):
+        arcpy.Delete_management(outRoadSegs)
+
     arcpy.FeatureClassToFeatureClass_conversion(annoRdSegsALL_Selected, outLocation, outRoadSegs)
 
-    return outRoadSegs
-
-# sgid10 = r'Database Connections\dc_agrc@SGID10@sgid.agrc.utah.gov.sde'
-# roadsSGID = sgid10 + '\\TRANSPORTATION.Roads'
-# utahSGID = sgid10 + '\\BOUNDARIES.Utah'
-# questarGDB = r'C:\ZBECK\BlueStakes\Questar\OneCall.gdb'
-# questar_RoadSegsALL = questarGDB + '\\RoadSegs'
-# questarFldr = r'C:\ZBECK\BlueStakes\Questar'
-#
-# questar_RoadSegsALL_FL = arcpy.MakeFeatureLayer_management(questar_RoadSegsALL, 'questar_RoadSegs_FL')
-# roadsSGID_FL = arcpy.MakeFeatureLayer_management(roadsSGID, 'roadsSGID_FL')
-# sql = """"STATE" = 'Utah'"""
-# utah_FL = arcpy.MakeFeatureLayer_management(utahSGID, 'utah_FL', sql)
-#
-# questar_RoadSegs_Selected = arcpy.SelectLayerByLocation_management(questar_RoadSegsALL_FL, 'INTERSECT', utah_FL)
-# questar_RoadSegs_Selected = arcpy.SelectLayerByLocation_management(questar_RoadSegsALL_FL, 'WITHIN_A_DISTANCE', \
-#                                                                    roadsSGID_FL, '75 Meters', 'SUBSET_SELECTION', 'INVERT')
-#
-# selected = arcpy.GetCount_management(questar_RoadSegs_Selected)
-# selected_Count = int(selected.getOutput(0))
-# print selected_Count
-#
-# outLocation = r'C:\ZBECK\BlueStakes\stagingBS.gdb\QUESTAR_GEOGRAPHIC'
-# env.workspace = outLocation
-# arcpy.env.overwriteOutput = True
-#
-# outQuestarRoadSegs = 'RoadSegs_Questar'
-# arcpy.FeatureClassToFeatureClass_conversion(questar_RoadSegs_Selected, outLocation, outQuestarRoadSegs)
 
 
 
