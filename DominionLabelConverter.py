@@ -12,14 +12,14 @@ def createDominionAnnoRds():
 
     if arcpy.Exists(annoPolygons):
         arcpy.Delete_management(annoPolygons)
-        print 'Deleted Old Street_Name_Anno.shp'
+        print ('Deleted Old Street_Name_Anno.shp')
     arcpy.FeatureClassToShapefile_conversion(streetAnnotation, dominionFldr)
 
     count = int(arcpy.GetCount_management(annoRdSegsALL).getOutput(0))
     if count > 1:
-        print count
+        print (count)
         arcpy.TruncateTable_management(annoRdSegsALL)
-        print 'Truncated Anno Road Segments'
+        print ('Truncated Anno Road Segments')
 
     annoFlds = ['FID', 'TextString', 'SHAPE@']
     iFlds = ['FENAME', 'FULLNAME', 'CFCC', 'CFCC1', 'CFCC2', 'SHAPE@']
@@ -114,7 +114,7 @@ def outputSelectDominionRdSegs(rdsSGID):
 
     selected = arcpy.GetCount_management(annoRdSegsALL_Selected)
     selected_Count = int(selected.getOutput(0))
-    print 'Dominion Road Segments Selected = {}'.format(selected_Count)
+    print ('Dominion Road Segments Selected = {}'.format(selected_Count))
 
     outLocation = r'C:\ZBECK\BlueStakes\stagingBS.gdb\DOMINION_GEOGRAPHIC'
     env.workspace = outLocation

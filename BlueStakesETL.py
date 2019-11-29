@@ -2,9 +2,9 @@ import os, arcpy, datetime, time, re
 from arcpy import env
 from arcpy import da
 from agrc import parse_address
+from AddressAttributes import addAddressAttributes
 
-
-sgid10 = r'Database Connections\dc_agrc@SGID10@sgid.agrc.utah.gov.sde'
+sgid10 = r'C:\sde\SGID10.sde'
 sgid10_GEO = r'C:\ZBECK\BlueStakes\stagingBS.gdb\SGID10_GEOGRAPHIC'
 stageDB = r'C:\ZBECK\BlueStakes\stagingBS.gdb'
 schemaDB = r'C:\ZBECK\BlueStakes\schemaBS.gdb'
@@ -71,7 +71,7 @@ def formatValues(word, inValues):
 
 def parcels():
 
-    print 'Starting Parcels  ' + str(datetime.datetime.now())
+    print ('Starting Parcels  ' + str(datetime.datetime.now()))
 
     #---Copy Parcels to SGID10_GEOGRAPHIC staging area---------------
     #env.workspace = sgid10_GEO
@@ -89,34 +89,40 @@ def parcels():
 #             arcpy.CopyFeatures_management(fcSGID, parFC)
 # #-------------------------------------------------------------
 
-    # parFipsNum = ['49039']
-    # parFipsDict = {'Sanpete':'49039'}
-    parFipsNum = ['490011', '49025', '49033', '49035', '49043', '49047', '49049', '49053']
 
-    parFipsDict = {'Davis':'49011', 'Kane':'49025', 'Rich':'49033', 'SaltLake':'49035', 'Summit':'49043', 'Uintah':'49047', 'Utah':'49049',  'Washington':'49053'}
+    parFipsNum = ['49007', '49029', '49035', '49057']
 
-    #            {'Beaver': '49001', 'BoxElder': '49003', 'Cache': '49005', 'Carbon': '49007', 'Daggett': '49009', \
+    parFipsDict = {'Carbon':'49007', 'Morgan':'49029', 'SaltLake':'49035', 'Weber':'49057'}
+
+    #            {'Beaver': '49001', 'BoxElder': '49003', 'Cache': '49005', 'Carbon':'49007', 'Daggett': '49009', \
     #             'Davis': '49011', 'Duchesne': '49013', 'Emery': '49015', 'Garfield': '49017', 'Grand': '49019', \
-    #             'Iron': '49021', 'Juab': '49023', 'Kane': '49025', 'Millard': '49027', 'Morgan': '49029', \
+    #             'Iron': '49021', 'Juab': '49023', 'Kane': '49025', 'Millard': '49027', 'Morgan':'49029', \
     #             'Piute': '49031', 'Rich': '49033', 'SaltLake': '49035', 'SanJuan': '49037', 'Sanpete': '49039', \
     #             'Sevier': '49041', 'Summit': '49043', 'Tooele': '49045', 'Uintah': '49047', 'Utah': '49049', \
     #             'Wasatch': '49051', 'Washington': '49053', 'Wayne': '49055', 'Weber': '49057'}
 
     #-------Use to run against subset of parcels defined by alternative fipsNum and fipsDict above
     for cnty in sorted(parFipsDict):
+
+        env.workspace = sgid10
+
         fcSGID = 'SGID10.CADASTRE.Parcels_' + cnty # + '_LIR'
-        print fcSGID
+        print (fcSGID)
         parFC = sgid10_GEO + '\\Parcels_' + cnty
 
         arcpy.CopyFeatures_management(fcSGID, parFC)
 #---------------------------------------------------------------------------------------
 
-        print 'Repair Geometry ' + parFC
+        print ('Repair Geometry ' + parFC)
         arcpy.RepairGeometry_management(parFC)
-        print 'Done repair'
+        print ('Done repair')
+
+        #-----Add address point addresses------
+        addAddressAttributes(sgid10, parFC, cnty, parFipsDict, stageDB)
+
         disFLDS = ['PARCEL_ID', 'PARCEL_ADD']
         arcpy.Dissolve_management(parFC, parFC + 'DIS', disFLDS, '#', 'MULTI_PART')
-        print 'Done with dissolve'
+        print ('Done with dissolve')
 
 
     #---Copy empty bluestakes parcels to load features into
@@ -125,7 +131,7 @@ def parcels():
     for fips in parFipsNum:
         parcelFC =  stageDB + '\\par' + fips
         arcpy.CopyFeatures_management(schemaDB + '\\parSSCCC_schema', parcelFC)
-        print 'Copied par' + fips + ' to staging GDB'
+        print ('Copied par' + fips + ' to staging GDB')
 
 
     for cnty in parFipsDict:
@@ -142,7 +148,7 @@ def parcels():
         tarRows = arcpy.da.InsertCursor(parFC_BS, tarFlds)
         srcRows = arcpy.da.SearchCursor(parFC_Geo, srcFlds)
 
-        print '     Starting ' + parFC_Geo
+        print ('     Starting ' + parFC_Geo)
 
         for srcRow in srcRows:
             try:
@@ -220,24 +226,24 @@ def parcels():
         parFips = fipsDict[cnty]
 
         arcpy.CopyFeatures_management(parFC_BS, outLoc + '\\TGR' + parFips + '\\par' + parFips + '.shp')
-        print 'Copied ' + parFC_BS + ' to county folder'
+        print ('Copied ' + parFC_BS + ' to county folder')
 
 
-    print 'Done Parcels  ' + str(datetime.datetime.now())
+    print ('Done Parcels  ' + str(datetime.datetime.now()))
 
 def addressPoints():
 
-    print 'Starting Address Points  ' + str(datetime.datetime.now())
+    print ('Starting Address Points  ' + str(datetime.datetime.now()))
 
     env.workspace = sgid10
     arcpy.env.overwriteOutput = True
 
-    addPts = sgid10_GEO + '\\AddressPoints'
+    addPts = sgid10_GEO + '\\AddressPoints1'
     addPtsBS = stageDB + '\\adr_StWide'
     #clpCnty = 'SGID10.BOUNDARIES.Counties'
 
     #---Copy Address Points to SGID10_GEOGRAPHIC staging area
-    arcpy.CopyFeatures_management(r'Database Connections\DC_Location@SGID10@sgid.agrc.utah.gov.sde\SGID10.LOCATION.AddressPoints', addPts)
+    arcpy.CopyFeatures_management(r'C:\sde\SGID10.sde\SGID10.LOCATION.AddressPoints', addPts)
 
     #---Check for statewide Address Points in BlueStakes schema
     if not arcpy.Exists(addPtsBS):
@@ -246,7 +252,7 @@ def addressPoints():
         arcpy.CopyFeatures_management(schemaDB + '\\adrSSCCC_schema', addPtsBS)
 ##        arcpy.DeleteFeatures_management(addPtsBS)
 ##        print 'Deleted Features ' + addPtsBS
-        print 'Empty bluestakes address points ready'
+        print ('Empty bluestakes address points ready')
 
     srcFlds = ['FullAdd', 'AddNum', 'PrefixDir', 'StreetName', 'StreetType', 'SuffixDir', 'SHAPE@']
     tarFlds = ['ADDR_NUMB', 'ADDR_FULL', 'FEDIRP', 'FENAME', 'FETYPE', 'FEDIRS', 'OWNER', 'SHAPE@']
@@ -318,11 +324,11 @@ def addressPoints():
             arcpy.Delete_management(clp)
 
 
-    print 'Done Translating Address Points  ' + str(datetime.datetime.now())
+    print ('Done Translating Address Points  ' + str(datetime.datetime.now()))
 
 def roads():
 
-    print 'Starting Roads  ' + str(datetime.datetime.now())
+    print ('Starting Roads  ' + str(datetime.datetime.now()))
 
     global annoRdSegsSELECT
     annoRdSegsSELECT = r'C:\ZBECK\BlueStakes\stagingBS.gdb\DOMINION_GEOGRAPHIC\RoadSegs_DominionSelect'
@@ -347,7 +353,7 @@ def roads():
 
     srcFlds = ['CARTOCODE', 'PREDIR', 'FULLNAME', 'POSTTYPE', 'POSTDIR', 'FROMADDR_L', 'TOADDR_L', 'FROMADDR_R', \
                'TOADDR_R', 'A1_NAME', 'A2_NAME', 'AN_NAME', 'AN_POSTDIR', 'COUNTY_L', 'DOT_HWYNAM', 'UPDATED', \
-               'ADDRSYS_L', 'NAME', 'SHAPE@', 'A1_POSTTYPE', 'A2_POSTTYPE', 'COUNTY_R', 'ADDRSYS_R']
+               'ADDRSYS_L', 'NAME', 'SHAPE@', 'A1_POSTTYPE', 'A2_POSTTYPE', 'COUNTY_R', 'ADDRSYS_R', 'INCMUNI_L']
 
     tarFlds = ['FEDIRP', 'FENAME', 'FETYPE', 'FEDIRS', 'CFCC', 'FRADDL', 'TOADDL', 'FRADDR', 'TOADDR', 'CFCC1',
                'CFCC2', 'FULLNAME', 'HASALT', 'ISALT', 'S_FIPS', 'AGRC_MDATE', 'ADDRESS_SY', 'SHAPE@']
@@ -357,7 +363,7 @@ def roads():
 
     errorList = [None, '', ' ', '<NULL>', '<NULL> ST', '<Null>']
 
-    print 'Start inserting rows'
+    print ('Start inserting rows')
 
     def replacePropCase(string, dict):
         for i in dict:
@@ -398,6 +404,8 @@ def roads():
 
     tarRows = arcpy.da.InsertCursor(roadsBS, tarFlds)
 
+    manilaRds = ['1ST', '2ND', '3RD', '4TH', '5TH']
+
     with arcpy.da.SearchCursor(roadsSGID, srcFlds) as srcRows:
         for srcRow in srcRows:
 
@@ -412,6 +420,9 @@ def roads():
             #----Root and Full Street Name----
             if srcRow[2] not in errorList:
                 FULLNAME = '{} {}'.format(FEDIRP, srcRow[2].title()).strip()
+
+                if srcRow[23] == 'Manila' and srcRow[2].strip() in manilaRds:
+                    FULLNAME = '{} {} {}'.format(FEDIRP, srcRow[2].title().strip(), FEDIRS)
 
             elif srcRow[3] == 'RAMP':
                 FULLNAME = srcRow[2].title()
@@ -528,7 +539,7 @@ def roads():
 
 
             #----Add Duplicate Alias1 and ACSAlias----
-            if srcRow[9] not in errorList:
+            if srcRow[9] not in errorList and srcRow[23] != 'Manila':
                 if srcRow[9][:7] != 'HIGHWAY':
                     alsFENAME = srcRow[9].title()
                     alsFENAME = replacePropCase(alsFENAME, replaceDict)
@@ -557,7 +568,7 @@ def roads():
 
 
             #----Add Duplicate Alias2----
-            if srcRow[10] not in errorList:
+            if srcRow[10] not in errorList and srcRow[23] != 'Manila':
                 if srcRow[10][:7] != 'HIGHWAY':
                     als2FENAME = srcRow[10].title()
                     FENAME2 = replacePropCase(als2FENAME, replaceDict)
@@ -586,7 +597,7 @@ def roads():
                                        FULLNAME_a2, 0, 1, S_FIPS, AGRC_MDATE, ADDRESS_SY, shp))
 
 
-            if srcRow[12] not in errorList:
+            if srcRow[12] not in errorList and srcRow[23] != 'Manila':
                 if srcRow[11] not in errorList:
                     acsFENAME = srcRow[11]
 
@@ -616,24 +627,24 @@ def roads():
      #---Add Questar Road Segments------------
     count = int(arcpy.GetCount_management(annoRdSegsSELECT).getOutput(0))
     if count > 1:
-        print 'Appending {} Dominion Road Segments'.format(count)
+        print ('Appending {} Dominion Road Segments'.format(count))
         arcpy.Append_management(annoRdSegsSELECT, roadsBS, 'NO_TEST')
     else:
-        print 'NO DOMINION ROAD SEGMENTS ADDED'
+        print ('NO DOMINION ROAD SEGMENTS ADDED')
 
      #---Copy Roads to Blues Stakes root level-----------------
     arcpy.CopyFeatures_management(roadsBS, outLoc + '\\TGR_StWide_lkA.shp')
-    print env.workspace
+    print (env.workspace)
 
     #---Clip Blue Stakes Roads-----------------------------------------------------------
-    print 'Start Clipping Roads'
+    print ('Start Clipping Roads')
     clip(roadsBS, 'lkA.shp');
 
-    print 'Done Translating Roads  ' + str(datetime.datetime.now())
+    print ('Done Translating Roads  ' + str(datetime.datetime.now()))
 
 def municipalities():
 
-    print 'Starting Municipalities  ' + str(datetime.datetime.now())
+    print ('Starting Municipalities  ' + str(datetime.datetime.now()))
 
     env.workspace = sgid10
     arcpy.env.overwriteOutput = True
@@ -690,11 +701,11 @@ def municipalities():
     clip(muniBS, 'plc00.shp');
 
 
-    print 'Done Translating Municipalities  ' + str(datetime.datetime.now())
+    print ('Done Translating Municipalities  ' + str(datetime.datetime.now()))
 
 def mileposts():
 
-    print 'Starting Mileposts  ' + str(datetime.datetime.now())
+    print ('Starting Mileposts  ' + str(datetime.datetime.now()))
 
     env.workspace = sgid10
     arcpy.env.overwriteOutput = True
@@ -706,8 +717,8 @@ def mileposts():
     #---Copy new Exits and Mileposts to Staging DB
     arcpy.CopyFeatures_management('SGID10.TRANSPORTATION.Roads_FreewayExits', exits)
     arcpy.CopyFeatures_management('SGID10.TRANSPORTATION.UDOTMileposts', milePosts)
-    print 'Copied SGID10.TRANSPORTATION.Roads_FreewayExits to staging DB'
-    print 'Copied SGID10.TRANSPORTATION.UDOTMileposts to staging DB'
+    print ('Copied SGID10.TRANSPORTATION.Roads_FreewayExits to staging DB')
+    print ('Copied SGID10.TRANSPORTATION.UDOTMileposts to staging DB')
 
 
     #---Check for Mileposts BlueStakes schema
@@ -779,10 +790,10 @@ def mileposts():
     arcpy.CopyFeatures_management(milePostsBS, outLoc + '\\Hwy_MPM.shp')
 
 
-    print 'Done Translating Mileposts  ' + str(datetime.datetime.now())
+    print ('Done Translating Mileposts  ' + str(datetime.datetime.now()))
 
 def milepostsCombined():
-    print 'Starting Mileposts  ' + str(datetime.datetime.now())
+    print ('Starting Mileposts  ' + str(datetime.datetime.now()))
 
     env.workspace = sgid10
     arcpy.env.overwriteOutput = True
@@ -796,9 +807,9 @@ def milepostsCombined():
     arcpy.CopyFeatures_management('SGID10.TRANSPORTATION.Roads_FreewayExits', exits)
     arcpy.CopyFeatures_management('SGID10.TRANSPORTATION.UDOTMileposts', milePosts)
     arcpy.CopyFeatures_management('SGID10.TRANSPORTATION.Railroad_Mileposts', rr_MilePosts)
-    print 'Copied SGID10.TRANSPORTATION.Roads_FreewayExits to staging DB'
-    print 'Copied SGID10.TRANSPORTATION.UDOTMileposts to staging DB'
-    print 'Copied SGID10.TRANSPORTATION.Railroad_Mileposts to staging DB'
+    print ('Copied SGID10.TRANSPORTATION.Roads_FreewayExits to staging DB')
+    print ('Copied SGID10.TRANSPORTATION.UDOTMileposts to staging DB')
+    print ('Copied SGID10.TRANSPORTATION.Railroad_Mileposts to staging DB')
 
     # ---Check for Mileposts BlueStakes schema
     if not arcpy.Exists(milePostsHwyRR_BS):
@@ -882,11 +893,11 @@ def milepostsCombined():
 
     clip(milePostsHwyRR_BS, 'pts.shp');
 
-    print 'Done Translating Mileposts  ' + str(datetime.datetime.now())
+    print ('Done Translating Mileposts  ' + str(datetime.datetime.now()))
 
 def landownershipLarge():
 
-    print 'Starting Large Landownership  ' + str(datetime.datetime.now())
+    print ('Starting Large Landownership  ' + str(datetime.datetime.now()))
 
     env.workspace = sgid10
     arcpy.env.overwriteOutput = True
@@ -1059,11 +1070,11 @@ def landownershipLarge():
     clip(landownBS, 'lpy.shp');
 
 
-    print 'Done Translating Large Landownership  ' + str(datetime.datetime.now())
+    print ('Done Translating Large Landownership  ' + str(datetime.datetime.now()))
 
 def waterPoly():
 
-    print 'Starting Lakes  ' + str(datetime.datetime.now())
+    print ('Starting Lakes  ' + str(datetime.datetime.now()))
 
     lakes = sgid10_GEO + '\\LakesNHDHighRes'
     lakesBS = stageDB + '\\TGR_StWide_wat'
@@ -1147,11 +1158,11 @@ def waterPoly():
     clip(lakesBS, 'WAT.shp');
 
 
-    print 'Done Translating Lakes  ' + str(datetime.datetime.now())
+    print ('Done Translating Lakes  ' + str(datetime.datetime.now()))
 
 def waterLines():
 
-    print 'Starting Rivers  ' + str(datetime.datetime.now())
+    print ('Starting Rivers  ' + str(datetime.datetime.now()))
 
     rivers = sgid10_GEO + '\\StreamsNHD'
     riversBS = stageDB + '\\TGR_StWide_lkH'
@@ -1202,11 +1213,11 @@ def waterLines():
     clip(riversBS, 'lkH.shp');
 
 
-    print 'Done Translating Rivers  ' + str(datetime.datetime.now())
+    print ('Done Translating Rivers  ' + str(datetime.datetime.now()))
 
 def railroads():
 
-    print 'Starting Railroads  ' + str(datetime.datetime.now())
+    print ('Starting Railroads  ' + str(datetime.datetime.now()))
 
     env.workspace = sgid10
     arcpy.env.overwriteOutput = True
@@ -1304,11 +1315,11 @@ def railroads():
     #---Clip Blue Stakes Railroads-----------------------------------------------------------
     clip(railBS, 'lkB.shp');
 
-    print 'Done Translating Railroads  ' + str(datetime.datetime.now())
+    print ('Done Translating Railroads  ' + str(datetime.datetime.now()))
 
 def airstrips():
 
-    print 'Starting Airstrips  ' + str(datetime.datetime.now())
+    print ('Starting Airstrips  ' + str(datetime.datetime.now()))
 
     airstrips = sgid10_GEO + '\\Airports'
     airstripsBS = stageDB + '\\TGR_StWide_lkD'
@@ -1357,26 +1368,26 @@ def airstrips():
     clip(airstripsBS, 'lkD.shp');
 
 
-    print 'Done Translating Airstrips  ' + str(datetime.datetime.now())
+    print ('Done Translating Airstrips  ' + str(datetime.datetime.now()))
 
 def miscTransportation():
 
-    print 'Starting Misc Transportation  ' + str(datetime.datetime.now())
+    print ('Starting Misc Transportation  ' + str(datetime.datetime.now()))
 
     miscTrans_ski = sgid10_GEO + '\\SkiLifts'
     miscTrans_TransLines = sgid10_GEO + '\\TransmissionLines'
     miscTrans_ElecLines = sgid10_GEO + '\\ElectricLines'
     miscTransBS = stageDB + '\\TGR_StWide_lkC'
-    miscTrans_QuestarParcels = r'C:\ZBECK\BlueStakes\stagingBS.gdb\QUESTAR_GEOGRAPHIC\Parcels_Questar'
-    source_QuestarParcels = r'C:\ZBECK\BlueStakes\Questar\OneCall.gdb\Property'
+    miscTrans_QuestarParcels = r'C:\ZBECK\BlueStakes\stagingBS.gdb\DOMINION_GEOGRAPHIC\Parcels_Questar'
+    source_QuestarParcels = r'C:\ZBECK\BlueStakes\DominionEnergy\OneCall.gdb\Property'
     clpCnty = 'SGID10.BOUNDARIES.Counties'
 
     #---Load Questar parcels from past year---
     count = int(arcpy.GetCount_management(miscTrans_QuestarParcels).getOutput(0))
     if count > 1:
-        print count
+        print (count)
         arcpy.TruncateTable_management(miscTrans_QuestarParcels)
-        print 'Truncated Questar Parcels'
+        print ('Truncated Questar Parcels')
         #arcpy.CopyFeatures_management(source_QuestarParcels, miscTrans_QuestarParcels)
 
     today = datetime.datetime.now()
@@ -1408,7 +1419,7 @@ def miscTransportation():
                 if int(str(dateM_delta).split()[0]) < 366:
                     iCursor.insertRow((None, dateM, propType, row[3]))
             else:
-                print oid
+                print (oid)
 
 
             # if dateC != None:
@@ -1430,7 +1441,7 @@ def miscTransportation():
     arcpy.CopyFeatures_management('SGID10.RECREATION.SkiLifts', miscTrans_ski)
     arcpy.CopyFeatures_management('SGID10.UTILITIES.TransmissionLines', miscTrans_TransLines)
     arcpy.CopyFeatures_management('SGID10.UTILITIES.ElectricalLines', miscTrans_ElecLines)
-    print 'Copied Features'
+    print ('Copied Features')
     #arcpy.CopyFeatures_management(source_QuestarParcels, miscTrans_QuestarParcels)
 
 
@@ -1491,7 +1502,7 @@ def miscTransportation():
     del srcRows_elec
 
     #--------Questar Parcels---------
-    rdSegs_Questar = r'C:\ZBECK\BlueStakes\stagingBS.gdb\QUESTAR_GEOGRAPHIC\RoadSegs_Questar'
+    rdSegs_Questar = r'C:\ZBECK\BlueStakes\stagingBS.gdb\DOMINION_GEOGRAPHIC\RoadSegs_DominionSelect'
     rdSegs_Questar_FL = arcpy.MakeFeatureLayer_management(rdSegs_Questar, 'rdSegs_Questar_FL')
 
     miscTrans_QuestarParcels_FL = arcpy.MakeFeatureLayer_management(miscTrans_QuestarParcels, 'miscTrans_QuestarParcels')
@@ -1501,7 +1512,7 @@ def miscTransportation():
 
     selected = arcpy.GetCount_management(miscTrans_QuestarParcels_FL)
     selCount = int(selected.getOutput(0))
-    print selCount
+    print (selCount)
 
     srcRows_Qparcels = arcpy.da.SearchCursor(miscTrans_QuestarParcels_FL, srcFlds_Qparcels)
     for row_Qparcels in srcRows_Qparcels:
@@ -1511,6 +1522,7 @@ def miscTransportation():
 
         tarRows.insertRow((FENAME, CFCC2, shp))
 
+    del tarRows
 
     #---Copy Misc Trans to Blue Stakes root level---------------
     arcpy.CopyFeatures_management(miscTransBS, outLoc + '\\TGR_StWide_lkC.shp')
@@ -1519,11 +1531,11 @@ def miscTransportation():
     clip(miscTransBS, 'lkC.shp');
 
 
-    print 'Done Translating Misc Transportation  ' + str(datetime.datetime.now())
+    print ('Done Translating Misc Transportation  ' + str(datetime.datetime.now()))
 
 def townships():
 
-    print 'Starting Townships  ' + str(datetime.datetime.now())
+    print ('Starting Townships  ' + str(datetime.datetime.now()))
 
     twnShips = sgid10_GEO + '\\PLSSTownships'
     twnShipsBS = stageDB + '\\UT_TR'
@@ -1564,11 +1576,11 @@ def townships():
             arcpy.DeleteField_management(outTwnshps, 'Shape_Leng')
 
 
-    print 'Done Translating Townships  ' + str(datetime.datetime.now())
+    print ('Done Translating Townships  ' + str(datetime.datetime.now()))
 
 def sections():
 
-    print 'Starting Sections  ' + str(datetime.datetime.now())
+    print ('Starting Sections  ' + str(datetime.datetime.now()))
 
     meridianDict = {'26':'SL', '30':'UI'}
 
@@ -1598,7 +1610,7 @@ def sections():
         if srcRow[1] in meridianDict:
             baseMer = meridianDict[srcRow[1]]
             fullName = '{0} {1} SEC {2}'.format(baseMer, srcRow[2], NAME)
-            print fullName
+            print (fullName)
         else:
             continue
 
@@ -1621,11 +1633,11 @@ def sections():
             arcpy.DeleteField_management(outSections, 'Shape_Leng')
 
 
-    print 'Done Translating Sections  ' + str(datetime.datetime.now())
+    print ('Done Translating Sections  ' + str(datetime.datetime.now()))
 
 def deciPoints():
 
-    print 'Starting Deci Points (GNIS) ' + str(datetime.datetime.now())
+    print ('Starting Deci Points (GNIS) ' + str(datetime.datetime.now()))
 
     deciPts = sgid10_GEO + '\\GNIS2010'
     deciPtsBS = stageDB + '\\TGR_StWide_deci'
@@ -1667,11 +1679,11 @@ def deciPoints():
     clip(deciPtsBS, 'deci.shp');
 
 
-    print 'Done Translating Deci Points (GNIS) ' + str(datetime.datetime.now())
+    print ('Done Translating Deci Points (GNIS) ' + str(datetime.datetime.now()))
 
 def addedPoints():
 
-    print 'Starting Added Points ' + str(datetime.datetime.now())
+    print ('Starting Added Points ' + str(datetime.datetime.now()))
 
     correctionsPts = sgid10_GEO + '\\CorrectionalFacilities'
     fireStnPts = sgid10_GEO + '\\FireStations'
@@ -1697,7 +1709,7 @@ def addedPoints():
     arcpy.CopyFeatures_management('SGID10.SOCIETY.Schools', schoolPts)
     arcpy.CopyFeatures_management('SGID10.SOCIETY.ShoppingMalls', mallPts)
     arcpy.CopyFeatures_management('SGID10.HEALTH.HealthCareFacilities', healthCarePts)
-    print 'Done copying features from SGID10 to staging area'
+    print ('Done copying features from SGID10 to staging area')
 
     #---Check for statewide Deci Points BlueStakes schema
     if not arcpy.Exists(addedPtsBS):
@@ -1731,7 +1743,7 @@ def addedPoints():
 
             tarRows.insertRow((NAME, shp))
 
-        print 'Added ' + pointFC
+        print ('Added ' + pointFC)
 
 
     liquorFlds = ['TYPE', 'SHAPE@']
@@ -1756,7 +1768,7 @@ def addedPoints():
 
         tarRows.insertRow((NAME, shp))
 
-    print 'Added ' + liquorPts
+    print ('Added ' + liquorPts)
 
 
     for policeRow in policeRows:
@@ -1777,7 +1789,7 @@ def addedPoints():
 
         tarRows.insertRow((NAME, shp))
 
-    print 'Added ' + policePts
+    print ('Added ' + policePts)
 
 
     for postOfficeRow in postOfficeRows:
@@ -1791,7 +1803,7 @@ def addedPoints():
 
         tarRows.insertRow((NAME, shp))
 
-    print 'Added ' + postOfficePts
+    print ('Added ' + postOfficePts)
 
 
     for schoolRow in schoolRows:
@@ -1805,7 +1817,7 @@ def addedPoints():
 
         tarRows.insertRow((NAME, shp))
 
-    print 'Added ' + schoolPts
+    print ('Added ' + schoolPts)
 
 
     del tarRows
@@ -1818,11 +1830,11 @@ def addedPoints():
     clip(addedPtsBS, 'added.shp');
 
 
-    print 'Done Translating Added Points ' + str(datetime.datetime.now())
+    print ('Done Translating Added Points ' + str(datetime.datetime.now()))
 
 def counties():
 
-    print 'Starting Counties ' + str(datetime.datetime.now())
+    print ('Starting Counties ' + str(datetime.datetime.now()))
 
     cnty = sgid10_GEO + '\\Counties'
     utah = sgid10_GEO + '\\Utah'
@@ -1944,11 +1956,11 @@ def counties():
 
 
 
-    print 'Done Translating Counties ' + str(datetime.datetime.now())
+    print ('Done Translating Counties ' + str(datetime.datetime.now()))
 
 def addressZones():
 
-    print 'Starting Address Zones  ' + str(datetime.datetime.now())
+    print ('Starting Address Zones  ' + str(datetime.datetime.now()))
 
     addZones = sgid10_GEO + '\\AddressSystemQuadrants'
     addZonesBS = stageDB + '\\addrsys'
@@ -2006,11 +2018,11 @@ def addressZones():
                 arcpy.DeleteField_management(clp, 'Shape_Leng')
 
 
-    print 'Done Translating Address Zones  ' + str(datetime.datetime.now())
+    print ('Done Translating Address Zones  ' + str(datetime.datetime.now()))
 
 def oilAndGasWells():
 
-    print 'Starting Oil and Gas  ' + str(datetime.datetime.now())
+    print ('Starting Oil and Gas  ' + str(datetime.datetime.now()))
 
     og = sgid10_GEO + '\\DNROilGasWells'
     ogBS = stageDB + '\\wells_oil_gas'
@@ -2057,7 +2069,7 @@ def clip(clipMe, outNameSuffix):
     arcpy.env.overwriteOutput = True
 
     #---Clip Blue Stakes output, delete empty shapefiles, delete Shape_Leng field----
-    print 'Clipping ' + clipMe
+    print ('Clipping ' + clipMe)
 
     clpCnty = sgid10_GEO + '\\Counties'
 
@@ -2073,7 +2085,7 @@ def clip(clipMe, outNameSuffix):
 
     for row in clpRows:
         clpFeat = row[2]
-        print 'Clipping ' + row[0] + ' County'
+        print ('Clipping ' + row[0] + ' County')
 
         #----Delete shapefiles with no features----
         clp = arcpy.Clip_analysis(clipMe, clpFeat, outLoc + fldrPrefix + row[1] + fldrPrefix + row[1] + outNameSuffix)
@@ -2096,17 +2108,17 @@ def cleanOutFldr():
     for root, dirs, files in os.walk(outLoc):
         for f in files:
             deleteme = os.path.join(root, f)
-            print 'Deleted ' + deleteme
+            print ('Deleted ' + deleteme)
             os.remove(deleteme)
 
 
 
 
-cleanOutFldr();
+#cleanOutFldr();
 
 #parcels();
-roads();
-#addressPoints();
+#roads();
+addressPoints();
 #municipalities();
 #mileposts();
 #milepostsCombined()
