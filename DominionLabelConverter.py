@@ -69,16 +69,17 @@ def createDominionAnnoRds():
             segmentDict.update({oID:[name, line]})
 
         else:
-            if textDict[oID-1] in endList:
-                continue
-            elif name.split()[-1] in endList:
-                continue
-            elif name.endswith(')'):
-                continue
-            else:
-                pastID = oID-1
-                name2 = name + ' ' + row[1]
-                segmentDict[pastID] = [name2, segmentDict[pastID][1]]
+            if oID-1 != -1:
+                if textDict[oID-1] in endList:
+                    continue
+                elif name.split()[-1] in endList:
+                    continue
+                elif name.endswith(')'):
+                    continue
+                else:
+                    pastID = oID-1
+                    name2 = name + ' ' + row[1]
+                    segmentDict[pastID] = [name2, segmentDict[pastID][1]]
 
     p = '\(+(.*?)\)+'
 
@@ -101,7 +102,7 @@ def createDominionAnnoRds():
             iCursor.insertRow((segmentDict[seg][0].title(), segmentDict[seg][0].title(), '99', 'A', 'A9', segmentDict[seg][1]))
 
 def outputSelectDominionRdSegs(rdsSGID):
-    utSGID = r'C:\ZBECK\BlueStakes\stagingBS.gdb\SGID10_GEOGRAPHIC\Utah'
+    utSGID = r'C:\ZBECK\BlueStakes\stagingBS.gdb\SGID_GEOGRAPHIC\Utah'
     annoRdSegsALL_FL = arcpy.MakeFeatureLayer_management(annoRdSegsALL, 'annoRdSegsALL_FL')
     roadsSGID_FL = arcpy.MakeFeatureLayer_management(rdsSGID, 'roadsSGID_FL')
     sql = """"STATE" = 'Utah'"""
@@ -114,17 +115,17 @@ def outputSelectDominionRdSegs(rdsSGID):
 
     selected = arcpy.GetCount_management(annoRdSegsALL_Selected)
     selected_Count = int(selected.getOutput(0))
-    print ('Dominion Road Segments Selected = {}'.format(selected_Count))
+    print('Dominion Road Segments Selected = {}'.format(selected_Count))
 
     outLocation = r'C:\ZBECK\BlueStakes\stagingBS.gdb\DOMINION_GEOGRAPHIC'
-    env.workspace = outLocation
-    arcpy.env.overwriteOutput = True
+    with arcpy.EnvManager(workspace=outLocation):
+        arcpy.env.overwriteOutput = True
 
-    outRoadSegs = 'RoadSegs_DominionSelect'
-    if arcpy.Exists(outRoadSegs):
-        arcpy.Delete_management(outRoadSegs)
+        outRoadSegs = 'RoadSegs_DominionSelect'
+        if arcpy.Exists(outRoadSegs):
+            arcpy.Delete_management(outRoadSegs)
 
-    arcpy.FeatureClassToFeatureClass_conversion(annoRdSegsALL_Selected, outLocation, outRoadSegs)
+        arcpy.FeatureClassToFeatureClass_conversion(annoRdSegsALL_Selected, outLocation, outRoadSegs)
 
 
 

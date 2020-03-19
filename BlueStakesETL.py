@@ -4,21 +4,21 @@ from arcpy import da
 from agrc import parse_address
 from AddressAttributes import addAddressAttributes
 
-sgid10 = r'C:\sde\SGID10.sde'
-sgid10_GEO = r'C:\ZBECK\BlueStakes\stagingBS.gdb\SGID10_GEOGRAPHIC'
+sgid = r'C:\sde\SGID_internal\SGID_agrc.sde'
+sgid_GEO = r'C:\ZBECK\BlueStakes\stagingBS.gdb\SGID_GEOGRAPHIC'
 stageDB = r'C:\ZBECK\BlueStakes\stagingBS.gdb'
 schemaDB = r'C:\ZBECK\BlueStakes\schemaBS.gdb'
 outLoc = r'C:\ZBECK\BlueStakes\outBlueStakes'
 
-env.workspace = sgid10
-arcpy.env.overwriteOutput = True
-
-clpCnty = sgid10_GEO + '\\Counties'
-if arcpy.Exists(clpCnty):
-    arcpy.Delete_management(clpCnty)
-    arcpy.CopyFeatures_management('SGID10.BOUNDARIES.Counties', clpCnty)
-else:
-    arcpy.CopyFeatures_management('SGID10.BOUNDARIES.Counties', clpCnty)
+with arcpy.EnvManager(workspace=sgid_GEO):
+    arcpy.env.overwriteOutput = True
+    clpCnty = os.path.join(sgid_GEO, 'Counties')
+    if arcpy.Exists(clpCnty):
+        arcpy.Delete_management(clpCnty)
+        arcpy.CopyFeatures_management(os.path.join(sgid, 'SGID.BOUNDARIES.Counties'), clpCnty)
+        print('copied new counties')
+    else:
+        arcpy.CopyFeatures_management(os.path.join(sgid, 'SGID.BOUNDARIES.Counties'), clpCnty)
 
 
 fipsNum = ['49001', '49003', '49005', '49007', '49009', '49011', '49013', '49015', '49017', '49019', '49021', \
@@ -61,6 +61,11 @@ def returnEmpty(word, badVals):
         word = ''
     return word
 
+def removeNone(word):
+    if word == None:
+        word = ''
+    return word
+
 def formatValues(word, inValues):
     returnEmpty(word, errorList)
     if word != None:
@@ -70,164 +75,101 @@ def formatValues(word, inValues):
     return ''
 
 def parcels():
-
     print ('Starting Parcels  ' + str(datetime.datetime.now()))
-
-    #---Copy Parcels to SGID10_GEOGRAPHIC staging area---------------
-    #env.workspace = sgid10_GEO
-    arcpy.env.overwriteOutput = True
 
     idErrors = ['', None, '00-0000-000', '00-0000-0000', '0000000', '0', '00']
 
-# #------Use to run against all parcels in SGID10--------------
-#     for fcSGID in arcpy.ListFeatureClasses():
-#         if fcSGID[:23][-7:] == 'Parcels':
-#             print fcSGID
-#             #---Parcel FC name in SGID10_GEOGRAPHIC
-#             parFC = sgid10_GEO + '\\' + fcSGID.split('.')[2]
-#
-#             arcpy.CopyFeatures_management(fcSGID, parFC)
-# #-------------------------------------------------------------
+    #-----Copy Parcels to SGID_GEOGRAPHIC staging area-----
+    # {'Beaver':'49001', 'BoxElder':'49003', 'Cache':'49005', 'Carbon':'49007', 'Daggett':'49009',
+    #  'Davis':'49011', 'Duchesne':'49013', 'Emery':'49015', 'Garfield':'49017', 'Grand':'49019',
+    #  'Iron':'49021', 'Juab':'49023', 'Kane':'49025', 'Millard':'49027', 'Morgan':'49029',
+    #  'Piute':'49031', 'Rich':'49033', 'SaltLake':'49035', 'SanJuan':'49037', 'Sanpete':'49039',
+    #  'Sevier':'49041', 'Summit':'49043', 'Tooele':'49045', 'Uintah':'49047', 'Utah':'49049',
+    #  'Wasatch':'49051', 'Washington':'49053', 'Wayne':'49055', 'Weber':'49057'}
+
+    parFipsDict = {'Davis':'49011', 'Grand':'49019', 'Kane':'49025', 'SaltLake':'49035',\
+                   'Summit':'49043', 'Utah':'49049', 'Washington':'49053', 'Weber':'49057'}
 
 
-    parFipsNum = ['49007', '49029', '49035', '49057']
-
-    parFipsDict = {'Carbon':'49007', 'Morgan':'49029', 'SaltLake':'49035', 'Weber':'49057'}
-
-    #            {'Beaver': '49001', 'BoxElder': '49003', 'Cache': '49005', 'Carbon':'49007', 'Daggett': '49009', \
-    #             'Davis': '49011', 'Duchesne': '49013', 'Emery': '49015', 'Garfield': '49017', 'Grand': '49019', \
-    #             'Iron': '49021', 'Juab': '49023', 'Kane': '49025', 'Millard': '49027', 'Morgan':'49029', \
-    #             'Piute': '49031', 'Rich': '49033', 'SaltLake': '49035', 'SanJuan': '49037', 'Sanpete': '49039', \
-    #             'Sevier': '49041', 'Summit': '49043', 'Tooele': '49045', 'Uintah': '49047', 'Utah': '49049', \
-    #             'Wasatch': '49051', 'Washington': '49053', 'Wayne': '49055', 'Weber': '49057'}
-
-    #-------Use to run against subset of parcels defined by alternative fipsNum and fipsDict above
     for cnty in sorted(parFipsDict):
 
-        env.workspace = sgid10
+        with arcpy.EnvManager(workspace=stageDB):
+            arcpy.env.overwriteOutput = True
+            parBS_out = f'par{parFipsDict[cnty]}'
+            if not arcpy.Exists(parBS_out):
+                schemaFC = os.path.join(schemaDB, 'parSSCCC_schema')
+                arcpy.CopyFeatures_management(schemaFC, parBS_out)
 
-        fcSGID = 'SGID10.CADASTRE.Parcels_' + cnty # + '_LIR'
-        print (fcSGID)
-        parFC = sgid10_GEO + '\\Parcels_' + cnty
+        with arcpy.EnvManager(workspace=sgid):
+            arcpy.env.overwriteOutput = True
 
-        arcpy.CopyFeatures_management(fcSGID, parFC)
-#---------------------------------------------------------------------------------------
+            parSGID = 'SGID.CADASTRE.Parcels_' + cnty # + '_LIR'
+            parSGID_geo = os.path.join(sgid_GEO, f'Parcels_{cnty}')
+            arcpy.CopyFeatures_management(parSGID, parSGID_geo)
 
-        print ('Repair Geometry ' + parFC)
-        arcpy.RepairGeometry_management(parFC)
-        print ('Done repair')
+            print (f'Repair Geometry {parSGID_geo}')
+            arcpy.RepairGeometry_management(parSGID_geo)
 
-        #-----Add address point addresses------
-        addAddressAttributes(sgid10, parFC, cnty, parFipsDict, stageDB)
+            #-----Add address point addresses-----
+            addAddressAttributes(sgid, parSGID_geo, cnty, parFipsDict, stageDB)
 
-        disFLDS = ['PARCEL_ID', 'PARCEL_ADD']
-        arcpy.Dissolve_management(parFC, parFC + 'DIS', disFLDS, '#', 'MULTI_PART')
-        print ('Done with dissolve')
+            disFLDS = ['PARCEL_ID', 'PARCEL_ADD']
+            parSGID_geoDis = os.path.join(sgid_GEO, f'Parcels_{cnty}DIS')
+            arcpy.Dissolve_management(parSGID_geo, parSGID_geoDis, disFLDS, '#', 'MULTI_PART')
+            print ('Done with dissolve')
 
+            arcpy.TruncateTable_management(parBS_out)
 
-    #---Copy empty bluestakes parcels to load features into
-    env.workspace = stageDB
+            srcFlds = ['PARCEL_ID', 'PARCEL_ADD', 'SHAPE@', 'OBJECTID', 'SHAPE@AREA']
+            tarFlds = ['ADDR_NUMB', 'ADDR_FULL', 'FEDIRP', 'FENAME', 'FETYPE', 'FEDIRS', 'PARCEL_ID', 'SHAPE@']
 
-    for fips in parFipsNum:
-        parcelFC =  stageDB + '\\par' + fips
-        arcpy.CopyFeatures_management(schemaDB + '\\parSSCCC_schema', parcelFC)
-        print ('Copied par' + fips + ' to staging GDB')
+            count_in_parcels = arcpy.GetCount_management(parSGID_geoDis)
 
+            with arcpy.da.SearchCursor(parSGID_geoDis, srcFlds) as scursor, \
+                arcpy.da.InsertCursor(parBS_out, tarFlds) as icursor:
 
-    for cnty in parFipsDict:
-        parFC_Geo = sgid10_GEO + '\\Parcels_' + cnty + 'DIS'
-        parFC_BS = stageDB + '\\par' + parFipsDict[cnty]
+                for row in scursor:
+                    if row[1] not in idErrors or (row[0] not in idErrors and row[4] < .00007):
 
-        arcpy.TruncateTable_management(parFC_BS)
+                        parID = row[0]
+                        addNum = ''
+                        addFull = ''
+                        preDir = ''
+                        fename = ''
+                        stype = ''
+                        suf = ''
 
-        countyErrorLog = open('C:\\ZBECK\\BlueStakes\\ErrorLogs\\' + cnty + '_ERRORS_' + date + '.txt', 'w')
+                        if row[1] not in idErrors:
 
-        srcFlds = ['PARCEL_ID', 'PARCEL_ADD', 'SHAPE@', 'OBJECTID', 'SHAPE@AREA']
-        tarFlds = ['ADDR_NUMB', 'ADDR_FULL', 'FEDIRP', 'FENAME', 'FETYPE', 'FEDIRS', 'PARCEL_ID', 'SHAPE@']
+                            addFull = row[1]
+                            address = parse_address.parse(row[1])
+                            addNum = address.houseNumber
+                            if len(addNum) > 10:
+                                addNum = ''
+                            preDir = address.prefixDirection
+                            fename = address.streetName
+                            stype = address.suffixType
+                            suf = address.suffixDirection
 
-        tarRows = arcpy.da.InsertCursor(parFC_BS, tarFlds)
-        srcRows = arcpy.da.SearchCursor(parFC_Geo, srcFlds)
+                        shp = row[2]
 
-        print ('     Starting ' + parFC_Geo)
+                        icursor.insertRow((addNum, addFull, preDir, fename, stype, suf, parID, shp))
 
-        for srcRow in srcRows:
-            try:
-                #if srcRow[1] != '' or (srcRow[0] != '' and srcRow[4] < .00007):
-                if srcRow[1] not in idErrors or (srcRow[0] not in idErrors and srcRow[4] < .00007):
+        count_out_parcels = arcpy.GetCount_management(os.path.join(stageDB, parBS_out))
+        count_difference = int(count_in_parcels[0]) - int(count_out_parcels[0])
+        count_percent_diff = int(count_out_parcels[0]) / int(count_in_parcels[0]) * 100
 
-                    parID = srcRow[0]
-                    addNum = ''
-                    addFull = ''
-                    preDir = ''
-                    fename = ''
-                    stype = ''
-                    suf = ''
+        print(f'-----In parcels {count_in_parcels}')
+        print(f'-----Out parcels {count_out_parcels}')
+        print(f'-----Parcel difference {count_difference} or {count_percent_diff}%')
 
-                    if srcRow[1] not in idErrors:
-
-                        addFull = srcRow[1]
-                        address = parse_address.parse(srcRow[1])
-                        addNum = address.houseNumber
-                        if len(addNum) > 10:
-                            addNum = ''
-                        preDir = address.prefixDirection
-                        fename = address.streetName
-                        stype = address.suffixType
-                        suf = address.suffixDirection
-
-                else:
-                    continue
-
-                shp = srcRow[2]
-
-                tarRows.insertRow((addNum, addFull, preDir, fename, stype, suf, parID, shp))
-
-            except:
-                if srcRow[0] is None:
-                    countyErrorLog.write(cnty + ' Failed at OBJECTID ' + str(srcRow[3]) + ' NULL ' + srcRow[1] + '\n')
-                else:
-                    countyErrorLog.write(cnty + ' Failed at OBJECTID ' + str(srcRow[3]) + '\n')
-
-        countyErrorLog.close()
-
-        del tarRows
-        del srcRows
-
-        # if cnty == 'Tooele':
-        #
-        #     sufDict = {'N':'NORTH', 'S':'SOUTH', 'E':'EAST', 'W':'WEST'}
-        #     parFC_BS = stageDB + '\\par' + parFipsDict['Tooele']
-        #
-        #     tooeleDirs = [' N', ' S', ' E', ' W']
-        #     uCursor = arcpy.da.UpdateCursor(parFC_BS, tarFlds)
-        #     for row in uCursor:
-        #         if row[1][-2:] in tooeleDirs:
-        #             badAdd = row[1].split()
-        #             num = badAdd[0]
-        #             dir = badAdd[-1]
-        #             rep = '{} {}'.format(num, dir)
-        #             fixedAdd = row[1].replace(num, rep).strip(dir).strip()
-        #             newAdd = parse_address.parse(fixedAdd)
-        #             row[0] = newAdd.houseNumber
-        #             row[1] = fixedAdd
-        #             row[2] = newAdd.prefixDirection
-        #             row[3] = newAdd.streetName
-        #             row[4] = newAdd.suffixType
-        #             row[5] = newAdd.suffixDirection
-        #             print row[5]
-        #             if row[5] in sufDict:
-        #                # print row[5]
-        #                 if row[1].endswith(('NORTH', 'SOUTH', 'EAST', 'WEST')):
-        #                     row[1] = fixedAdd.replace(sufDict[row[5]], row[5])
-        #                     print row[1]
-        #
-        #             uCursor.updateRow(row)
-
-        parFips = fipsDict[cnty]
-
-        arcpy.CopyFeatures_management(parFC_BS, outLoc + '\\TGR' + parFips + '\\par' + parFips + '.shp')
-        print ('Copied ' + parFC_BS + ' to county folder')
-
+        parFips = parFipsDict[cnty]
+        with arcpy.EnvManager(workspace=os.path.join(outLoc, f'TGR{parFips}')):
+            arcpy.env.overwriteOutput = True
+            parBS_outShp = os.path.join(outLoc, f'TGR{parFips}', f'par{parFips}.shp')
+            arcpy.CopyFeatures_management(os.path.join(stageDB, parBS_out), parBS_outShp)
+            print(f'Copied {parBS_out} to county folder')
+            print('')
 
     print ('Done Parcels  ' + str(datetime.datetime.now()))
 
@@ -235,100 +177,53 @@ def addressPoints():
 
     print ('Starting Address Points  ' + str(datetime.datetime.now()))
 
-    env.workspace = sgid10
-    arcpy.env.overwriteOutput = True
+    addptsSGID_geo = os.path.join(sgid_GEO, 'AddressPoints1')
+    addPtsBS = os.path.join(stageDB, 'adr_StWide')
 
-    addPts = sgid10_GEO + '\\AddressPoints1'
-    addPtsBS = stageDB + '\\adr_StWide'
-    #clpCnty = 'SGID10.BOUNDARIES.Counties'
+    with arcpy.EnvManager(workspace=sgid_GEO):
+        arcpy.env.overwriteOutput = True
+        #---Copy Address Points to SGID_GEOGRAPHIC staging area
+        arcpy.CopyFeatures_management(os.path.join(sgid, 'SGID.LOCATION.AddressPoints'), addptsSGID_geo)
 
-    #---Copy Address Points to SGID10_GEOGRAPHIC staging area
-    arcpy.CopyFeatures_management(r'C:\sde\SGID10.sde\SGID10.LOCATION.AddressPoints', addPts)
-
-    #---Check for statewide Address Points in BlueStakes schema
-    if not arcpy.Exists(addPtsBS):
-        arcpy.CopyFeatures_management(schemaDB + '\\adrSSCCC_schema', addPtsBS)
-    else:
-        arcpy.CopyFeatures_management(schemaDB + '\\adrSSCCC_schema', addPtsBS)
-##        arcpy.DeleteFeatures_management(addPtsBS)
-##        print 'Deleted Features ' + addPtsBS
-        print ('Empty bluestakes address points ready')
-
-    srcFlds = ['FullAdd', 'AddNum', 'PrefixDir', 'StreetName', 'StreetType', 'SuffixDir', 'SHAPE@']
-    tarFlds = ['ADDR_NUMB', 'ADDR_FULL', 'FEDIRP', 'FENAME', 'FETYPE', 'FEDIRS', 'OWNER', 'SHAPE@']
-
-    srcRows = arcpy.da.SearchCursor(addPts, srcFlds)
-    tarRows = arcpy.da.InsertCursor(addPtsBS, tarFlds)
-
-    for srcRow in srcRows:
-
-        if srcRow[1] != None:
-            ADDR_NUMB = srcRow[1]
+    with arcpy.EnvManager(workspace=stageDB):
+        arcpy.env.overwriteOutput = True
+        #---Check for statewide Address Points in BlueStakes schema
+        if not arcpy.Exists(addPtsBS):
+            arcpy.CopyFeatures_management(os.path.join(schemaDB, 'adrSSCCC_schema'), addPtsBS)
         else:
-            ADDR_NUMB = ''
+            arcpy.TruncateTable_management(addPtsBS)
+            print ('Empty bluestakes address points ready')
 
-        if srcRow[0] != None:
-            ADDR_FULL = srcRow[0]
-        else:
-            ADDR_FULL = ''
+        flds = ['FullAdd', 'AddNum', 'PrefixDir', 'StreetName', 'StreetType', 'SuffixDir', 'SHAPE@']
+        outFlds = ['ADDR_NUMB', 'ADDR_FULL', 'FEDIRP', 'FENAME', 'FETYPE', 'FEDIRS', 'OWNER', 'SHAPE@']
 
-        if srcRow[2] != None:
-            FEDIRP = srcRow[2]
-        else:
-            FEDIRP = ''
+        with arcpy.da.SearchCursor(addptsSGID_geo, flds) as scursor, \
+            arcpy.da.InsertCursor(addPtsBS, outFlds) as icursor:
 
-        if srcRow[3] != None:
-            FENAME = srcRow[3]
-        else:
-            FENAME = ''
+            for row in scursor:
+                ADDR_NUMB = removeNone(row[1])
+                ADDR_FULL = removeNone(row[0])
+                FEDIRP = removeNone(row[2])
+                FENAME = removeNone(row[3])
+                FETYPE = removeNone(row[4])
+                FEDIRS = removeNone(row[5])
+                OWNER = ''
+                shp = row[6]
 
-        if srcRow[4] != None:
-            FETYPE = srcRow[4]
-        else:
-            FETYPE = ''
+                icursor.insertRow((ADDR_NUMB, ADDR_FULL, FEDIRP, FENAME, FETYPE, FEDIRS, OWNER, shp))
 
-        if srcRow[5] != None:
-            FEDIRS = srcRow[5]
-        else:
-            FEDIRS = ''
+        #---Copy State wide address points to Bluestakes root---------------
+        arcpy.CopyFeatures_management(addPtsBS, os.path.join(outLoc, 'adr_StWide.shp'))
 
-        OWNER = ''
-
-        shp = srcRow[6]
-
-        tarRows.insertRow((ADDR_NUMB, ADDR_FULL, FEDIRP, FENAME, FETYPE, FEDIRS, OWNER, shp))
-
-    del tarRows
+        #---Clip by county-------------------------------------------
+        clip(addPtsBS, 'adr', '')
 
 
-    #---Copy State wide address points to Bluestakes root---------------
-    arcpy.CopyFeatures_management(addPtsBS, outLoc + '\\adr_StWide.shp')
-
-
-##    #---Clip Address Points-----------------------------------------------------------
-##    print 'Start Clipping Address Points'
-##    clip(roadsBS, 'lkA.shp');
-
-    #---Clip by county-------------------------------------------
-    clpFlds = ['NAME', 'FIPS_STR', 'SHAPE@']
-    clpRows = arcpy.da.SearchCursor(clpCnty, clpFlds)
-
-    for row in clpRows:
-        clpFeat = row[2]
-
-        #----Delete shapefiles with no features----
-        clp = arcpy.Clip_analysis(addPtsBS, clpFeat, outLoc + '\\TGR' + row[1] + '\\adr' + row[1] + '.shp')
-        clpCount = int(arcpy.GetCount_management(clp).getOutput(0))
-
-        if clpCount < 1:
-            arcpy.Delete_management(clp)
-
-
-    print ('Done Translating Address Points  ' + str(datetime.datetime.now()))
+    print('Done Translating Address Points  ' + str(datetime.datetime.now()))
+    print()
 
 def roads():
-
-    print ('Starting Roads  ' + str(datetime.datetime.now()))
+    print('Starting Roads  ' + str(datetime.datetime.now()))
 
     global annoRdSegsSELECT
     annoRdSegsSELECT = r'C:\ZBECK\BlueStakes\stagingBS.gdb\DOMINION_GEOGRAPHIC\RoadSegs_DominionSelect'
@@ -336,14 +231,15 @@ def roads():
     from DominionLabelConverter import createDominionAnnoRds
     from DominionLabelConverter import outputSelectDominionRdSegs
 
-    env.workspace = sgid10
+    env.workspace = sgid
     arcpy.env.overwriteOutput = True
 
-    roadsSGID = sgid10_GEO + '\\Roads'
+    roadsSGID = sgid_GEO + '\\Roads'
     roadsBS = stageDB + '\\TGR_StWide_lkA'
 
-    #----Move Roads to SGID10_GEOGRAPHIC staging area
-    arcpy.CopyFeatures_management('SGID10.TRANSPORTATION.Roads', roadsSGID)
+    #----Move Roads to SGID_GEOGRAPHIC staging area
+    arcpy.CopyFeatures_management('SGID.TRANSPORTATION.Roads', roadsSGID)
+    print('Copied roads to StagingDB')
 
     # ----Check for statewide BlueStakes roads
     if not arcpy.Exists(roadsBS):
@@ -405,6 +301,9 @@ def roads():
     tarRows = arcpy.da.InsertCursor(roadsBS, tarFlds)
 
     manilaRds = ['1ST', '2ND', '3RD', '4TH', '5TH']
+    CartoToCFCC = {'1':'A15', '2':'A20', '3':'A21', '4':'A25', '5':'A20', '6':'A41', '7':'A20', '8':'A31',
+                   '9':'A41', '10':'A41', '11':'A41', '12':'A41', '13':'A65', '14':'A74', '15':'A99',
+                   '16':'A41', '17':'A41', '18':'A41'}
 
     with arcpy.da.SearchCursor(roadsSGID, srcFlds) as srcRows:
         for srcRow in srcRows:
@@ -443,8 +342,6 @@ def roads():
             FETYPE = formatValues(srcRow[3], typeList).title()
 
             #----CFCC----
-            CartoToCFCC = {'1':'A15', '2':'A20', '3':'A21', '4':'A25', '5':'A20', '6':'A41', '7':'A20', '8':'A31', '9':'A41', \
-                           '10':'A41', '11':'A41', '12':'A41', '13':'A65', '14':'A74', '15':'A99', '16':'A41', '17':'A41', '18':'A41'}
             if srcRow[0] != None:
                 CFCC = CartoToCFCC[srcRow[0]]
 
@@ -627,271 +524,256 @@ def roads():
      #---Add Questar Road Segments------------
     count = int(arcpy.GetCount_management(annoRdSegsSELECT).getOutput(0))
     if count > 1:
-        print ('Appending {} Dominion Road Segments'.format(count))
+        print('Appending {} Dominion Road Segments'.format(count))
         arcpy.Append_management(annoRdSegsSELECT, roadsBS, 'NO_TEST')
     else:
-        print ('NO DOMINION ROAD SEGMENTS ADDED')
+        print('NO DOMINION ROAD SEGMENTS ADDED')
 
      #---Copy Roads to Blues Stakes root level-----------------
-    arcpy.CopyFeatures_management(roadsBS, outLoc + '\\TGR_StWide_lkA.shp')
-    print (env.workspace)
+    arcpy.CopyFeatures_management(roadsBS, os.path.join(outLoc, 'TGR_StWide_lkA.shp'))
+    print('Copied BS roads to output folder')
 
     #---Clip Blue Stakes Roads-----------------------------------------------------------
-    print ('Start Clipping Roads')
-    clip(roadsBS, 'lkA.shp');
+    print('Start Clipping Roads')
+    clip(roadsBS, '', 'lkA');
 
-    print ('Done Translating Roads  ' + str(datetime.datetime.now()))
+    print('Done Translating Roads  ' + str(datetime.datetime.now()))
 
 def municipalities():
 
-    print ('Starting Municipalities  ' + str(datetime.datetime.now()))
+    print('Starting Municipalities  ' + str(datetime.datetime.now()))
 
-    env.workspace = sgid10
-    arcpy.env.overwriteOutput = True
+    munisWithAFB = os.path.join(sgid_GEO, 'Municipalities')
+    muni = os.path.join(sgid_GEO, 'Municipalities_AFBclipped')
+    muniBS = os.path.join(stageDB, 'TGR_StWide_plc00')
+    hillAFB = os.path.join(sgid_GEO, 'HillAFB')
+    metroTownships = os.path.join(sgid_GEO, 'MetroTownships')
 
-    munisWithAFB = sgid10_GEO + '\\Municipalities'
-    muni = sgid10_GEO + '\\Municipalities_AFBclipped'
-    muniBS = stageDB + '\\TGR_StWide_plc00'
-    hillAFB = sgid10_GEO + '\\HillAFB'
-    metroTownships = sgid10_GEO + '\\MetroTownships'
-
-    #---Copy Municipalites and Townships to SGID10_GEOGRAPHIC staging area
-    arcpy.CopyFeatures_management('SGID10.BOUNDARIES.Municipalities', munisWithAFB)
-    arcpy.CopyFeatures_management('SGID10.BOUNDARIES.MetroTownships', metroTownships)
+    with arcpy.EnvManager(workspace=sgid):
+        #---Copy Municipalites and Townships to SGID_GEOGRAPHIC staging area
+        arcpy.CopyFeatures_management('SGID.BOUNDARIES.Municipalities', munisWithAFB)
+        arcpy.CopyFeatures_management('SGID.BOUNDARIES.MetroTownships', metroTownships)
 
     #---Clip out Hill Air force Base
     arcpy.Erase_analysis(munisWithAFB, hillAFB, muni)
 
     #---Check for statewide municipalities BlueStakes schema
     if not arcpy.Exists(muniBS):
-        arcpy.CopyFeatures_management(schemaDB + '\\TGRSSCCCplc00_schema', muniBS)
+        arcpy.CopyFeatures_management(os.path.join(schemaDB, 'TGRSSCCCplc00_schema', muniBS))
     else:
-        arcpy.DeleteFeatures_management(muniBS)
+        arcpy.TruncateTable_management(muniBS)
 
     muniFlds = ['NAME', 'SHAPE@']
-    tarFlds = ['NAME', 'SHAPE@']
+    outFlds = ['NAME', 'SHAPE@']
     twnshipFlds = ['NAME', 'SHAPE@']
     cntyFlds = ['NAME', 'FIPS_STR', 'SHAPE@']
 
-    muniRows = arcpy.da.SearchCursor(muni, muniFlds)
-    tarRows = arcpy.da.InsertCursor(muniBS, tarFlds)
+    with arcpy.da.SearchCursor(muni, muniFlds) as scursor, \
+        arcpy.da.InsertCursor(muniBS, outFlds) as icursor:
+            for row in scursor:
+                name = row[0].replace('St.', 'St')
+                shp = row[1]
+                icursor.insertRow((name, shp))
 
-    with arcpy.da.SearchCursor(muni, muniFlds) as sCursor:
-        for row in sCursor:
-            name = row[0].replace('St.', 'St')
-            shp = row[1]
-            tarRows.insertRow((name, shp))
-    with arcpy.da.SearchCursor(metroTownships, twnshipFlds) as tCursor:
-        for trow in tCursor:
-            name = trow[0].title()
-            shp = trow[1]
-            tarRows.insertRow((name, shp))
-    del tarRows
-    # for row in muniRows:
-    #     NAME = row[0].replace('St.', 'St')
-    #     shp = row[1]
-    #     tarRows.insertRow((NAME, shp))
-    # del tarRows
+    with arcpy.da.SearchCursor(metroTownships, twnshipFlds) as scursor, \
+        arcpy.da.InsertCursor(muniBS, outFlds) as icursor:
+            for row in scursor:
+                name = trow[0].title()
+                shp = trow[1]
+                icursor.insertRow((name, shp))
 
     #---Copy Municipalities to Blues Stakes root level
-    arcpy.CopyFeatures_management(muniBS, outLoc + '\\TGR_StWide_plc00.shp')
+    arcpy.CopyFeatures_management(os.path.join(muniBS, outLoc, 'TGR_StWide_plc00.shp'))
 
-
-    #---Clip Blue Stakes Municipalities-----------------------------------------------------------
-    clip(muniBS, 'plc00.shp');
-
+    #---Clip Blue Stakes Municipalities----------
+    clip(muniBS, '', 'plc00');
 
     print ('Done Translating Municipalities  ' + str(datetime.datetime.now()))
 
 def mileposts():
 
     print ('Starting Mileposts  ' + str(datetime.datetime.now()))
+    
+    milePosts = os.path.join(sgid_GEO, 'UDOTMilePosts')
+    exits = os.path.join(sgid_GEO, 'Roads_FreewayExits')
+    milePostsBS = os.path.join(stageDB, 'Hwy_MPM')
 
-    env.workspace = sgid10
-    arcpy.env.overwriteOutput = True
-
-    milePosts = sgid10_GEO + '\\UDOTMilePosts'
-    exits = sgid10_GEO + '\\Roads_FreewayExits'
-    milePostsBS = stageDB + '\\Hwy_MPM'
-
-    #---Copy new Exits and Mileposts to Staging DB
-    arcpy.CopyFeatures_management('SGID10.TRANSPORTATION.Roads_FreewayExits', exits)
-    arcpy.CopyFeatures_management('SGID10.TRANSPORTATION.UDOTMileposts', milePosts)
-    print ('Copied SGID10.TRANSPORTATION.Roads_FreewayExits to staging DB')
-    print ('Copied SGID10.TRANSPORTATION.UDOTMileposts to staging DB')
+    with arcpy.EnvManager(workspace=sgid):
+        arcpy.env.overwriteOutput = True
+        #---Copy new Exits and Mileposts to Staging DB
+        arcpy.CopyFeatures_management('SGID.TRANSPORTATION.Roads_FreewayExits', exits)
+        arcpy.CopyFeatures_management('SGID.TRANSPORTATION.UDOTMileposts', milePosts)
+        print ('Copied SGID.TRANSPORTATION.Roads_FreewayExits to staging DB')
+        print ('Copied SGID.TRANSPORTATION.UDOTMileposts to staging DB')
 
 
     #---Check for Mileposts BlueStakes schema
     if not arcpy.Exists(milePostsBS):
-        arcpy.CopyFeatures_management(schemaDB + '\\Hwy_MPM', milePostsBS)
+        arcpy.CopyFeatures_management(os.path.join(schemaDB, 'Hwy_MPM', milePostsBS))
     else:
-        arcpy.DeleteFeatures_management(milePostsBS)
+        arcpy.TruncateTable_management(milePostsBS)
 
+    mp_flds = ['LABEL', 'MP', 'CARTO', 'RT_DIR', 'SHAPE@']
+    exit_flds = ['EXITNAME', 'SHAPE@']
+    bs_flds = ['Type', 'Label_Name', 'SHAPE@']
 
-    srcMP_Flds = ['LABEL', 'MP', 'CARTO', 'RT_DIR', 'SHAPE@']
-    srcEX_Flds = ['EXITNAME', 'SHAPE@']
-    tarFlds = ['Type', 'Label_Name', 'SHAPE@']
+    with arcpy.da.SearchCursor(mileposts, mp_flds) as scursor, \
+        arcpy.da.InsertCursor(milePostsBS, bs_flds) as icursor:
 
+        for row in scursor:
 
-    srcMP_Rows = arcpy.da.SearchCursor(milePosts, srcMP_Flds)
-    srcEX_Rows = arcpy.da.SearchCursor(exits, srcEX_Flds)
-    tarRows = arcpy.da.InsertCursor(milePostsBS, tarFlds)
+            Type = 'mpm'
 
+            hwyDig1 = row[0][3:4]
+            hwyDig2 = row[0][2:4]
+            hwyDig3 = row[0][1:4]
+            mp = str(row[1]).split('.')[0]
 
-    #----Add Milepost Records--------------------------------------------------------
-    for srcMP_Row in srcMP_Rows:
-
-        Type = 'mpm'
-
-        hwyDig1 = srcMP_Row[0][3:4]
-        hwyDig2 = srcMP_Row[0][2:4]
-        hwyDig3 = srcMP_Row[0][1:4]
-        mp = str(srcMP_Row[1]).split('.')[0]
-
-        if srcMP_Row[3] == 'N':
-            Label_Name = ''
-        elif srcMP_Row[2] == '1' and srcMP_Row[3] == 'P':
-            if srcMP_Row[0][1:4] == '215':
-                Label_Name = 'I-{} milepost {}'.format(hwyDig3, mp)
+            if row[3] == 'N':
+                Label_Name = ''
+            elif row[2] == '1' and row[3] == 'P':
+                if row[0][1:4] == '215':
+                    Label_Name = f'I-{hwyDig3} milepost {mp}'
+                else:
+                    Label_Name = f'I-{hwyDig2} milepost {mp}'
             else:
-                Label_Name = 'I-{} milepost {}'.format(hwyDig2, mp)
-        else:
-            if srcMP_Row[0][:3] == '000':
-                Label_Name = 'Hwy {} milepost {}'.format(hwyDig1, mp)
-            elif srcMP_Row[0][:2] == '00':
-                Label_Name = 'Hwy {} milepost {}'.format(hwyDig2, mp)
+                if row[0][:3] == '000':
+                    Label_Name = f'Hwy {hwyDig1} milepost {mp}'
+                elif row[0][:2] == '00':
+                    Label_Name = f'Hwy {hwyDig2} milepost {mp}'
+                else:
+                    Label_Name = f'Hwy {hwyDig3} milepost {mp}'
+
+            shp = srcMP_Row[4]
+
+            icursor.insertRow((Type, Label_Name, shp))
+
+    #----Add Exit Records--------------------------------------------
+    with arcpy.da.SearchCursor(exits, exit_flds) as scursor, \
+        with arcpy.da.InsertCursor(milePostsBS, bs_flds) as icursor:
+        for row in scursor:
+
+            Type = 'epm'
+
+            if row[0].split()[0] == 'SR':
+                Label_Name = 'Hwy ' + ' '.join(row[0].split()[1:])
+            elif row[0].split()[0] == 'US':
+                Label_Name = 'Hwy ' + ' '.join(row[0].split()[1:])
             else:
-                Label_Name = 'Hwy {} milepost {}'.format(hwyDig3, mp)
+                Label_Name = row[0]
 
-        shp = srcMP_Row[4]
+            shp = row[1]
 
-        tarRows.insertRow((Type, Label_Name, shp))
+            icursor.insertRow((Type, Label_Name, shp))
 
-    #----Add Exit Records-------------------------------------------------------------
-    for srcEX_Row in srcEX_Rows:
+    #----Copy Mileposts to shapefile---------------------------------
+    arcpy.CopyFeatures_management(milePostsBS, os.path.join(outLoc, 'Hwy_MPM.shp'))
 
-        Type = 'epm'
-
-        if srcEX_Row[0].split()[0] == 'SR':
-            Label_Name = 'Hwy ' + ' '.join(srcEX_Row[0].split()[1:])
-        elif srcEX_Row[0].split()[0] == 'US':
-            Label_Name = 'Hwy ' + ' '.join(srcEX_Row[0].split()[1:])
-        else:
-            Label_Name = srcEX_Row[0]
-
-        shp = srcEX_Row[1]
-
-        tarRows.insertRow((Type, Label_Name, shp))
-
-    del tarRows
-
-
-    #----Copy Mileposts to shapefile--------------------------------------------------
-    arcpy.CopyFeatures_management(milePostsBS, outLoc + '\\Hwy_MPM.shp')
-
-
-    print ('Done Translating Mileposts  ' + str(datetime.datetime.now()))
+    print('Done Translating Mileposts  ' + str(datetime.datetime.now()))
 
 def milepostsCombined():
-    print ('Starting Mileposts  ' + str(datetime.datetime.now()))
+    print('Starting Mileposts  ' + str(datetime.datetime.now()))
 
-    env.workspace = sgid10
-    arcpy.env.overwriteOutput = True
+    milePosts = os.path.join(sgid_GEO, 'UDOTMilePosts')
+    exits = os.path.join(sgid_GEO, 'Roads_FreewayExits')
+    rr_MilePosts = os.path.join(sgid_GEO, 'Railroad_Mileposts')
+    milePostsHwyRR_BS = os.path.join(stageDB, 'HwyRR_MPM')
 
-    milePosts = sgid10_GEO + '\\UDOTMilePosts'
-    exits = sgid10_GEO + '\\Roads_FreewayExits'
-    rr_MilePosts = sgid10_GEO + '\\Railroad_Mileposts'
-    milePostsHwyRR_BS = stageDB + '\\HwyRR_MPM'
+    with arcpy.EnvManager(workspace=sgid):
+        env.workspace = sgid
+        arcpy.env.overwriteOutput = True
 
-    # ---Copy new Exits and Mileposts to Staging DB
-    arcpy.CopyFeatures_management('SGID10.TRANSPORTATION.Roads_FreewayExits', exits)
-    arcpy.CopyFeatures_management('SGID10.TRANSPORTATION.UDOTMileposts', milePosts)
-    arcpy.CopyFeatures_management('SGID10.TRANSPORTATION.Railroad_Mileposts', rr_MilePosts)
-    print ('Copied SGID10.TRANSPORTATION.Roads_FreewayExits to staging DB')
-    print ('Copied SGID10.TRANSPORTATION.UDOTMileposts to staging DB')
-    print ('Copied SGID10.TRANSPORTATION.Railroad_Mileposts to staging DB')
+        # ---Copy new Exits and Mileposts to Staging DB
+        arcpy.CopyFeatures_management('SGID.TRANSPORTATION.Roads_FreewayExits', exits)
+        arcpy.CopyFeatures_management('SGID.TRANSPORTATION.UDOTMileposts', milePosts)
+        arcpy.CopyFeatures_management('SGID.TRANSPORTATION.Railroad_Mileposts', rr_MilePosts)
+        print('Copied SGID.TRANSPORTATION.Roads_FreewayExits to staging DB')
+        print('Copied SGID.TRANSPORTATION.UDOTMileposts to staging DB')
+        print('Copied SGID.TRANSPORTATION.Railroad_Mileposts to staging DB')
 
     # ---Check for Mileposts BlueStakes schema
     if not arcpy.Exists(milePostsHwyRR_BS):
         arcpy.CopyFeatures_management(schemaDB + '\\Hwy_MPM', milePostsHwyRR_BS)
     else:
-        arcpy.DeleteFeatures_management(milePostsHwyRR_BS)
+        arcpy.TruncateTable_management(milePostsHwyRR_BS)
 
-    srcMP_Flds = ['LABEL', 'MP', 'CARTO', 'RT_DIR', 'SHAPE@']
-    srcEX_Flds = ['EXITNAME', 'SHAPE@', 'EXITNBR']
-    srcMPrr_Flds = ['DIVISION', 'RR_Milepos', 'SHAPE@']
-    tarFlds = ['NAME', 'LABEL', 'CFCC', 'SHAPE@']
+    mp_flds = ['LABEL', 'MP', 'CARTO', 'RT_DIR', 'SHAPE@']
+    exit_flds = ['EXITNAME', 'SHAPE@', 'EXITNBR']
+    RRmp_flds = ['DIVISION', 'RR_Milepos', 'SHAPE@']
+    bs_flds = ['NAME', 'LABEL', 'CFCC', 'SHAPE@']
 
     srcMP_Rows = arcpy.da.SearchCursor(milePosts, srcMP_Flds)
     srcEX_Rows = arcpy.da.SearchCursor(exits, srcEX_Flds)
     srcMPrr_Rows = arcpy.da.SearchCursor(rr_MilePosts, srcMPrr_Flds)
     tarRows = arcpy.da.InsertCursor(milePostsHwyRR_BS, tarFlds)
 
-    # ----Add Railroad Milepost Records-----------------------------------------------
-    for srcMPrr_Row in srcMPrr_Rows:
-        if '.' not in srcMPrr_Row[1]:
-            lbl = srcMPrr_Row[1]
-            name = '{} Division milepost {}'.format(srcMPrr_Row[0].title(), lbl)
-            cfcc = 'P11'
-            shp = srcMPrr_Row[2]
+    # ----Add RR Mileposts-----------------------------------------------
+    with arcpy.da.SearchCursor(rr_MilePosts, RRmp_flds) as scursor, \
+        with arcpy.da.InsertCursor(milePostsHwyRR_BS, bs_flds) as icursor:
+            for row in scursors:
+                if '.' not in row[1]:
+                    lbl = row[1]
+                    name = f'{row[0].title()} Division milepost {lbl}'
+                    cfcc = 'P11'
+                    shp = row[2]
 
-            tarRows.insertRow((name, lbl, cfcc, shp))
+                    icursor.insertRow((name, lbl, cfcc, shp))
 
-    # ----Add Milepost Records--------------------------------------------------------
-    for srcMP_Row in srcMP_Rows:
+    # ----Add Milepost Records-------------------------------------------
+    with arcpy.da.SearchCursor(milePosts, mp_flds) as scursor, \
+        with arcpy.da.InsersCursor(milePostsHwyRR_BS, bs_flds) as icursor:
 
-        #Type = 'mpm'
-        cfcc = 'P10'
+            for row in scursor:
+                cfcc = 'P10'
 
-        hwyDig1 = srcMP_Row[0][3:4]
-        hwyDig2 = srcMP_Row[0][2:4]
-        hwyDig3 = srcMP_Row[0][1:4]
-        mp = str(srcMP_Row[1]).split('.')[0]
+                hwyDig1 = row[0][3:4]
+                hwyDig2 = row[0][2:4]
+                hwyDig3 = row[0][1:4]
+                mp = str(row[1]).split('.')[0]
 
-        if srcMP_Row[3] == 'N':
-            name = ''
-        elif srcMP_Row[2] == '1' and srcMP_Row[3] == 'P':
-            if srcMP_Row[0][1:4] == '215':
-                name = 'I-{} milepost {}'.format(hwyDig3, mp)
-            else:
-                name = 'I-{} milepost {}'.format(hwyDig2, mp)
-        else:
-            if srcMP_Row[0][:3] == '000':
-                name = 'Hwy {} milepost {}'.format(hwyDig1, mp)
-            elif srcMP_Row[0][:2] == '00':
-                name = 'Hwy {} milepost {}'.format(hwyDig2, mp)
-            else:
-                name = 'Hwy {} milepost {}'.format(hwyDig3, mp)
+                if row[3] == 'N':
+                    name = ''
+                elif row[2] == '1' and row[3] == 'P':
+                    if row[0][1:4] == '215':
+                        name = f'I-{hwyDig3} milepost {mp}'
+                    else:
+                        name = f'I-{hwyDig2} milepost {mp}'
+                else:
+                    if row[0][:3] == '000':
+                        name = f'Hwy {hwyDig1} milepost {mp}'
+                    elif row[0][:2] == '00':
+                        name = f'Hwy {hwyDig2} milepost {mp}'
+                    else:
+                        name = f'Hwy {hwyDig3} milepost {mp}'
 
-        shp = srcMP_Row[4]
+                shp = row[4]
 
-        tarRows.insertRow((name, mp, cfcc, shp))
+                icursor.insertRow((name, mp, cfcc, shp))
 
-    # ----Add Exit Records-------------------------------------------------------------
-    for srcEX_Row in srcEX_Rows:
-        if srcEX_Row[2] != None:
+    # ----Add Exit Records-----------------------------------------------
+    with arcpy.da.SearchCursor(exits, exit_flds) as scursor, \
+        with arcpy.da.InsertCursor(milePostsHwyRR_BS, bs_flds) as icursor:
+            for row in scursor:
+                if row[2] != None:
 
-            #Type = 'epm'
-            cfcc = 'P20'
-            lbl = srcEX_Row[2]
+                    cfcc = 'P20'
+                    lbl = row[2]
 
-            if srcEX_Row[0].split()[0] == 'SR':
-                name = 'Hwy ' + ' '.join(srcEX_Row[0].split()[1:])
-            elif srcEX_Row[0].split()[0] == 'US':
-                name = 'Hwy ' + ' '.join(srcEX_Row[0].split()[1:])
-            else:
-                name = srcEX_Row[0]
+                    if row[0].split()[0] == 'SR':
+                        name = 'Hwy ' + ' '.join(row[0].split()[1:])
+                    elif row[0].split()[0] == 'US':
+                        name = 'Hwy ' + ' '.join(row[0].split()[1:])
+                    else:
+                        name = row[0]
 
-            shp = srcEX_Row[1]
+                    shp = row[1]
 
-            tarRows.insertRow((name, lbl, cfcc, shp))
+                    icursor.insertRow((name, lbl, cfcc, shp))
 
-    del tarRows
+    # ----Copy Mileposts to shapefile----------------------------------------
+    arcpy.CopyFeatures_management(milePostsHwyRR_BS, os.path.join(outLoc, 'HwyRR_MPM.shp'))
 
-    # ----Copy Mileposts to shapefile--------------------------------------------------
-    arcpy.CopyFeatures_management(milePostsHwyRR_BS, outLoc + '\\HwyRR_MPM.shp')
-
-    clip(milePostsHwyRR_BS, 'pts.shp');
+    clip(milePostsHwyRR_BS, '', 'pts');
 
     print ('Done Translating Mileposts  ' + str(datetime.datetime.now()))
 
@@ -899,23 +781,23 @@ def landownershipLarge():
 
     print ('Starting Large Landownership  ' + str(datetime.datetime.now()))
 
-    env.workspace = sgid10
+    env.workspace = sgid
     arcpy.env.overwriteOutput = True
 
-    landown = sgid10_GEO + '\\LandOwnership'
-    parks = sgid10_GEO + '\\Parks'
-    cemeteries = sgid10_GEO + '\\Cemeteries'
-    golf = sgid10_GEO + '\\GolfCourses'
+    landown = sgid_GEO + '\\LandOwnership'
+    parks = sgid_GEO + '\\Parks'
+    cemeteries = sgid_GEO + '\\Cemeteries'
+    golf = sgid_GEO + '\\GolfCourses'
 
     landownBS = stageDB + '\\TGR_StWide_lpy'
 
-    clpCnty = 'SGID10.BOUNDARIES.Counties'
+    clpCnty = 'SGID.BOUNDARIES.Counties'
 
-    #---Copy Landownership, Parks, and Cemeteries to SGID10_GEOGRAPHIC staging area
-    arcpy.CopyFeatures_management('SGID10.CADASTRE.LandOwnership', landown)
-    arcpy.CopyFeatures_management('SGID10.RECREATION.ParksLocal', parks)
-    arcpy.CopyFeatures_management('SGID10.SOCIETY.Cemeteries_Poly', cemeteries)
-    arcpy.CopyFeatures_management('SGID10.RECREATION.GolfCourses', golf)
+    #---Copy Landownership, Parks, and Cemeteries to SGID_GEOGRAPHIC staging area
+    arcpy.CopyFeatures_management('SGID.CADASTRE.LandOwnership', landown)
+    arcpy.CopyFeatures_management('SGID.RECREATION.ParksLocal', parks)
+    arcpy.CopyFeatures_management('SGID.SOCIETY.Cemeteries_Poly', cemeteries)
+    arcpy.CopyFeatures_management('SGID.RECREATION.GolfCourses', golf)
 
     #---Check for statewide Large Landownership BlueStakes schema
     if not arcpy.Exists(landownBS):
@@ -1067,7 +949,7 @@ def landownershipLarge():
 
 
     #---Clip Blue Stakes Landonwership-----------------------------------------------------------
-    clip(landownBS, 'lpy.shp');
+    clip(landownBS, '', 'lpy');
 
 
     print ('Done Translating Large Landownership  ' + str(datetime.datetime.now()))
@@ -1076,11 +958,11 @@ def waterPoly():
 
     print ('Starting Lakes  ' + str(datetime.datetime.now()))
 
-    lakes = sgid10_GEO + '\\LakesNHDHighRes'
+    lakes = sgid_GEO + '\\LakesNHDHighRes'
     lakesBS = stageDB + '\\TGR_StWide_wat'
 
-    #---Copy lakesNHD to SGID10_GEOGRAPHIC staging area
-    arcpy.CopyFeatures_management('SGID10.WATER.LakesNHDHighRes', lakes)
+    #---Copy lakesNHD to SGID_GEOGRAPHIC staging area
+    arcpy.CopyFeatures_management('SGID.WATER.LakesNHDHighRes', lakes)
 
     #---Check for statewide lakes BlueStakes schema
     if not arcpy.Exists(lakesBS):
@@ -1147,15 +1029,13 @@ def waterPoly():
 
             tarRows.insertRow((CFCC, LANDNAME, shp))
 
-        # else:
-        #     continue
 
     #---Copy Lakes to Blue Stakes root level---------------
     arcpy.CopyFeatures_management(lakesBS, outLoc + '\\TGR_StWide_WAT.shp')
 
 
     #---Clip Blue Stakes Misc Transportation-----------------------------------------------------------
-    clip(lakesBS, 'WAT.shp');
+    clip(lakesBS, '', 'WAT');
 
 
     print ('Done Translating Lakes  ' + str(datetime.datetime.now()))
@@ -1164,10 +1044,10 @@ def waterLines():
 
     print ('Starting Rivers  ' + str(datetime.datetime.now()))
 
-    rivers = sgid10_GEO + '\\StreamsNHD'
+    rivers = sgid_GEO + '\\StreamsNHD'
     riversBS = stageDB + '\\TGR_StWide_lkH'
 
-    arcpy.CopyFeatures_management('SGID10.WATER.StreamsNHDHighRes', rivers)
+    arcpy.CopyFeatures_management('SGID.WATER.StreamsNHDHighRes', rivers)
 
     #---Check for Rivers BlueStakes schema
     if not arcpy.Exists(riversBS):
@@ -1210,7 +1090,7 @@ def waterLines():
 
 
     #---Clip Blue Stakes Misc Transportation-----------------------------------------------------------
-    clip(riversBS, 'lkH.shp');
+    clip(riversBS, '', 'lkH');
 
 
     print ('Done Translating Rivers  ' + str(datetime.datetime.now()))
@@ -1219,20 +1099,20 @@ def railroads():
 
     print ('Starting Railroads  ' + str(datetime.datetime.now()))
 
-    env.workspace = sgid10
+    env.workspace = sgid
     arcpy.env.overwriteOutput = True
 
-    rail = sgid10_GEO + '\\Railroads'
-    railLt = sgid10_GEO + '\\LightRail_UTA'
-    #railLt_new = sgid10_GEO + '\\LightRailNewRoutes_UTA'
-    railCommut = sgid10_GEO + '\\CommuterRailRoute_UTA'
-    #railCommut_new = sgid10_GEO + '\\CommuterRailNewRoutes_UTA'
+    rail = sgid_GEO + '\\Railroads'
+    railLt = sgid_GEO + '\\LightRail_UTA'
+    #railLt_new = sgid_GEO + '\\LightRailNewRoutes_UTA'
+    railCommut = sgid_GEO + '\\CommuterRailRoute_UTA'
+    #railCommut_new = sgid_GEO + '\\CommuterRailNewRoutes_UTA'
 
     railBS = stageDB + '\\TGR_StWide_lkB'
 
-    arcpy.CopyFeatures_management('SGID10.TRANSPORTATION.Railroads', rail)
-    arcpy.CopyFeatures_management('SGID10.TRANSPORTATION.LightRail_UTA', railLt)
-    arcpy.CopyFeatures_management('SGID10.TRANSPORTATION.CommuterRailRoutes_UTA', railCommut)
+    arcpy.CopyFeatures_management('SGID.TRANSPORTATION.Railroads', rail)
+    arcpy.CopyFeatures_management('SGID.TRANSPORTATION.LightRail_UTA', railLt)
+    arcpy.CopyFeatures_management('SGID.TRANSPORTATION.CommuterRailRoutes_UTA', railCommut)
 
 
     #---Check for statewide railroad BlueStakes schema
@@ -1313,7 +1193,7 @@ def railroads():
 
 
     #---Clip Blue Stakes Railroads-----------------------------------------------------------
-    clip(railBS, 'lkB.shp');
+    clip(railBS, '', 'lkB');
 
     print ('Done Translating Railroads  ' + str(datetime.datetime.now()))
 
@@ -1321,11 +1201,11 @@ def airstrips():
 
     print ('Starting Airstrips  ' + str(datetime.datetime.now()))
 
-    airstrips = sgid10_GEO + '\\Airports'
+    airstrips = sgid_GEO + '\\Airports'
     airstripsBS = stageDB + '\\TGR_StWide_lkD'
-    clpCnty = 'SGID10.BOUNDARIES.Counties'
+    clpCnty = 'SGID.BOUNDARIES.Counties'
 
-    arcpy.CopyFeatures_management('SGID10.TRANSPORTATION.Airports', airstrips)
+    arcpy.CopyFeatures_management('SGID.TRANSPORTATION.Airports', airstrips)
 
     #---Check for statewide airports BlueStakes schema
     if not arcpy.Exists(airstripsBS):
@@ -1365,7 +1245,7 @@ def airstrips():
 
 
     #---Clip Blue Stakes Airstrips-----------------------------------------------------------
-    clip(airstripsBS, 'lkD.shp');
+    clip(airstripsBS, '', 'lkD');
 
 
     print ('Done Translating Airstrips  ' + str(datetime.datetime.now()))
@@ -1374,13 +1254,12 @@ def miscTransportation():
 
     print ('Starting Misc Transportation  ' + str(datetime.datetime.now()))
 
-    miscTrans_ski = sgid10_GEO + '\\SkiLifts'
-    miscTrans_TransLines = sgid10_GEO + '\\TransmissionLines'
-    miscTrans_ElecLines = sgid10_GEO + '\\ElectricLines'
+    miscTrans_ski = sgid_GEO + '\\SkiLifts'
+    miscTrans_TransLines = sgid_GEO + '\\TransmissionLines'
+    miscTrans_ElecLines = sgid_GEO + '\\ElectricLines'
     miscTransBS = stageDB + '\\TGR_StWide_lkC'
     miscTrans_QuestarParcels = r'C:\ZBECK\BlueStakes\stagingBS.gdb\DOMINION_GEOGRAPHIC\Parcels_Questar'
     source_QuestarParcels = r'C:\ZBECK\BlueStakes\DominionEnergy\OneCall.gdb\Property'
-    clpCnty = 'SGID10.BOUNDARIES.Counties'
 
     #---Load Questar parcels from past year---
     count = int(arcpy.GetCount_management(miscTrans_QuestarParcels).getOutput(0))
@@ -1388,7 +1267,6 @@ def miscTransportation():
         print (count)
         arcpy.TruncateTable_management(miscTrans_QuestarParcels)
         print ('Truncated Questar Parcels')
-        #arcpy.CopyFeatures_management(source_QuestarParcels, miscTrans_QuestarParcels)
 
     today = datetime.datetime.now()
 
@@ -1421,28 +1299,14 @@ def miscTransportation():
             else:
                 print (oid)
 
-
-            # if dateC != None:
-            #     dateC_delta = today - dateC
-            #     if int(str(dateC_delta).split()[0]) < 366:
-            #         dateC_subYear = int(str(dateC_delta).split()[0])
-            #         iCursor.insertRow((dateC, None, propType, row[3]))
-            # if dateM != None:
-            #     dateM_delta = today - dateM
-            #     if int(str(dateM_delta).split()[0]) < 366:
-            #         if oid not in oidList:
-            #             oidList.append(oid)
-            #             dateM_subYear = int(str(dateM_delta).split()[0])
-            #             iCursor.insertRow((None, dateM, propType, row[3]))
     del sCursor
     del iCursor
 
 
-    arcpy.CopyFeatures_management('SGID10.RECREATION.SkiLifts', miscTrans_ski)
-    arcpy.CopyFeatures_management('SGID10.UTILITIES.TransmissionLines', miscTrans_TransLines)
-    arcpy.CopyFeatures_management('SGID10.UTILITIES.ElectricalLines', miscTrans_ElecLines)
+    arcpy.CopyFeatures_management('SGID.RECREATION.SkiLifts', miscTrans_ski)
+    arcpy.CopyFeatures_management('SGID.UTILITIES.TransmissionLines', miscTrans_TransLines)
+    arcpy.CopyFeatures_management('SGID.UTILITIES.ElectricalLines', miscTrans_ElecLines)
     print ('Copied Features')
-    #arcpy.CopyFeatures_management(source_QuestarParcels, miscTrans_QuestarParcels)
 
 
     #---Check for statewide misc transportation BlueStakes schema
@@ -1528,7 +1392,7 @@ def miscTransportation():
     arcpy.CopyFeatures_management(miscTransBS, outLoc + '\\TGR_StWide_lkC.shp')
 
     #---Clip Blue Stakes Misc Transportation-----------------------------------------------------------
-    clip(miscTransBS, 'lkC.shp');
+    clip(miscTransBS, '', 'lkC');
 
 
     print ('Done Translating Misc Transportation  ' + str(datetime.datetime.now()))
@@ -1537,11 +1401,11 @@ def townships():
 
     print ('Starting Townships  ' + str(datetime.datetime.now()))
 
-    twnShips = sgid10_GEO + '\\PLSSTownships'
+    twnShips = sgid_GEO + '\\PLSSTownships'
     twnShipsBS = stageDB + '\\UT_TR'
 
-    #---Copy Townships in SGID10_GEOGRAPHIC staging area
-    arcpy.CopyFeatures_management('SGID10.CADASTRE.PLSSTownships_GCDB', twnShips)
+    #---Copy Townships in SGID_GEOGRAPHIC staging area
+    arcpy.CopyFeatures_management('SGID.CADASTRE.PLSSTownships_GCDB', twnShips)
 
     #---Check for statewide township BlueStakes schema
     if not arcpy.Exists(twnShipsBS):
@@ -1584,12 +1448,12 @@ def sections():
 
     meridianDict = {'26':'SL', '30':'UI'}
 
-    sections = sgid10_GEO + '\\PLSSSections'
+    sections = sgid_GEO + '\\PLSSSections'
     sectionsBS = stageDB + '\\UT_TRS'
 
-    #---Move Sections to SGID10_GEOGRAPHIC staging area
+    #---Move Sections to SGID_GEOGRAPHIC staging area
 
-    arcpy.CopyFeatures_management('SGID10.CADASTRE.PLSSSections_GCDB', sections)
+    arcpy.CopyFeatures_management('SGID.CADASTRE.PLSSSections_GCDB', sections)
 
     #---Check for statewide BlueStakes sections
     if not arcpy.Exists(sectionsBS):
@@ -1639,11 +1503,11 @@ def deciPoints():
 
     print ('Starting Deci Points (GNIS) ' + str(datetime.datetime.now()))
 
-    deciPts = sgid10_GEO + '\\GNIS2010'
+    deciPts = sgid_GEO + '\\GNIS2010'
     deciPtsBS = stageDB + '\\TGR_StWide_deci'
 
-    #---Move GNIS to SGID10_GEOGRAPHIC staging area
-    arcpy.CopyFeatures_management('SGID10.LOCATION.PlaceNamesGNIS2010', deciPts)
+    #---Move GNIS to SGID_GEOGRAPHIC staging area
+    arcpy.CopyFeatures_management('SGID.LOCATION.PlaceNamesGNIS2010', deciPts)
 
     #---Check for statewide Deci Points BlueStakes schema
     if not arcpy.Exists(deciPtsBS):
@@ -1676,7 +1540,7 @@ def deciPoints():
 
 
     #---Clip Blue Stakes Deci Points-----------------------------------------------------------
-    clip(deciPtsBS, 'deci.shp');
+    clip(deciPtsBS, '', 'deci');
 
 
     print ('Done Translating Deci Points (GNIS) ' + str(datetime.datetime.now()))
@@ -1685,31 +1549,31 @@ def addedPoints():
 
     print ('Starting Added Points ' + str(datetime.datetime.now()))
 
-    correctionsPts = sgid10_GEO + '\\CorrectionalFacilities'
-    fireStnPts = sgid10_GEO + '\\FireStations'
-    libraryPts = sgid10_GEO + '\\Libraries'
-    liquorPts = sgid10_GEO + '\\LiquorStores'
-    churchPts = sgid10_GEO + '\\PlacesOfWorship'
-    policePts = sgid10_GEO + '\\PoliceStations'
-    postOfficePts = sgid10_GEO + '\\PostOffices'
-    schoolPts = sgid10_GEO + '\\Schools'
-    mallPts = sgid10_GEO + '\\ShoppingMalls'
-    healthCarePts = sgid10_GEO + '\\HealthCareFacilities'
+    correctionsPts = sgid_GEO + '\\CorrectionalFacilities'
+    fireStnPts = sgid_GEO + '\\FireStations'
+    libraryPts = sgid_GEO + '\\Libraries'
+    liquorPts = sgid_GEO + '\\LiquorStores'
+    churchPts = sgid_GEO + '\\PlacesOfWorship'
+    policePts = sgid_GEO + '\\PoliceStations'
+    postOfficePts = sgid_GEO + '\\PostOffices'
+    schoolPts = sgid_GEO + '\\Schools'
+    mallPts = sgid_GEO + '\\ShoppingMalls'
+    healthCarePts = sgid_GEO + '\\HealthCareFacilities'
 
     addedPtsBS = stageDB + '\\TGR_StWide_added'
 
-    #---Move Points to SGID10_GEOGRAPHIC staging area
-    arcpy.CopyFeatures_management('SGID10.SOCIETY.CorrectionalFacilities', correctionsPts)
-    arcpy.CopyFeatures_management('SGID10.SOCIETY.FireStations', fireStnPts)
-    arcpy.CopyFeatures_management('SGID10.SOCIETY.Libraries', libraryPts)
-    arcpy.CopyFeatures_management('SGID10.SOCIETY.LiquorStores', liquorPts)
-    arcpy.CopyFeatures_management('SGID10.SOCIETY.PlacesOfWorship', churchPts)
-    arcpy.CopyFeatures_management('SGID10.SOCIETY.LawEnforcement', policePts)
-    arcpy.CopyFeatures_management('SGID10.SOCIETY.PostOffices', postOfficePts)
-    arcpy.CopyFeatures_management('SGID10.SOCIETY.Schools', schoolPts)
-    arcpy.CopyFeatures_management('SGID10.SOCIETY.ShoppingMalls', mallPts)
-    arcpy.CopyFeatures_management('SGID10.HEALTH.HealthCareFacilities', healthCarePts)
-    print ('Done copying features from SGID10 to staging area')
+    #---Move Points to SGID_GEOGRAPHIC staging area
+    arcpy.CopyFeatures_management('SGID.SOCIETY.CorrectionalFacilities', correctionsPts)
+    arcpy.CopyFeatures_management('SGID.SOCIETY.FireStations', fireStnPts)
+    arcpy.CopyFeatures_management('SGID.SOCIETY.Libraries', libraryPts)
+    arcpy.CopyFeatures_management('SGID.SOCIETY.LiquorStores', liquorPts)
+    arcpy.CopyFeatures_management('SGID.SOCIETY.PlacesOfWorship', churchPts)
+    arcpy.CopyFeatures_management('SGID.SOCIETY.LawEnforcement', policePts)
+    arcpy.CopyFeatures_management('SGID.SOCIETY.PostOffices', postOfficePts)
+    arcpy.CopyFeatures_management('SGID.SOCIETY.Schools', schoolPts)
+    arcpy.CopyFeatures_management('SGID.SOCIETY.ShoppingMalls', mallPts)
+    arcpy.CopyFeatures_management('SGID.HEALTH.HealthCareFacilities', healthCarePts)
+    print ('Done copying features from SGID to staging area')
 
     #---Check for statewide Deci Points BlueStakes schema
     if not arcpy.Exists(addedPtsBS):
@@ -1827,7 +1691,7 @@ def addedPoints():
     arcpy.CopyFeatures_management(addedPtsBS, outLoc + '\\TGR_StWide_added.shp')
 
     #---Clip Blue Stakes Deci Points-----------------------------------------------------------
-    clip(addedPtsBS, 'added.shp');
+    clip(addedPtsBS, '', 'added');
 
 
     print ('Done Translating Added Points ' + str(datetime.datetime.now()))
@@ -1836,15 +1700,15 @@ def counties():
 
     print ('Starting Counties ' + str(datetime.datetime.now()))
 
-    cnty = sgid10_GEO + '\\Counties'
-    utah = sgid10_GEO + '\\Utah'
+    cnty = sgid_GEO + '\\Counties'
+    utah = sgid_GEO + '\\Utah'
     cntyBS = stageDB + '\\TGRSSCCCcty00'
     cntyBS_All = stageDB + '\\CO49_D90'
     stateBS = stageDB + '\\ST49_D00'
 
-    #---Move Counties to SGID10_GEOGRAPHIC staging area
-    arcpy.CopyFeatures_management('SGID10.BOUNDARIES.Counties', cnty)
-    arcpy.CopyFeatures_management('SGID10.BOUNDARIES.Utah', utah)
+    #---Move Counties to SGID_GEOGRAPHIC staging area
+    arcpy.CopyFeatures_management('SGID.BOUNDARIES.Counties', cnty)
+    arcpy.CopyFeatures_management('SGID.BOUNDARIES.Utah', utah)
 
     #---Check for County BlueStakes schema
     if not arcpy.Exists(cntyBS):
@@ -1962,11 +1826,11 @@ def addressZones():
 
     print ('Starting Address Zones  ' + str(datetime.datetime.now()))
 
-    addZones = sgid10_GEO + '\\AddressSystemQuadrants'
+    addZones = sgid_GEO + '\\AddressSystemQuadrants'
     addZonesBS = stageDB + '\\addrsys'
 
-    #---Add Address Zones to SGID10_GEOGRAPHIC staging area
-    arcpy.CopyFeatures_management('SGID10.LOCATION.AddressSystemQuadrants', addZones)
+    #---Add Address Zones to SGID_GEOGRAPHIC staging area
+    arcpy.CopyFeatures_management('SGID.LOCATION.AddressSystemQuadrants', addZones)
 
     #---Check for Address Zones BlueStakes schema
     if not arcpy.Exists(addZonesBS):
@@ -1997,25 +1861,27 @@ def addressZones():
     arcpy.CopyFeatures_management(addZonesBS, outLoc + '\\addrsys_StWide.shp')
 
     #---Clip by county-------------------------------------------
-    clpFlds = ['NAME', 'FIPS_STR', 'SHAPE@']
-    clpRows = arcpy.da.SearchCursor(clpCnty, clpFlds)
+    clip(addZonesBS, 'addrsys', '')
 
-    for row in clpRows:
-        clpFeat = row[2]
+    # clpFlds = ['NAME', 'FIPS_STR', 'SHAPE@']
+    # clpRows = arcpy.da.SearchCursor(clpCnty, clpFlds)
 
-        #----Delete shapefiles with no features----
-        clp = arcpy.Clip_analysis(addZonesBS, clpFeat, outLoc + '\\TGR' + row[1] + '\\addrsys' + row[1] + '.shp')
-        clpCount = int(arcpy.GetCount_management(clp).getOutput(0))
+    # for row in clpRows:
+    #     clpFeat = row[2]
 
-        if clpCount < 1:
-            arcpy.Delete_management(clp)
+    #     #----Delete shapefiles with no features----
+    #     clp = arcpy.Clip_analysis(addZonesBS, clpFeat, outLoc + '\\TGR' + row[1] + '\\addrsys' + row[1] + '.shp')
+    #     clpCount = int(arcpy.GetCount_management(clp).getOutput(0))
 
-        flds = arcpy.ListFields(clp)
-        for fld in flds:
-            if fld.name == 'Shape_Area':
-                arcpy.DeleteField_management(clp, 'Shape_Area')
-            if fld.name == 'Shape_Leng':
-                arcpy.DeleteField_management(clp, 'Shape_Leng')
+    #     if clpCount < 1:
+    #         arcpy.Delete_management(clp)
+
+    #     flds = arcpy.ListFields(clp)
+    #     for fld in flds:
+    #         if fld.name == 'Shape_Area':
+    #             arcpy.DeleteField_management(clp, 'Shape_Area')
+    #         if fld.name == 'Shape_Leng':
+    #             arcpy.DeleteField_management(clp, 'Shape_Leng')
 
 
     print ('Done Translating Address Zones  ' + str(datetime.datetime.now()))
@@ -2024,19 +1890,18 @@ def oilAndGasWells():
 
     print ('Starting Oil and Gas  ' + str(datetime.datetime.now()))
 
-    og = sgid10_GEO + '\\DNROilGasWells'
-    ogBS = stageDB + '\\wells_oil_gas'
+    og = os.path.join(sgid_GEO, 'DNROilGasWells')
+    ogBS = os.path.join(stageDB, 'wells_oil_gas')
 
-    #---Add Address Zones to SGID10_GEOGRAPHIC staging area
-    arcpy.CopyFeatures_management('SGID10.ENERGY.OilGasWells', og)
+    with arcpy.EnvManager(workspace=sgid):
+        arcpy.CopyFeatures_management('SGID.ENERGY.OilGasWells', og)
 
     #---Check for Address Zones BlueStakes schema
     if not arcpy.Exists(ogBS):
-        arcpy.CopyFeatures_management(schemaDB + '\\OilGasWells_Schema', ogBS)
+        arcpy.CopyFeatures_management(os.path.join(schemaDB, 'OilGasWells_Schema', ogBS))
     else:
-        arcpy.DeleteFeatures_management(ogBS)
+        arcpy.TruncateTable_management(ogBS)
 
-    #srcFlds = ['API', 'WELL_NAME', 'FIELD_NAME', 'COMPANY_NAME', 'LAT_SURF', 'LONG_SURF', 'SHAPE@']
     srcFlds = ['API', 'WellName', 'FieldName', 'Operator', 'Latitude', 'Longitude', 'SHAPE@']
     tarFlds = ['API', 'NAME', 'FIELD', 'OPERATOR', 'LATITUDE', 'LONGITUDE', 'SHAPE@']
 
@@ -2061,47 +1926,45 @@ def oilAndGasWells():
     arcpy.CopyFeatures_management(ogBS, outLoc + '\\wells_oil_gas.shp')
 
     #---Clip Blue Stakes Oil and Gas Wells----------------------------------------------------
-    #clip(ogBS, 'ogw.shp')
+    #clip(ogBS, '', 'ogw')
 
 
-def clip(clipMe, outNameSuffix):
-    env.workspace = sgid10
-    arcpy.env.overwriteOutput = True
+def clip(clipMe, outNamePrefix, outNameSuffix):
 
-    #---Clip Blue Stakes output, delete empty shapefiles, delete Shape_Leng field----
-    print ('Clipping ' + clipMe)
+    clpCnty = os.path.join(sgid_GEO, 'Counties')
+    with arcpy.EnvManager(workspace=sgid):
+        arcpy.env.overwriteOutput = True
+        if not arcpy.Exists(clpCnty):
+            arcpy.CopyFeatures_management('SGID.BOUNDARIES.Counties', clpCnty)
 
-    clpCnty = sgid10_GEO + '\\Counties'
+    with arcpy.EnvManager(workspace=outLoc):
+        arcpy.env.overwriteOutput = True
 
-    if arcpy.Exists(clpCnty):
-        arcpy.Delete_management(clpCnty)
-        arcpy.CopyFeatures_management('SGID10.BOUNDARIES.Counties', clpCnty)
-    else:
-        arcpy.CopyFeatures_management('SGID10.BOUNDARIES.Counties', clpCnty)
+        #---Clip Blue Stakes output, delete empty shapefiles, delete Shape_Leng field----
+        print ('Clipping ' + clipMe)
 
-    clpFlds = ['NAME', 'FIPS_STR', 'SHAPE@']
-    clpRows = arcpy.da.SearchCursor(clpCnty, clpFlds)
-    fldrPrefix = '\\TGR'
+        clpFlds = ['NAME', 'FIPS_STR', 'SHAPE@']
+        clpRows = arcpy.da.SearchCursor(clpCnty, clpFlds)
+        fldrPrefix = 'TGR'
 
-    for row in clpRows:
-        clpFeat = row[2]
-        print ('Clipping ' + row[0] + ' County')
+        for row in clpRows:
+            clpShp = row[2]
+            print ('Clipping ' + row[0] + ' County')
 
-        #----Delete shapefiles with no features----
-        clp = arcpy.Clip_analysis(clipMe, clpFeat, outLoc + fldrPrefix + row[1] + fldrPrefix + row[1] + outNameSuffix)
-        clpCount = int(arcpy.GetCount_management(clp).getOutput(0))
+            outFldr = f'TGR{row[1]}'
+            if outNamePrefix == '':
+                outClippedFC = os.path.join(outLoc, outFldr, f'TGR{row[1]}{outNameSuffix}.shp')
+                arcpy.Clip_analysis(clipMe, clpShp, outClippedFC)
+            else:
+                outClippedFC = os.path.join(outLoc, outFldr, f'{outNamePrefix}{row[1]}.shp')
+                arcpy.Clip_analysis(clipMe, clpShp, outClippedFC)
 
-        flds = arcpy.ListFields(clp)
-        for fld in flds:
-            if fld.name == 'Shape_Area':
-                arcpy.DeleteField_management(clp, 'Shape_Area')
-            if fld.name == 'Shape_Length':
-                arcpy.DeleteField_management(clp, 'Shape_Length')
-            if fld.name == 'Shape_Leng':
-                arcpy.DeleteField_management(clp, 'Shape_Leng')
+            #----Delete shapefiles with no features----
+            clpCount = int(arcpy.GetCount_management(outClippedFC).getOutput(0))
+            if clpCount < 1:
+                print(f'NO FEATURES IN {outClippedFC}')
+                arcpy.Delete_management(outClippedFC)
 
-        if clpCount < 1:
-            arcpy.Delete_management(clp)
 
 def cleanOutFldr():
     #----Delete all shapefiles from----
@@ -2114,11 +1977,11 @@ def cleanOutFldr():
 
 
 
-#cleanOutFldr();
+cleanOutFldr();
 
-#parcels();
+parcels();
 #roads();
-addressPoints();
+#addressPoints();
 #municipalities();
 #mileposts();
 #milepostsCombined()
