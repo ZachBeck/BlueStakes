@@ -2,6 +2,7 @@ import os, arcpy, datetime, time, re
 from arcpy import env
 from arcpy import da
 from agrc import parse_address
+#from sweeper.address_parser import Address
 from AddressAttributes import addAddressAttributes
 
 sgid = r'C:\sde\SGID_internal\SGID_agrc.sde'
@@ -74,6 +75,12 @@ def formatValues(word, inValues):
         return ''
     return ''
 
+def delete_shape_flds(fc, shp_flds):
+    for fld in shp_flds:
+        if fld in [f.name for f in arcpy.ListFields(fc)]:
+            arcpy.DeleteField_management(fc, fld)
+            print(f'Deleted {fld} in {fc}')
+
 def parcels():
     print ('Starting Parcels  ' + str(datetime.datetime.now()))
 
@@ -87,9 +94,7 @@ def parcels():
     #  'Sevier':'49041', 'Summit':'49043', 'Tooele':'49045', 'Uintah':'49047', 'Utah':'49049',
     #  'Wasatch':'49051', 'Washington':'49053', 'Wayne':'49055', 'Weber':'49057'}
 
-    parFipsDict = {'Davis':'49011', 'Grand':'49019', 'Kane':'49025', 'SaltLake':'49035',\
-                   'Summit':'49043', 'Utah':'49049', 'Washington':'49053', 'Weber':'49057'}
-
+    parFipsDict = {'Iron':'49021', 'Rich':'49033', 'Uintah':'49047'}
 
     for cnty in sorted(parFipsDict):
 
@@ -152,6 +157,20 @@ def parcels():
                             suf = address.suffixDirection
 
                         shp = row[2]
+                        # if row[1] not in idErrors:
+
+                        #     addFull = row[1]
+                        #     address = Address(row[1])
+                        #     addNum = address.address_number
+                        #     if len(addNum) > 10:
+                        #         addNum = ''
+                        #     preDir = address.prefix_direction
+                        #     fename = address.street_name
+                        #     print(row[3])
+                        #     stype = address.street_type
+                        #     suf = address.street_direction
+
+                        # shp = row[2]
 
                         icursor.insertRow((addNum, addFull, preDir, fename, stype, suf, parID, shp))
 
@@ -234,16 +253,17 @@ def roads():
     env.workspace = sgid
     arcpy.env.overwriteOutput = True
 
-    roadsSGID = sgid_GEO + '\\Roads'
-    roadsBS = stageDB + '\\TGR_StWide_lkA'
+    roadsSGID = os.path.join(sgid_GEO, 'Roads')
+    roadsBS = os.path.join(stageDB, 'TGR_StWide_lkA')
 
     #----Move Roads to SGID_GEOGRAPHIC staging area
-    arcpy.CopyFeatures_management('SGID.TRANSPORTATION.Roads', roadsSGID)
-    print('Copied roads to StagingDB')
+    with arcpy.EnvManager(workspace=sgid):
+        arcpy.CopyFeatures_management('SGID.TRANSPORTATION.Roads', roadsSGID)
+        print('Copied roads to StagingDB')
 
     # ----Check for statewide BlueStakes roads
     if not arcpy.Exists(roadsBS):
-        arcpy.CopyFeatures_management(schemaDB + '\\TGRSSCCClkA_schema', roadsBS)
+        arcpy.CopyFeatures_management(os.path.join(schemaDB, 'TGRSSCCClkA_schema'), roadsBS)
     else:
         arcpy.TruncateTable_management(roadsBS)
 
@@ -578,12 +598,14 @@ def municipalities():
     with arcpy.da.SearchCursor(metroTownships, twnshipFlds) as scursor, \
         arcpy.da.InsertCursor(muniBS, outFlds) as icursor:
             for row in scursor:
-                name = trow[0].title()
-                shp = trow[1]
+                name = row[0].title()
+                shp = row[1]
                 icursor.insertRow((name, shp))
 
     #---Copy Municipalities to Blues Stakes root level
-    arcpy.CopyFeatures_management(os.path.join(muniBS, outLoc, 'TGR_StWide_plc00.shp'))
+    arcpy.CopyFeatures_management(muniBS, os.path.join(outLoc, 'TGR_StWide_plc00.shp'))
+
+    delete_shape_flds(os.path.join(outLoc, 'TGR_StWide_plc00.shp'), ['Shape_Area', 'Shape_Leng', 'SHAPE_Leng', 'SHAPE_Area'])
 
     #---Clip Blue Stakes Municipalities----------
     clip(muniBS, '', 'plc00');
@@ -617,7 +639,7 @@ def mileposts():
     exit_flds = ['EXITNAME', 'SHAPE@']
     bs_flds = ['Type', 'Label_Name', 'SHAPE@']
 
-    with arcpy.da.SearchCursor(mileposts, mp_flds) as scursor, \
+    with arcpy.da.SearchCursor(milePosts, mp_flds) as scursor, \
         arcpy.da.InsertCursor(milePostsBS, bs_flds) as icursor:
 
         for row in scursor:
@@ -644,13 +666,13 @@ def mileposts():
                 else:
                     Label_Name = f'Hwy {hwyDig3} milepost {mp}'
 
-            shp = srcMP_Row[4]
+            shp = row[4]
 
             icursor.insertRow((Type, Label_Name, shp))
 
     #----Add Exit Records--------------------------------------------
     with arcpy.da.SearchCursor(exits, exit_flds) as scursor, \
-        with arcpy.da.InsertCursor(milePostsBS, bs_flds) as icursor:
+        arcpy.da.InsertCursor(milePostsBS, bs_flds) as icursor:
         for row in scursor:
 
             Type = 'epm'
@@ -680,7 +702,6 @@ def milepostsCombined():
     milePostsHwyRR_BS = os.path.join(stageDB, 'HwyRR_MPM')
 
     with arcpy.EnvManager(workspace=sgid):
-        env.workspace = sgid
         arcpy.env.overwriteOutput = True
 
         # ---Copy new Exits and Mileposts to Staging DB
@@ -702,73 +723,73 @@ def milepostsCombined():
     RRmp_flds = ['DIVISION', 'RR_Milepos', 'SHAPE@']
     bs_flds = ['NAME', 'LABEL', 'CFCC', 'SHAPE@']
 
-    srcMP_Rows = arcpy.da.SearchCursor(milePosts, srcMP_Flds)
-    srcEX_Rows = arcpy.da.SearchCursor(exits, srcEX_Flds)
-    srcMPrr_Rows = arcpy.da.SearchCursor(rr_MilePosts, srcMPrr_Flds)
-    tarRows = arcpy.da.InsertCursor(milePostsHwyRR_BS, tarFlds)
+    # srcMP_Rows = arcpy.da.SearchCursor(milePosts, srcMP_Flds)
+    # srcEX_Rows = arcpy.da.SearchCursor(exits, srcEX_Flds)
+    # srcMPrr_Rows = arcpy.da.SearchCursor(rr_MilePosts, srcMPrr_Flds)
+    # tarRows = arcpy.da.InsertCursor(milePostsHwyRR_BS, tarFlds)
 
     # ----Add RR Mileposts-----------------------------------------------
     with arcpy.da.SearchCursor(rr_MilePosts, RRmp_flds) as scursor, \
-        with arcpy.da.InsertCursor(milePostsHwyRR_BS, bs_flds) as icursor:
-            for row in scursors:
-                if '.' not in row[1]:
-                    lbl = row[1]
-                    name = f'{row[0].title()} Division milepost {lbl}'
-                    cfcc = 'P11'
-                    shp = row[2]
+        arcpy.da.InsertCursor(milePostsHwyRR_BS, bs_flds) as icursor:
+        for row in scursor:
+            if '.' not in row[1]:
+                lbl = row[1]
+                name = f'{row[0].title()} Division milepost {lbl}'
+                cfcc = 'P11'
+                shp = row[2]
 
-                    icursor.insertRow((name, lbl, cfcc, shp))
+                icursor.insertRow((name, lbl, cfcc, shp))
 
     # ----Add Milepost Records-------------------------------------------
     with arcpy.da.SearchCursor(milePosts, mp_flds) as scursor, \
-        with arcpy.da.InsersCursor(milePostsHwyRR_BS, bs_flds) as icursor:
+        arcpy.da.InsertCursor(milePostsHwyRR_BS, bs_flds) as icursor:
 
-            for row in scursor:
-                cfcc = 'P10'
+        for row in scursor:
+            cfcc = 'P10'
 
-                hwyDig1 = row[0][3:4]
-                hwyDig2 = row[0][2:4]
-                hwyDig3 = row[0][1:4]
-                mp = str(row[1]).split('.')[0]
+            hwyDig1 = row[0][3:4]
+            hwyDig2 = row[0][2:4]
+            hwyDig3 = row[0][1:4]
+            mp = str(row[1]).split('.')[0]
 
-                if row[3] == 'N':
-                    name = ''
-                elif row[2] == '1' and row[3] == 'P':
-                    if row[0][1:4] == '215':
-                        name = f'I-{hwyDig3} milepost {mp}'
-                    else:
-                        name = f'I-{hwyDig2} milepost {mp}'
+            if row[3] == 'N':
+                name = ''
+            elif row[2] == '1' and row[3] == 'P':
+                if row[0][1:4] == '215':
+                    name = f'I-{hwyDig3} milepost {mp}'
                 else:
-                    if row[0][:3] == '000':
-                        name = f'Hwy {hwyDig1} milepost {mp}'
-                    elif row[0][:2] == '00':
-                        name = f'Hwy {hwyDig2} milepost {mp}'
-                    else:
-                        name = f'Hwy {hwyDig3} milepost {mp}'
+                    name = f'I-{hwyDig2} milepost {mp}'
+            else:
+                if row[0][:3] == '000':
+                    name = f'Hwy {hwyDig1} milepost {mp}'
+                elif row[0][:2] == '00':
+                    name = f'Hwy {hwyDig2} milepost {mp}'
+                else:
+                    name = f'Hwy {hwyDig3} milepost {mp}'
 
-                shp = row[4]
+            shp = row[4]
 
-                icursor.insertRow((name, mp, cfcc, shp))
+            icursor.insertRow((name, mp, cfcc, shp))
 
     # ----Add Exit Records-----------------------------------------------
     with arcpy.da.SearchCursor(exits, exit_flds) as scursor, \
-        with arcpy.da.InsertCursor(milePostsHwyRR_BS, bs_flds) as icursor:
-            for row in scursor:
-                if row[2] != None:
+        arcpy.da.InsertCursor(milePostsHwyRR_BS, bs_flds) as icursor:
+        for row in scursor:
+            if row[2] != None:
 
-                    cfcc = 'P20'
-                    lbl = row[2]
+                cfcc = 'P20'
+                lbl = row[2]
 
-                    if row[0].split()[0] == 'SR':
-                        name = 'Hwy ' + ' '.join(row[0].split()[1:])
-                    elif row[0].split()[0] == 'US':
-                        name = 'Hwy ' + ' '.join(row[0].split()[1:])
-                    else:
-                        name = row[0]
+                if row[0].split()[0] == 'SR':
+                    name = 'Hwy ' + ' '.join(row[0].split()[1:])
+                elif row[0].split()[0] == 'US':
+                    name = 'Hwy ' + ' '.join(row[0].split()[1:])
+                else:
+                    name = row[0]
 
-                    shp = row[1]
+                shp = row[1]
 
-                    icursor.insertRow((name, lbl, cfcc, shp))
+                icursor.insertRow((name, lbl, cfcc, shp))
 
     # ----Copy Mileposts to shapefile----------------------------------------
     arcpy.CopyFeatures_management(milePostsHwyRR_BS, os.path.join(outLoc, 'HwyRR_MPM.shp'))
@@ -781,175 +802,163 @@ def landownershipLarge():
 
     print ('Starting Large Landownership  ' + str(datetime.datetime.now()))
 
-    env.workspace = sgid
-    arcpy.env.overwriteOutput = True
+    landown = os.path.join(sgid_GEO, 'LandOwnership')
+    parks = os.path.join(sgid_GEO, 'Parks')
+    cemeteries = os.path.join(sgid_GEO, 'Cemeteries')
+    golf = os.path.join(sgid_GEO, 'GolfCourses')
 
-    landown = sgid_GEO + '\\LandOwnership'
-    parks = sgid_GEO + '\\Parks'
-    cemeteries = sgid_GEO + '\\Cemeteries'
-    golf = sgid_GEO + '\\GolfCourses'
-
-    landownBS = stageDB + '\\TGR_StWide_lpy'
-
-    clpCnty = 'SGID.BOUNDARIES.Counties'
+    landownBS = os.path.join(stageDB, 'TGR_StWide_lpy')
 
     #---Copy Landownership, Parks, and Cemeteries to SGID_GEOGRAPHIC staging area
-    arcpy.CopyFeatures_management('SGID.CADASTRE.LandOwnership', landown)
-    arcpy.CopyFeatures_management('SGID.RECREATION.ParksLocal', parks)
-    arcpy.CopyFeatures_management('SGID.SOCIETY.Cemeteries_Poly', cemeteries)
-    arcpy.CopyFeatures_management('SGID.RECREATION.GolfCourses', golf)
+    with arcpy.EnvManager(workspace=sgid):
+        arcpy.env.overwriteOutput = True
+
+        arcpy.CopyFeatures_management('SGID.CADASTRE.LandOwnership', landown)
+        arcpy.CopyFeatures_management('SGID.RECREATION.ParksLocal', parks)
+        arcpy.CopyFeatures_management('SGID.SOCIETY.Cemeteries_Poly', cemeteries)
+        arcpy.CopyFeatures_management('SGID.RECREATION.GolfCourses', golf)
 
     #---Check for statewide Large Landownership BlueStakes schema
     if not arcpy.Exists(landownBS):
         arcpy.CopyFeatures_management(schemaDB + '\\TGRSSCCClpy_schema', landownBS)
     else:
-        arcpy.DeleteFeatures_management(landownBS)
+        arcpy.TruncateTable_management(landownBS)
 
 
-    srcLnd_Flds = ['OWNER', 'DESIG', 'LABEL_STATE', 'LABEL_FEDERAL', 'STATE_LGD', 'SHAPE@']
-    srcPrk_Flds = ['NAME', 'SHAPE@']
-    srcCem_Flds = ['Name', 'SHAPE@']
-    srcGlf_Flds = ['NAME', 'SHAPE@']
+    landown_flds = ['OWNER', 'DESIG', 'LABEL_STATE', 'LABEL_FEDERAL', 'STATE_LGD', 'SHAPE@']
+    park_flds = ['NAME', 'SHAPE@']
+    cemetery_flds = ['Name', 'SHAPE@']
+    golf_flds = ['NAME', 'SHAPE@']
 
-    tarFlds = ['CFCC', 'LANDNAME', 'SHAPE@']
-
-    cntyFlds = ['NAME', 'FIPS_STR', 'SHAPE@']
-
-
-    srcLnd_Rows = arcpy.da.SearchCursor(landown, srcLnd_Flds)
-    srcPrk_Rows = arcpy.da.SearchCursor(parks, srcPrk_Flds)
-    srcCem_Rows = arcpy.da.SearchCursor(cemeteries, srcCem_Flds)
-    srcGlf_Rows = arcpy.da.SearchCursor(golf, srcGlf_Flds)
-
-    tarRows = arcpy.da.InsertCursor(landownBS, tarFlds)
+    bs_flds = ['CFCC', 'LANDNAME', 'SHAPE@']
 
     monType = ['National Historic Site', 'National Monument', 'National Park', 'National Recreation Area']
+    primType = ['Primitive Area', 'Wilderness', 'Wildlife Reserve/Management Area', 'National Wildlife Refuge']
 
-    #----Add LandOwn features-------------------------------------
-    for srcLnd_Row in srcLnd_Rows:
+    #----Add Land Ownership-------------------------------------
+    print('Adding Land Ownership')
+    with arcpy.da.SearchCursor(landown, landown_flds) as scursor, \
+        arcpy.da.InsertCursor(landownBS, bs_flds) as icursor:
+        for row in scursor:
 
-        if srcLnd_Row[0] == 'Tribal':
+            if row[0] == 'Tribal':
+                CFCC = 'D40'
 
-            CFCC = 'D40'
+                if row[3] != None:
+                    LANDNAME = row[3].title()
+                else:
+                    LANDNAME = row[4]
 
-            if srcLnd_Row[3] != None:
-                LANDNAME = srcLnd_Row[3].title()
+                shp = row[5]
+
+
+            elif row[1] == 'Military':
+                CFCC = 'D10'
+
+                if row[3] != None:
+                    LANDNAME = row[3].title()
+                else:
+                    LANDNAME = row[4]
+
+                shp = row[5]
+
+
+            elif row[1] in monType:
+                CFCC = 'D83'
+
+                if row[3] != None:
+                    LANDNAME = row[3].title()
+                else:
+                    LANDNAME = row[4]
+
+                shp = row[5]
+
+            elif row[1] == 'National Forest':
+                CFCC = 'D84'
+
+                if row[3] != None:
+                    LANDNAME = row[3].title()
+                else:
+                    LANDNAME = row[4].title()
+
+                shp = row[5]
+
+            
+            elif row[1] in primType:
+                CFCC = 'D89'
+
+                if row[3] != None:
+                    LANDNAME = row[3].title()
+                else:
+                    LANDNAME = row[4].title()
+
+                shp = row[5]
+
+
+            elif row[1] == 'Parks and Recreation' and row[0] == 'State':
+                CFCC = 'D85'
+
+                if row[2] != None:
+                    LANDNAME = row[2].title()
+                else:
+                    LANDNAME = row[4]
+
+                shp = row[5]
+
             else:
-                LANDNAME = srcLnd_Row[4]
+                continue
 
-            shp = srcLnd_Row[5]
+            icursor.insertRow((CFCC, LANDNAME, shp))
 
-            tarRows.insertRow((CFCC, LANDNAME, shp))
+    #------Add Golf Courses----------------------------------------
+    print('Adding Golf Courses')
+    with arcpy.da.SearchCursor(golf, golf_flds) as scursor, \
+        arcpy.da.InsertCursor(landownBS, bs_flds) as icursor:
 
-        if srcLnd_Row[1] == 'Military':
+        for row in scursor:
 
-            CFCC = 'D10'
+            CFCC = 'D81'
+            LANDNAME = removeNone(row[0])
+            shp = row[1]
 
-            if srcLnd_Row[3] != None:
-                LANDNAME = srcLnd_Row[3].title()
-            else:
-                LANDNAME = srcLnd_Row[4]
+            icursor.insertRow((CFCC, LANDNAME, shp))
 
-            shp = srcLnd_Row[5]
+    #-----Add Cemeteries--------------------------------------------
+    print('Adding Cemeteries')
+    with arcpy.da.SearchCursor(cemeteries, cemetery_flds) as scursor, \
+        arcpy.da.InsertCursor(landownBS, bs_flds) as icursor:
 
-            tarRows.insertRow((CFCC, LANDNAME, shp))
+        for row in scursor:
 
-        # if srcLnd_Row[1] == 'National Historic Site' or srcLnd_Row[1] == 'National Monument' \
-        #                     or srcLnd_Row[1] == 'National Park' or srcLnd_Row == 'National Recreation Area':
+            CFCC = 'D82'
+            LANDNAME = removeNone(row[0])
+            shp = row[1]
 
-        if srcLnd_Row[1] in monType:
+            icursor.insertRow((CFCC, LANDNAME, shp))
 
-            CFCC = 'D83'
+    #-----Add Parks--------------------------------------------
+    print('Adding Parks')
+    with arcpy.da.SearchCursor(parks, park_flds) as scursor, \
+        arcpy.da.InsertCursor(landownBS, bs_flds) as icursor:
 
-            if srcLnd_Row[3] != None:
-                LANDNAME = srcLnd_Row[3].title()
-            else:
-                LANDNAME = srcLnd_Row[4]
-
-            shp = srcLnd_Row[5]
-
-            tarRows.insertRow((CFCC, LANDNAME, shp))
-
-        if srcLnd_Row[1] == 'National Forest':
-
-            CFCC = 'D84'
-
-            if srcLnd_Row[3] != None:
-                LANDNAME = srcLnd_Row[3].title()
-            else:
-                LANDNAME = srcLnd_Row[4].title()
-
-            shp = srcLnd_Row[5]
-
-            tarRows.insertRow((CFCC, LANDNAME, shp))
-
-        primType = ['Primitive Area', 'Wilderness', 'Wildlife Reserve/Management Area', 'National Wildlife Refuge']
-        if srcLnd_Row[1] == primType:
-
-            CFCC = 'D89'
-
-            if srcLnd_Row[3] != None:
-                LANDNAME = srcLnd_Row[3].title()
-            else:
-                LANDNAME = srcLnd_Row[4].title()
-
-            shp = srcLnd_Row[5]
-
-            tarRows.insertRow((CFCC, LANDNAME, shp))
-
-        if srcLnd_Row[1] == 'Parks and Recreation' and srcLnd_Row[0] == 'State':
+        for row in scursor:
 
             CFCC = 'D85'
+            LANDNAME = removeNone(row[0])
+            shp = row[1]
 
-            if srcLnd_Row[2] != None:
-                LANDNAME = srcLnd_Row[2].title()
-            else:
-                LANDNAME = srcLnd_Row[4]
-
-            shp = srcLnd_Row[5]
-
-            tarRows.insertRow((CFCC, LANDNAME, shp))
-
-    #----Add Parks--------------------------------------------
-    for srcPrk_Row in srcPrk_Rows:
-
-        CFCC = 'D85'
-
-        if srcPrk_Row[0] != None:
-            LANDNAME = srcPrk_Row[0]
-
-        else:
-            LANDNAME = ''
-
-        shp = srcPrk_Row[1]
-
-        tarRows.insertRow((CFCC, LANDNAME, shp))
-
-
-    #----Add Cemeteries--------------------------------------------
-    for srcCem_Row in srcCem_Rows:
-
-        CFCC = 'D82'
-
-        if srcCem_Row[0] != None:
-            LANDNAME = srcCem_Row[0]
-
-        else:
-            LANDNAME = ''
-
-        shp = srcCem_Row[1]
-
-        tarRows.insertRow((CFCC, LANDNAME, shp))
-
-    del tarRows
+            icursor.insertRow((CFCC, LANDNAME, shp))
 
 
     #---Copy Landownership to Blue Stakes root level
-    arcpy.CopyFeatures_management(landownBS, outLoc + '\\TGR_StWide_lpy.shp')
+    arcpy.CopyFeatures_management(landownBS, os.path.join(outLoc, 'TGR_StWide_lpy.shp'))
+
+    delete_shape_flds(os.path.join(outLoc, 'TGR_StWide_lpy.shp'), ['Shape_Area', 'Shape_Leng', 'SHAPE_Leng', 'SHAPE_Area'])
 
 
-    #---Clip Blue Stakes Landonwership-----------------------------------------------------------
-    clip(landownBS, '', 'lpy');
+    #---Clip Blue Stakes Landonwership-------------------------------------------------
+    clip(landownBS, '', '_lpy')
+
 
 
     print ('Done Translating Large Landownership  ' + str(datetime.datetime.now()))
@@ -958,83 +967,88 @@ def waterPoly():
 
     print ('Starting Lakes  ' + str(datetime.datetime.now()))
 
-    lakes = sgid_GEO + '\\LakesNHDHighRes'
-    lakesBS = stageDB + '\\TGR_StWide_wat'
+    lakes = os.path.join(sgid_GEO, 'LakesNHDHighRes')
+    lakesBS = os.path.join(stageDB, 'TGR_StWide_wat')
 
     #---Copy lakesNHD to SGID_GEOGRAPHIC staging area
-    arcpy.CopyFeatures_management('SGID.WATER.LakesNHDHighRes', lakes)
+    with arcpy.EnvManager(workspace=sgid):
+        arcpy.CopyFeatures_management('SGID.WATER.LakesNHDHighRes', lakes)
 
     #---Check for statewide lakes BlueStakes schema
     if not arcpy.Exists(lakesBS):
         arcpy.CopyFeatures_management(schemaDB + '\\TGRSSCCCWAT_schema', lakesBS)
     else:
-        arcpy.DeleteFeatures_management(lakesBS)
+        arcpy.TruncateTable_management(lakesBS)
 
-    srcFlds = ['FCode', 'GNIS_Name', 'InUtah', 'SHAPE@']
-    tarFlds = ['CFCC', 'LANDNAME', 'SHAPE@']
+    lakes_flds = ['FCode', 'GNIS_Name', 'InUtah', 'SHAPE@']
+    lakesBS_flds = ['CFCC', 'LANDNAME', 'SHAPE@']
 
-    srcRows = arcpy.da.SearchCursor(lakes, srcFlds)
-    tarRows = arcpy.da.InsertCursor(lakesBS, tarFlds)
+    h30_lake = [39000, 39004, 39005, 39006, 39009, 39010, 39011]
+    h40_reservoir = [39012, 43600, 43601, 43607, 43616, 43619, 43623, 43624, 43625]
 
-    for srcRow in srcRows:
-        if srcRow[2] == 1:
-            if srcRow[0] == 36100:
-                CFCC = 'H32'
-                if srcRow[1] != None:
-                    LANDNAME = srcRow[1]
-                else:
-                    LANDNAME = 'Playa'
-            elif srcRow[0] == 39001:
-                CFCC = 'H32'
-                if srcRow[1] != None:
-                    LANDNAME = srcRow[1]
-                else:
-                    LANDNAME = 'Intermittent Salt Lake/Pond'
-            elif srcRow[0] == 39004 or srcRow[0] == 39005 or srcRow[0] == 39006 or srcRow[0] == 39009 or srcRow[0] == 39010:
-                CFCC = 'H30'
-                if srcRow[1] != None:
-                    LANDNAME = srcRow[1]
-                else:
-                    LANDNAME = 'Lake/Pond'
-            elif srcRow[0] == 39012 or srcRow[0] == 43600 or srcRow[0] == 43601 or srcRow[0] == 43607:
-                CFCC = 'H40'
-                if srcRow[1] != None:
-                    LANDNAME = srcRow[1]
-                else:
-                    LANDNAME = 'Reservoir'
-            elif srcRow[0] == 43612:
-                CFCC = 'H40'
-                if srcRow[1] != None:
-                    LANDNAME = srcRow[1]
-                else:
-                    LANDNAME = 'Sewage Treatment Pond'
-            elif srcRow[0] == 43613:
-                CFCC = 'H40'
-                if srcRow[1] != None:
-                    LANDNAME = srcRow[1]
-                else:
-                    LANDNAME = 'Covered Reservoir'
-            elif srcRow[0] == 43616 or srcRow[0] == 43619 or srcRow[0] == 43623 or srcRow[0] == 43624 or srcRow[0] == 43625:
-                CFCC = 'H40'
-                if srcRow[1] != None:
-                    LANDNAME = srcRow[1]
-                else:
-                    LANDNAME = 'Reservoir'
+    with arcpy.da.SearchCursor(lakes, lakes_flds) as scursor, \
+        arcpy.da.InsertCursor(lakesBS, lakesBS_flds) as icursor:
+        for row in scursor:
 
+            if row[2] == 1:
 
-            else:
-                continue
+                if row[0] == 36100:
+                    cfcc = 'H32'
+                    if row[1] != None:
+                        landname = row[1]
+                    else:
+                        landname = 'Playa'
 
-            shp = srcRow[3]
+                elif row[0] == 39001:
+                    cfcc = 'H32'
+                    if row[1] != None:
+                        landname = row[1]
+                    else:
+                        landname = 'Intermittent Salt Lake/Pond'
 
-            tarRows.insertRow((CFCC, LANDNAME, shp))
+                elif row[0] in h30_lake:
+                    cfcc = 'H30'
+                    if row[1] != None:
+                        landname = row[1]
+                    else:
+                        landname = 'Lake/Pond'
+
+                elif row[0] in h40_reservoir:
+                    cfcc = 'H40'
+                    if row[1] != None:
+                        landname = row[1]
+                    else:
+                        landname = 'Reservoir'
+
+                elif row[0] == 43612:
+                    cfcc = 'H40'
+                    if row[1] != None:
+                        landname = row[1]
+                    else:
+                        landname = 'Sewage Treatment Pond'
+
+                elif row[0] == 43613:
+                    cfcc = 'H40'
+                    if row[1] != None:
+                        landname = row[1]
+                    else:
+                        landname = 'Covered Reservoir'
+
+                else:
+                    continue
+
+                shp = row[3]
+
+                icursor.insertRow((cfcc, landname, shp))
 
 
     #---Copy Lakes to Blue Stakes root level---------------
-    arcpy.CopyFeatures_management(lakesBS, outLoc + '\\TGR_StWide_WAT.shp')
+    arcpy.CopyFeatures_management(lakesBS, os.path.join(outLoc, 'TGR_StWide_WAT.shp'))
+
+    delete_shape_flds(os.path.join(outLoc, 'TGR_StWide_WAT.shp'), ['Shape_Area', 'Shape_Leng', 'SHAPE_Leng', 'SHAPE_Area'])
 
 
-    #---Clip Blue Stakes Misc Transportation-----------------------------------------------------------
+    #---Clip Blue Stakes Misc Transportation----------------
     clip(lakesBS, '', 'WAT');
 
 
@@ -1044,52 +1058,55 @@ def waterLines():
 
     print ('Starting Rivers  ' + str(datetime.datetime.now()))
 
-    rivers = sgid_GEO + '\\StreamsNHD'
-    riversBS = stageDB + '\\TGR_StWide_lkH'
+    rivers = os.path.join(sgid_GEO, 'StreamsNHD')
+    riversBS = os.path.join(stageDB, 'TGR_StWide_lkH')
 
-    arcpy.CopyFeatures_management('SGID.WATER.StreamsNHDHighRes', rivers)
+    with arcpy.EnvManager(workspace=sgid):
+        arcpy.CopyFeatures_management('SGID.WATER.StreamsNHDHighRes', rivers)
 
     #---Check for Rivers BlueStakes schema
     if not arcpy.Exists(riversBS):
-        arcpy.CopyFeatures_management(schemaDB + '\\TGRSSCCClkH_schema', riversBS)
+        arcpy.CopyFeatures_management(os.path.join(schemaDB, 'TGRSSCCClkH_schema'), riversBS)
     else:
-        arcpy.DeleteFeatures_management(riversBS)
+        arcpy.TruncateTable_management(riversBS)
 
-    srcFlds = ['GNIS_Name', 'FCode', 'InUtah', 'SHAPE@', 'Submerged']
-    tarFlds = ['FENAME', 'CFCC2', 'SHAPE@']
+    river_flds = ['GNIS_Name', 'FCode', 'InUtah', 'SHAPE@', 'Submerged']
+    riverBS_flds = ['FENAME', 'CFCC2', 'SHAPE@']
 
-    srcRows = arcpy.da.SearchCursor(rivers, srcFlds)
-    tarRows = arcpy.da.InsertCursor(riversBS, tarFlds)
+    with arcpy.da.SearchCursor(rivers, river_flds) as scursor, \
+        arcpy.da.InsertCursor(riversBS, riverBS_flds) as icursor:
 
-    for srcRow in srcRows:
+        for row in scursor:
 
-        if srcRow[2] == 1:
-            if srcRow[4] == 0:
-                if srcRow[1] == 46003:
-                    CFCC2 = 'H2'
-                    if srcRow[0] != None:
-                        FENAME = srcRow[0]
-                    else:
-                        FENAME = 'unknown'
-                if srcRow[1] != 46003:
-                    CFCC2 = 'H1'
-                    if srcRow[0] != None:
-                        FENAME = srcRow[0]
-                    else:
-                        FENAME = 'unknown'
+            if row[2] == 1:
 
-                shp = srcRow[3]
+                if row[4] == 0:
 
-                tarRows.insertRow((FENAME, CFCC2, shp))
+                    if row[1] == 46003:
+                        cfcc = 'H2'
+                        if row[0] != None:
+                            fename = row[0]
+                        else:
+                            fename = 'unknown'
 
-    del tarRows
+                    if row[1] != 46003:
+                        cfcc = 'H1'
+                        if row[0] != None:
+                            fename = row[0]
+                        else:
+                            fename = 'unknown'
+
+                    shp = row[3]
+
+                    icursor.insertRow((fename, cfcc, shp))
 
 
     #---Copy Rivers to Blue Stakes root level---------------
-    arcpy.CopyFeatures_management(riversBS, outLoc + '\\TGR_StWide_lkH.shp')
+    arcpy.CopyFeatures_management(riversBS, os.path.join(outLoc, 'TGR_StWide_lkH.shp'))
 
+    delete_shape_flds(os.path.join(outLoc, 'TGR_StWide_lkH.shp'), ['Shape_Leng', 'SHAPE_Leng'])
 
-    #---Clip Blue Stakes Misc Transportation-----------------------------------------------------------
+    #---Clip Blue Stakes Misc Transportation----------------
     clip(riversBS, '', 'lkH');
 
 
@@ -1099,97 +1116,71 @@ def railroads():
 
     print ('Starting Railroads  ' + str(datetime.datetime.now()))
 
-    env.workspace = sgid
-    arcpy.env.overwriteOutput = True
+    rail = os.path.join(sgid_GEO, 'Railroads')
+    railTrax = os.path.join(sgid_GEO, 'LightRail_UTA')
+    railCommuter = os.path.join(sgid_GEO, 'CommuterRailRoute_UTA')
 
-    rail = sgid_GEO + '\\Railroads'
-    railLt = sgid_GEO + '\\LightRail_UTA'
-    #railLt_new = sgid_GEO + '\\LightRailNewRoutes_UTA'
-    railCommut = sgid_GEO + '\\CommuterRailRoute_UTA'
-    #railCommut_new = sgid_GEO + '\\CommuterRailNewRoutes_UTA'
-
-    railBS = stageDB + '\\TGR_StWide_lkB'
-
-    arcpy.CopyFeatures_management('SGID.TRANSPORTATION.Railroads', rail)
-    arcpy.CopyFeatures_management('SGID.TRANSPORTATION.LightRail_UTA', railLt)
-    arcpy.CopyFeatures_management('SGID.TRANSPORTATION.CommuterRailRoutes_UTA', railCommut)
-
+    railBS = os.path.join(stageDB , 'TGR_StWide_lkB')
 
     #---Check for statewide railroad BlueStakes schema
     if not arcpy.Exists(railBS):
-        arcpy.CopyFeatures_management(schemaDB + '\\TGRSSCCClkB_schema', railBS)
+        arcpy.CopyFeatures_management(os.path.join(schemaDB, 'TGRSSCCClkB_schema'), railBS)
     else:
-        arcpy.DeleteFeatures_management(railBS)
+        arcpy.TruncateTable_management(railBS)
 
 
-    srcRail_Flds = ['RAILROAD', 'SHAPE@']
-    srcRailLt_Flds = ['SHAPE@']
-    srcRailLtNew_Flds = ['SHAPE@']
-    srcRailCommut_Flds = ['SHAPE@']
-    srcRailCommutNew_Flds = ['SHAPE@']
+    with arcpy.EnvManager(workspace=sgid):
 
-    tarFlds = ['FENAME', 'CFCC2', 'SHAPE@']
+        arcpy.CopyFeatures_management('SGID.TRANSPORTATION.Railroads', rail)
+        arcpy.CopyFeatures_management('SGID.TRANSPORTATION.LightRail_UTA', railTrax)
+        arcpy.CopyFeatures_management('SGID.TRANSPORTATION.CommuterRailRoutes_UTA', railCommuter)
 
-    srcRail_Rows = arcpy.da.SearchCursor(rail, srcRail_Flds)
-    srcRailLt_Rows = arcpy.da.SearchCursor(railLt, srcRailLt_Flds)
-    #srcRailLtNew_Rows = arcpy.da.SearchCursor(railLt_new, srcRailLtNew_Flds)
-    srcRailCommut_Rows = arcpy.da.SearchCursor(railCommut, srcRailCommut_Flds)
-    #srcRailCommutNew_Rows = arcpy.da.SearchCursor(railCommut_new, srcRailCommutNew_Flds)
 
-    tarRows = arcpy.da.InsertCursor(railBS, tarFlds)
+    rr_flds = ['RAILROAD', 'SHAPE@']
+    uta_flds = ['SHAPE@']
+
+    railBS_flds = ['FENAME', 'CFCC2', 'SHAPE@']
+
 
     #---Add Railroads---------------------------------
-    for srcRail_Row in srcRail_Rows:
+    with arcpy.da.SearchCursor(rail, rr_flds) as scursor, \
+        arcpy.da.InsertCursor(railBS, railBS_flds) as icursor:
+        for row in scursor:
 
-        if srcRail_Row[0] != 'UTA' and srcRail_Row[0] != 'UT Transit Auth':
+            if row[0] != 'UTA' and row[0] != 'UT Transit Auth':
 
-            FENAME = srcRail_Row[0]
+                FENAME = row[0]
+                CFCC2 = 'B1'
+                shp = row[1]
+
+                icursor.insertRow((FENAME, CFCC2, shp))
+
+    #----Add Light Rail-------------------------------
+    with arcpy.da.SearchCursor(railTrax, uta_flds) as scursor, \
+        arcpy.da.InsertCursor(railBS, railBS_flds) as icursor:
+        for row in scursor:
+
+            FENAME = 'UTA Trax light rail'
             CFCC2 = 'B1'
-            shp = srcRail_Row[1]
+            shp = row[0]
 
-            tarRows.insertRow((FENAME, CFCC2, shp))
-
-    #----Add Light Rail------------------------------------
-    for srcRailLt_Row in srcRailLt_Rows:
-
-        FENAME = 'UTA Trax light rail'
-        CFCC2 = 'B1'
-        shp = srcRailLt_Row[0]
-
-        tarRows.insertRow((FENAME, CFCC2, shp))
-
-    #----Add Light New Rail------------------------------------
-    # for srcRailLtNew_Row in srcRailLtNew_Rows:
-    #
-    #     FENAME = 'UTA Trax light rail'
-    #     CFCC2 = 'B1'
-    #     shp = srcRailLtNew_Row[0]
-    #
-    #     tarRows.insertRow((FENAME, CFCC2, shp))
+            icursor.insertRow((FENAME, CFCC2, shp))
 
     #----Add Commuter Rail------------------------------------
-    for srcRailCommut_Row in srcRailCommut_Rows:
+    with arcpy.da.SearchCursor(railCommuter, uta_flds) as scursor, \
+        arcpy.da.InsertCursor(railBS, railBS_flds) as icursor:
+        for row in scursor:
 
-        FENAME = 'UTA Frontrunner railroad'
-        CFCC2 = 'B1'
-        shp = srcRailCommut_Row[0]
+            FENAME = 'UTA Frontrunner railroad'
+            CFCC2 = 'B1'
+            shp = row[0]
 
-        tarRows.insertRow((FENAME, CFCC2, shp))
-
-    #----Add Commuter New Rail------------------------------------
-    # for srcRailCommutNew_Row in srcRailCommutNew_Rows:
-    #
-    #     FENAME = 'UTA Frontrunner railroad'
-    #     CFCC2 = 'B1'
-    #     shp = srcRailCommutNew_Row[0]
-    #
-    #     tarRows.insertRow((FENAME, CFCC2, shp))
-
-    del tarRows
-
+            icursor.insertRow((FENAME, CFCC2, shp))
 
     #---Copy Railroads to Blue Stakes root level----------------------
-    arcpy.CopyFeatures_management(railBS, outLoc + '\\TGR_StWide_lkB.shp')
+    arcpy.CopyFeatures_management(railBS, os.path.join(outLoc, 'TGR_StWide_lkB.shp'))
+
+    delete_shape_flds(os.path.join(outLoc, 'TRG_StWide_lkD.shp'), ['Shape_Leng', 'SHAPE_Leng'])
 
 
     #---Clip Blue Stakes Railroads-----------------------------------------------------------
@@ -1201,50 +1192,46 @@ def airstrips():
 
     print ('Starting Airstrips  ' + str(datetime.datetime.now()))
 
-    airstrips = sgid_GEO + '\\Airports'
-    airstripsBS = stageDB + '\\TGR_StWide_lkD'
-    clpCnty = 'SGID.BOUNDARIES.Counties'
+    airstrips = os.path.join(sgid_GEO, 'Airports')
+    airstripsBS = os.path.join(stageDB, 'TGR_StWide_lkD')
 
-    arcpy.CopyFeatures_management('SGID.TRANSPORTATION.Airports', airstrips)
 
     #---Check for statewide airports BlueStakes schema
     if not arcpy.Exists(airstripsBS):
-        arcpy.CopyFeatures_management(schemaDB + '\\TGRSSCCClkD_schema', airstripsBS)
+        arcpy.CopyFeatures_management(os.path.join(schemaDB, 'TGRSSCCClkD_schema'), airstripsBS)
     else:
-        arcpy.DeleteFeatures_management(airstripsBS)
+        arcpy.TruncateTable_management(airstripsBS)
 
-    srcFlds = ['FAC_TYPE', 'FULLNAME', 'SHAPE@']
-    tarFlds = ['FENAME', 'CFCC2', 'SHAPE@']
+    with arcpy.EnvManager(workspace=sgid):
 
-    srcRows = arcpy.da.SearchCursor(airstrips, srcFlds)
-    tarRows = arcpy.da.InsertCursor(airstripsBS, tarFlds)
+        arcpy.CopyFeatures_management('SGID.TRANSPORTATION.Airports', airstrips)
 
-    for srcRow in srcRows:
+    sgid_flds = ['FAC_TYPE', 'FULLNAME', 'SHAPE@']
+    bs_flds = ['FENAME', 'CFCC2', 'SHAPE@']
 
-        if srcRow[0] == 'AIRPORT':
-            if srcRow[0].find('AIRFIELD') != -1:
-                FENAME = srcRow[1].replace('MUNI', 'MUNICIPAL')
-            elif srcRow[0].find('BASE') != -1:
-                FENAME = srcRow[1]
+
+    with arcpy.da.SearchCursor(airstrips, sgid_flds) as scursor, \
+        arcpy.da.InsertCursor(airstripsBS, bs_flds) as icursor:
+        for row in scursor:
+
+            if row[0] == 'AIRPORT':
+                FENAME = f'{row[1]} {row[0]}'.replace('MUNI', 'MUNICIPAL')
+
             else:
-                FENAME = srcRow[1].replace('MUNI', 'MUNICIPAL') + ' ' + srcRow[0]
-        else:
-            FENAME = srcRow[1]
+                FENAME = row[1]
 
-        CFCC2 = 'D5'
+            CFCC2 = 'D5'
 
-        shp = srcRow[2]
+            shp = row[2]
 
-        tarRows.insertRow((FENAME, CFCC2, shp))
-
-    del tarRows
-
+            icursor.insertRow((FENAME, CFCC2, shp))
 
     #---Copy Airstrips to Blue Stakes root level-------------------------
-    arcpy.CopyFeatures_management(airstripsBS, outLoc + '\\TRG_StWide_lkD.shp')
+    arcpy.CopyFeatures_management(airstripsBS, os.path.join(outLoc, 'TRG_StWide_lkD.shp'))
 
+    delete_shape_flds(os.path.join(outLoc, 'TRG_StWide_lkD.shp'), ['Shape_Leng', 'SHAPE_Leng'])
 
-    #---Clip Blue Stakes Airstrips-----------------------------------------------------------
+    #---Clip Blue Stakes Airstrips---------------------------------------
     clip(airstripsBS, '', 'lkD');
 
 
@@ -1254,29 +1241,28 @@ def miscTransportation():
 
     print ('Starting Misc Transportation  ' + str(datetime.datetime.now()))
 
-    miscTrans_ski = sgid_GEO + '\\SkiLifts'
-    miscTrans_TransLines = sgid_GEO + '\\TransmissionLines'
-    miscTrans_ElecLines = sgid_GEO + '\\ElectricLines'
-    miscTransBS = stageDB + '\\TGR_StWide_lkC'
-    miscTrans_QuestarParcels = r'C:\ZBECK\BlueStakes\stagingBS.gdb\DOMINION_GEOGRAPHIC\Parcels_Questar'
-    source_QuestarParcels = r'C:\ZBECK\BlueStakes\DominionEnergy\OneCall.gdb\Property'
+    ski_lifts = os.path.join(sgid_GEO, 'SkiLifts')
+    transmission_lines = os.path.join(sgid_GEO, 'TransmissionLines')
+    electric_lines = os.path.join(sgid_GEO, 'ElectricLines')
+    dominion_parcelsBS = os.path.join(stageDB, 'DOMINION_GEOGRAPHIC\Parcels_Questar')
+    source_dominion = r'C:\ZBECK\BlueStakes\DominionEnergy\OneCall.gdb\Property'
+    miscTransBS = os.path.join(stageDB, 'TGR_StWide_lkC')
 
     #---Load Questar parcels from past year---
-    count = int(arcpy.GetCount_management(miscTrans_QuestarParcels).getOutput(0))
+    count = int(arcpy.GetCount_management(dominion_parcelsBS).getOutput(0))
     if count > 1:
         print (count)
-        arcpy.TruncateTable_management(miscTrans_QuestarParcels)
-        print ('Truncated Questar Parcels')
+        arcpy.TruncateTable_management(dominion_parcelsBS)
+        print ('Truncated Dominion Parcels')
 
     today = datetime.datetime.now()
 
     flds = ['OBJECTID', 'DATECREATED', 'DATEMODIFIED', 'SHAPE@', 'SUBTYPECD']
     iFlds = ['DATECREATED', 'DATEMODIFIED', 'SUBTYPECD', 'SHAPE@']
 
-    iCursor = arcpy.da.InsertCursor(miscTrans_QuestarParcels, iFlds)
-
-    with arcpy.da.SearchCursor(source_QuestarParcels, flds) as sCursor:
-        for row in sCursor:
+    with arcpy.da.SearchCursor(source_dominion, flds) as scursor, \
+        arcpy.da.InsertCursor(dominion_parcelsBS, iFlds) as icursor:
+        for row in scursor:
             oid = row[0]
 
             dateC = row[1]
@@ -1291,105 +1277,102 @@ def miscTransportation():
             if dateC >= dateM:
                 dateC_delta = today - dateC
                 if int(str(dateC_delta).split()[0]) < 366:
-                    iCursor.insertRow((dateC, None, propType, row[3]))
+                    icursor.insertRow((dateC, None, propType, row[3]))
             elif dateM != '9/9/1973':
                 dateM_delta = today - dateM
                 if int(str(dateM_delta).split()[0]) < 366:
-                    iCursor.insertRow((None, dateM, propType, row[3]))
+                    icursor.insertRow((None, dateM, propType, row[3]))
             else:
                 print (oid)
 
-    del sCursor
-    del iCursor
 
+    with arcpy.EnvManager(workspace=sgid):
 
-    arcpy.CopyFeatures_management('SGID.RECREATION.SkiLifts', miscTrans_ski)
-    arcpy.CopyFeatures_management('SGID.UTILITIES.TransmissionLines', miscTrans_TransLines)
-    arcpy.CopyFeatures_management('SGID.UTILITIES.ElectricalLines', miscTrans_ElecLines)
-    print ('Copied Features')
+        arcpy.CopyFeatures_management('SGID.RECREATION.SkiLifts', ski_lifts)
+        arcpy.CopyFeatures_management('SGID.UTILITIES.TransmissionLines', transmission_lines)
+        arcpy.CopyFeatures_management('SGID.UTILITIES.ElectricalLines', electric_lines)
+        print ('Copied SkiLifts, TransmissionLines, ElectricalLines')
 
 
     #---Check for statewide misc transportation BlueStakes schema
     if not arcpy.Exists(miscTransBS):
-        arcpy.CopyFeatures_management(schemaDB + '\\TGRSSCCClkC_schema', miscTransBS)
+        arcpy.CopyFeatures_management(os.path.join(schemaDB, 'TGRSSCCClkC_schema'), miscTransBS)
     else:
-        arcpy.DeleteFeatures_management(miscTransBS)
+        arcpy.TruncateTable_management(miscTransBS)
 
-    srcFlds_ski = ['LIFT_NAME', 'SHAPE@']
-    srcFlds_trans = ['LAYER', 'SHAPE@']
-    srcFlds_elec = ['SHAPE@']
-    srcFlds_Qparcels = ['SHAPE@']
-    tarFlds = ['FENAME', 'CFCC2', 'SHAPE@']
-
-    tarRows = arcpy.da.InsertCursor(miscTransBS, tarFlds)
+    ski_flds = ['LIFT_NAME', 'SHAPE@']
+    transmission_flds = ['LAYER', 'SHAPE@']
+    electric_flds = ['SHAPE@']
+    dominion_flds = ['SHAPE@']
+    bs_flds = ['FENAME', 'CFCC2', 'SHAPE@']
 
     #-------Ski lifts--------
-    srcRows_ski = arcpy.da.SearchCursor(miscTrans_ski, srcFlds_ski)
+    with arcpy.da.SearchCursor(ski_lifts, ski_flds) as scursor, \
+        arcpy.da.InsertCursor(miscTransBS, bs_flds) as icursor:
 
-    for srcRow_ski in srcRows_ski:
+        for row in scursor:
 
-        FENAME = srcRow_ski[0] + ' Ski Lift'
-        CFCC2 = 'C3'
-        shp = srcRow_ski[1]
+            fename = row[0] + ' Ski Lift'
+            cfcc2 = 'C3'
+            shp = row[1]
 
-        tarRows.insertRow((FENAME, CFCC2, shp))
+            icursor.insertRow((fename, cfcc2, shp))
 
-    del srcRows_ski
 
     #-------Transmission Lines---------
-    srcRows_trans = arcpy.da.SearchCursor(miscTrans_TransLines, srcFlds_trans)
-    badVals = ['SUB-CO', 'SUB-PP']
+    with arcpy.da.SearchCursor(transmission_lines, transmission_flds) as scursor, \
+        arcpy.da.InsertCursor(miscTransBS, bs_flds) as icursor:
 
-    for srcRow_trans in srcRows_trans:
-        if srcRow_trans[0] not in badVals:
-            FENAME = 'Overhead Power Line Corridor'
-            CFCC2 = 'C2'
-            shp = srcRow_trans[1]
-        else:
-            continue
+        badVals = ['SUB-CO', 'SUB-PP']
 
-        tarRows.insertRow((FENAME, CFCC2, shp))
+        for row in scursor:
+            if row[0] not in badVals:
+                fename = 'Overhead Power Line Corridor'
+                cfcc2 = 'C2'
+                shp = row[1]
+            else:
+                continue
 
-    del srcRows_trans
+            icursor.insertRow((fename, cfcc2, shp))
 
 
     #-------Electrical Lines---------
-    srcRows_elec = arcpy.da.SearchCursor(miscTrans_ElecLines, srcFlds_elec)
+    with arcpy.da.SearchCursor(electric_lines, electric_flds) as scursor, \
+        arcpy.da.InsertCursor(miscTransBS, bs_flds) as icursor:
 
-    for srcRow_elec in srcRows_elec:
-        FENAME = 'Overhead Power Line Corridor'
-        CFCC2 = 'C2'
-        shp = srcRow_elec[0]
+        for row in scursor:
+            fename = 'Overhead Power Line Corridor'
+            cfcc2 = 'C2'
+            shp = row[0]
 
-        tarRows.insertRow((FENAME, CFCC2, shp))
+            icursor.insertRow((fename, cfcc2, shp))
 
-    del srcRows_elec
 
     #--------Questar Parcels---------
-    rdSegs_Questar = r'C:\ZBECK\BlueStakes\stagingBS.gdb\DOMINION_GEOGRAPHIC\RoadSegs_DominionSelect'
-    rdSegs_Questar_FL = arcpy.MakeFeatureLayer_management(rdSegs_Questar, 'rdSegs_Questar_FL')
+    dominion_roads = r'C:\ZBECK\BlueStakes\stagingBS.gdb\DOMINION_GEOGRAPHIC\RoadSegs_DominionSelect'
+    dominion_roads_FL = arcpy.MakeFeatureLayer_management(dominion_roads, 'dominion_roads_FL')
 
-    miscTrans_QuestarParcels_FL = arcpy.MakeFeatureLayer_management(miscTrans_QuestarParcels, 'miscTrans_QuestarParcels')
+    dominion_parcelsBS_FL = arcpy.MakeFeatureLayer_management(dominion_parcelsBS, 'dominion_parcelsBS')
 
-    arcpy.SelectLayerByLocation_management(miscTrans_QuestarParcels_FL, 'WITHIN_A_DISTANCE', \
-                                           rdSegs_Questar_FL, '175 Meters')
+    arcpy.SelectLayerByLocation_management(dominion_parcelsBS_FL, 'WITHIN_A_DISTANCE', \
+                                           dominion_roads_FL, '175 Meters')
 
-    selected = arcpy.GetCount_management(miscTrans_QuestarParcels_FL)
+    selected = arcpy.GetCount_management(dominion_parcelsBS_FL)
     selCount = int(selected.getOutput(0))
     print (selCount)
 
-    srcRows_Qparcels = arcpy.da.SearchCursor(miscTrans_QuestarParcels_FL, srcFlds_Qparcels)
-    for row_Qparcels in srcRows_Qparcels:
-        FENAME = ''
-        CFCC2 = 'A9'
-        shp = row_Qparcels[0]
+    with arcpy.da.SearchCursor(dominion_parcelsBS_FL, 'SHAPE@') as scursor, \
+        arcpy.da.InsertCursor(miscTransBS, bs_flds) as icursor:
+        for row in scursor:
+            fename = ''
+            cfcc2 = 'A9'
+            shp = row[0]
 
-        tarRows.insertRow((FENAME, CFCC2, shp))
+            icursor.insertRow((fename, cfcc2, shp))
 
-    del tarRows
 
     #---Copy Misc Trans to Blue Stakes root level---------------
-    arcpy.CopyFeatures_management(miscTransBS, outLoc + '\\TGR_StWide_lkC.shp')
+    arcpy.CopyFeatures_management(miscTransBS, os.path.join(outLoc, 'TGR_StWide_lkC.shp'))
 
     #---Clip Blue Stakes Misc Transportation-----------------------------------------------------------
     clip(miscTransBS, '', 'lkC');
@@ -1401,44 +1384,35 @@ def townships():
 
     print ('Starting Townships  ' + str(datetime.datetime.now()))
 
-    twnShips = sgid_GEO + '\\PLSSTownships'
-    twnShipsBS = stageDB + '\\UT_TR'
+    twnShips = os.path.join(sgid_GEO, 'PLSSTownships')
+    twnShipsBS = os.path.join(stageDB, 'UT_TR')
 
     #---Copy Townships in SGID_GEOGRAPHIC staging area
-    arcpy.CopyFeatures_management('SGID.CADASTRE.PLSSTownships_GCDB', twnShips)
+    with arcpy.EnvManager(workspace=sgid):
+        arcpy.CopyFeatures_management('SGID.CADASTRE.PLSSTownships_GCDB', twnShips)
 
     #---Check for statewide township BlueStakes schema
     if not arcpy.Exists(twnShipsBS):
-        arcpy.CopyFeatures_management(schemaDB + '\\UT_TR_schema', twnShipsBS)
+        arcpy.CopyFeatures_management(os.path.join(schemaDB, 'UT_TR_schema'), twnShipsBS)
     else:
-        arcpy.DeleteFeatures_management(twnShipsBS)
+        arcpy.TruncateTable_management(twnShipsBS)
 
-    srcFlds = ['BASEMERIDIAN', 'LABEL', 'SHAPE@']
-    tarFlds = ['NAME', 'SHAPE@']
+    sgid_flds = ['BASEMERIDIAN', 'LABEL', 'SHAPE@']
+    bs_flds = ['NAME', 'SHAPE@']
 
-    srcRows = arcpy.da.SearchCursor(twnShips, srcFlds)
-    tarRows = arcpy.da.InsertCursor(twnShipsBS, tarFlds)
+    with arcpy.da.SearchCursor(twnShips, sgid_flds) as scursor, \
+        arcpy.da.InsertCursor(twnShipsBS, bs_flds) as icursor:
+        for row in scursor:
 
-    for srcRow in srcRows:
+            name = ('SL' if row[0] == '26' else 'UI') + ' ' + row[1]
+            shp = row[2]
 
-        NAME = ("SL" if srcRow[0] == "26" else "UI") + " " + srcRow[1]
-        shp = srcRow[2]
-
-        tarRows.insertRow((NAME, shp))
-
-    del tarRows
+            icursor.insertRow((name, shp))
 
     #---Export to shapefile-------------------------------------------
-    outTwnshps = outLoc + '\\UT_TR.shp'
+    outTwnshps = os.path.join(outLoc, 'UT_TR.shp')
     arcpy.CopyFeatures_management(twnShipsBS, outTwnshps)
-
-    flds = arcpy.ListFields(outTwnshps)
-    for fld in flds:
-        if fld.name == 'Shape_Area':
-            arcpy.DeleteField_management(outTwnshps, 'Shape_Area')
-        if fld.name == 'Shape_Leng':
-            arcpy.DeleteField_management(outTwnshps, 'Shape_Leng')
-
+    delete_shape_flds(outTwnshps, ['Shape_Area', 'Shape_Leng'])
 
     print ('Done Translating Townships  ' + str(datetime.datetime.now()))
 
@@ -1448,53 +1422,44 @@ def sections():
 
     meridianDict = {'26':'SL', '30':'UI'}
 
-    sections = sgid_GEO + '\\PLSSSections'
-    sectionsBS = stageDB + '\\UT_TRS'
+    sections = os.path.join(sgid_GEO, 'PLSSSections')
+    sectionsBS = os.path.join(stageDB, 'UT_TRS')
 
     #---Move Sections to SGID_GEOGRAPHIC staging area
-
-    arcpy.CopyFeatures_management('SGID.CADASTRE.PLSSSections_GCDB', sections)
+    with arcpy.EnvManager(workspace=sgid):
+        arcpy.CopyFeatures_management('SGID.CADASTRE.PLSSSections_GCDB', sections)
 
     #---Check for statewide BlueStakes sections
     if not arcpy.Exists(sectionsBS):
-        arcpy.CopyFeatures_management(schemaDB + '\\UT_TRS_schema', sectionsBS)
+        arcpy.CopyFeatures_management(os.path.join(schemaDB, 'UT_TRS_schema'), sectionsBS)
     else:
-        arcpy.DeleteFeatures_management(sectionsBS)
+        arcpy.TruncateTable_management(sectionsBS)
 
-    srcFlds = ['SNUM', 'BASEMERIDIAN', 'LABEL', 'SHAPE@']
-    tarFlds = ['NAME', 'FULLNAME', 'SHAPE@']
+    sgid_flds = ['SNUM', 'BASEMERIDIAN', 'LABEL', 'SHAPE@']
+    bs_flds = ['NAME', 'FULLNAME', 'SHAPE@']
 
-    srcRows = arcpy.da.SearchCursor(sections, srcFlds)
-    tarRows = arcpy.da.InsertCursor(sectionsBS, tarFlds)
+    with arcpy.da.SearchCursor(sections, sgid_flds) as scursor, \
+        arcpy.da.InsertCursor(sectionsBS, bs_flds) as icursor:
+        for row in scursor:
 
-    for srcRow in srcRows:
+            name = row[0]
 
-        NAME = srcRow[0]
+            if row[1] in meridianDict:
+                base_meridian = meridianDict[row[1]]
+                full_name = f'{base_meridian} {row[2]} SEC {name}'
+            else:
+                continue
 
-        if srcRow[1] in meridianDict:
-            baseMer = meridianDict[srcRow[1]]
-            fullName = '{0} {1} SEC {2}'.format(baseMer, srcRow[2], NAME)
-            print (fullName)
-        else:
-            continue
+            shp = row[3]
 
-        shp = srcRow[3]
-
-        tarRows.insertRow((NAME, fullName, shp))
-
-    del tarRows
+            icursor.insertRow((name, full_name, shp))
 
 
     #---Export to shapefile-------------------------------------------
-    outSections = outLoc + '\\UT_TRS.shp'
+    outSections = os.path.join(outLoc, 'UT_TRS.shp')
     arcpy.CopyFeatures_management(sectionsBS, outSections)
 
-    flds = arcpy.ListFields(outSections)
-    for fld in flds:
-        if fld.name == 'Shape_Area':
-            arcpy.DeleteField_management(outSections, 'Shape_Area')
-        if fld.name == 'Shape_Leng':
-            arcpy.DeleteField_management(outSections, 'Shape_Leng')
+    delete_shape_flds(outSections, ['Shape_Area', 'Shape_Leng'])
 
 
     print ('Done Translating Sections  ' + str(datetime.datetime.now()))
@@ -1503,44 +1468,37 @@ def deciPoints():
 
     print ('Starting Deci Points (GNIS) ' + str(datetime.datetime.now()))
 
-    deciPts = sgid_GEO + '\\GNIS2010'
-    deciPtsBS = stageDB + '\\TGR_StWide_deci'
+    gnis = os.path.join(sgid_GEO, 'PlaceNamesGNIS')
+    deciPts = os.path.join(stageDB, 'TGR_StWide_deci')
 
     #---Move GNIS to SGID_GEOGRAPHIC staging area
-    arcpy.CopyFeatures_management('SGID.LOCATION.PlaceNamesGNIS2010', deciPts)
+    with arcpy.EnvManager(workspace=sgid):
+        arcpy.CopyFeatures_management('SGID.LOCATION.PlaceNamesGNIS', gnis)
 
     #---Check for statewide Deci Points BlueStakes schema
-    if not arcpy.Exists(deciPtsBS):
-        arcpy.CopyFeatures_management(schemaDB + '\\TGRSSCCCdeci_schema', deciPtsBS)
+    if not arcpy.Exists(deciPts):
+        arcpy.CopyFeatures_management(os.path.join(schemaDB, 'TGRSSCCCdeci_schema'), deciPts)
     else:
-        arcpy.DeleteFeatures_management(deciPtsBS)
+        arcpy.TruncateTable_management(deciPts)
 
-    srcFlds = ['NAME', 'SHAPE@']
-    tarFlds = ['NAME', 'SHAPE@']
+    flds = ['NAME', 'SHAPE@']
 
-    srcRows = arcpy.da.SearchCursor(deciPts, srcFlds)
-    tarRows = arcpy.da.InsertCursor(deciPtsBS, tarFlds)
+    with arcpy.da.SearchCursor(gnis, flds) as scursor, \
+        arcpy.da.InsertCursor(deciPts, flds) as icursor:
+        for row in scursor:
 
-    for srcRow in srcRows:
+            name = removeNone(row[0])
 
-        if srcRow[0] != None:
-            NAME = srcRow[0]
-        else:
-            NAME = ''
+            shp = row[1]
 
-        shp = srcRow[1]
-
-        tarRows.insertRow((NAME, shp))
-
-    del tarRows
+            icursor.insertRow((name, shp))
 
 
     #---Copy Deci Points to Blue Stakes root level---------------
-    arcpy.CopyFeatures_management(deciPtsBS, outLoc + '\\TGR_StWide_deci.shp')
-
+    arcpy.CopyFeatures_management(deciPts, os.path.join(outLoc, 'TGR_StWide_deci.shp'))
 
     #---Clip Blue Stakes Deci Points-----------------------------------------------------------
-    clip(deciPtsBS, '', 'deci');
+    clip(deciPts, '', 'deci');
 
 
     print ('Done Translating Deci Points (GNIS) ' + str(datetime.datetime.now()))
@@ -1549,146 +1507,113 @@ def addedPoints():
 
     print ('Starting Added Points ' + str(datetime.datetime.now()))
 
-    correctionsPts = sgid_GEO + '\\CorrectionalFacilities'
-    fireStnPts = sgid_GEO + '\\FireStations'
-    libraryPts = sgid_GEO + '\\Libraries'
-    liquorPts = sgid_GEO + '\\LiquorStores'
-    churchPts = sgid_GEO + '\\PlacesOfWorship'
-    policePts = sgid_GEO + '\\PoliceStations'
-    postOfficePts = sgid_GEO + '\\PostOffices'
-    schoolPts = sgid_GEO + '\\Schools'
-    mallPts = sgid_GEO + '\\ShoppingMalls'
-    healthCarePts = sgid_GEO + '\\HealthCareFacilities'
+    correctionsPts = os.path.join(sgid_GEO, 'CorrectionalFacilities')
+    fireStnPts = os.path.join(sgid_GEO, 'FireStations')
+    libraryPts = os.path.join(sgid_GEO, 'Libraries')
+    liquorPts = os.path.join(sgid_GEO, 'LiquorStores')
+    policePts = os.path.join(sgid_GEO, 'PoliceStations')
+    postOfficePts = os.path.join(sgid_GEO, 'PostOffices')
+    schoolPts = os.path.join(sgid_GEO, 'Schools')
+    healthCarePts = os.path.join(sgid_GEO, 'HealthCareFacilities')
+    # churchPts = os.path.join(sgid_GEO, 'PlacesOfWorship') No longer in SGID
+    # mallPts = os.path.join(sgid_GEO, 'ShoppingMalls') No longer in SGID
 
-    addedPtsBS = stageDB + '\\TGR_StWide_added'
+    addedPtsBS = os.path.join(stageDB, 'TGR_StWide_added')
 
     #---Move Points to SGID_GEOGRAPHIC staging area
-    arcpy.CopyFeatures_management('SGID.SOCIETY.CorrectionalFacilities', correctionsPts)
-    arcpy.CopyFeatures_management('SGID.SOCIETY.FireStations', fireStnPts)
-    arcpy.CopyFeatures_management('SGID.SOCIETY.Libraries', libraryPts)
-    arcpy.CopyFeatures_management('SGID.SOCIETY.LiquorStores', liquorPts)
-    arcpy.CopyFeatures_management('SGID.SOCIETY.PlacesOfWorship', churchPts)
-    arcpy.CopyFeatures_management('SGID.SOCIETY.LawEnforcement', policePts)
-    arcpy.CopyFeatures_management('SGID.SOCIETY.PostOffices', postOfficePts)
-    arcpy.CopyFeatures_management('SGID.SOCIETY.Schools', schoolPts)
-    arcpy.CopyFeatures_management('SGID.SOCIETY.ShoppingMalls', mallPts)
-    arcpy.CopyFeatures_management('SGID.HEALTH.HealthCareFacilities', healthCarePts)
-    print ('Done copying features from SGID to staging area')
+    with arcpy.EnvManager(workspace=sgid):
+        arcpy.CopyFeatures_management('SGID.SOCIETY.CorrectionalFacilities', correctionsPts)
+        arcpy.CopyFeatures_management('SGID.SOCIETY.FireStations', fireStnPts)
+        arcpy.CopyFeatures_management('SGID.SOCIETY.Libraries', libraryPts)
+        arcpy.CopyFeatures_management('SGID.SOCIETY.LiquorStores', liquorPts)
+        arcpy.CopyFeatures_management('SGID.SOCIETY.LawEnforcement', policePts)
+        arcpy.CopyFeatures_management('SGID.SOCIETY.PostOffices', postOfficePts)
+        arcpy.CopyFeatures_management('SGID.SOCIETY.Schools', schoolPts)
+        arcpy.CopyFeatures_management('SGID.HEALTH.HealthCareFacilities', healthCarePts)
+        # arcpy.CopyFeatures_management('SGID.SOCIETY.PlacesOfWorship', churchPts) No longer in SGID
+        # arcpy.CopyFeatures_management('SGID.SOCIETY.ShoppingMalls', mallPts) No longer in SGID
+        print ('Done copying features from SGID to staging area')
 
     #---Check for statewide Deci Points BlueStakes schema
     if not arcpy.Exists(addedPtsBS):
-        arcpy.CopyFeatures_management(schemaDB + '\\TGRSSCCCdeci_schema', addedPtsBS)
+        arcpy.CopyFeatures_management(os.path.join(schemaDB, 'TGRSSCCCdeci_schema'), addedPtsBS)
     else:
         arcpy.DeleteFeatures_management(addedPtsBS)
 
 
-    tarFlds = ['NAME', 'SHAPE@']
-    tarRows = arcpy.da.InsertCursor(addedPtsBS, tarFlds)
+    bs_flds = ['NAME', 'SHAPE@']
 
-    pointFC_List = [correctionsPts, fireStnPts, libraryPts, churchPts, mallPts, healthCarePts]
+    pointFC_List = [correctionsPts, policePts, fireStnPts, libraryPts, healthCarePts]
 
     #---Loop through feature classes that have common fields-------
     for pointFC in pointFC_List:
 
-        srcFlds = ['NAME', 'SHAPE@']
-        srcRows = arcpy.da.SearchCursor(pointFC, srcFlds)
-
-        for srcRow in srcRows:
-
-            if srcRow[0] != None:
-                if len(srcRow[0]) > 79:
-                    NAME = ' '.join(srcRow[0].split()[:-1]).title()
+        agrc_flds = ['NAME', 'SHAPE@']
+        with arcpy.da.SearchCursor(pointFC, agrc_flds) as scursor, \
+            arcpy.da.InsertCursor(addedPtsBS, bs_flds) as icursor:
+            for row in scursor:
+                if row[0] != None:
+                    if len(row[0]) > 79:
+                        NAME = row[0].title().replace('United States', 'U.S.')[:79]
+                    else:
+                        NAME = row[0].title().replace('United States', 'U.S.')
                 else:
-                    NAME = srcRow[0].title()
+                    NAME = ''
+
+                shp = row[1]
+
+                icursor.insertRow((NAME, shp))
+
+            print ('Added ' + pointFC)
+
+
+    liquor_flds = ['TYPE', 'SHAPE@']
+    with arcpy.da.SearchCursor(liquorPts, liquor_flds) as scursor, \
+        arcpy.da.InsertCursor(addedPtsBS, bs_flds) as icursor:
+        for row in scursor:
+            if row[0] != None:
+                NAME = row[0]
             else:
-                NAME = ''
+                NAME = 'Liquor Store'
 
-            shp = srcRow[1]
+            shp = row[1]
 
-            tarRows.insertRow((NAME, shp))
-
-        print ('Added ' + pointFC)
-
-
-    liquorFlds = ['TYPE', 'SHAPE@']
-    policeFlds = ['NAME', 'SHAPE@']
-    postOfficeFlds = ['TOWN', 'STREET', 'SHAPE@']
-    schoolFlds = ['SCHOOL', 'SHAPE@']
-
-    liquorRows = arcpy.da.SearchCursor(liquorPts, liquorFlds)
-    policeRows = arcpy.da.SearchCursor(policePts, policeFlds)
-    postOfficeRows = arcpy.da.SearchCursor(postOfficePts, postOfficeFlds)
-    schoolRows = arcpy.da.SearchCursor(schoolPts, schoolFlds)
-
-
-    for liquorRow in liquorRows:
-
-        if liquorRow[0] != None:
-            NAME = 'Liquor ' + liquorRow[0]
-        else:
-            NAME = 'Liquor Store'
-
-        shp = liquorRow[1]
-
-        tarRows.insertRow((NAME, shp))
+            icursor.insertRow((NAME, shp))
 
     print ('Added ' + liquorPts)
 
 
-    for policeRow in policeRows:
+    post_office_flds = ['TOWN', 'SHAPE@']
+    with arcpy.da.SearchCursor(postOfficePts, post_office_flds) as scursor, \
+        arcpy.da.InsertCursor(addedPtsBS, bs_flds) as icursor:
+        for row in scursor:
 
-        if policeRow[0] != None:
-            # if policeRow[0] == 'UNITED STATES FISH AND WILDLIFE SERVICE - OFFICE OF LAW ENFORCEMENT - BEAR RIVER MIGRATORY BIRD REFUGE':
-            #     NAME = 'U.S. Fish And Wildlife Service - Law Enforcement - Bear River Bird Refuge'
-            # else:
-            #     NAME = (policeRow[0].title().replace('United States', 'U.S.'))
-            if len(policeRow[0]) > 79:
-                NAME = policeRow[0][:79]
-            else:
-                NAME = (policeRow[0].title().replace('United States', 'U.S.'))
-        else:
-            NAME = ''
+            NAME = f'{removeNone(row[0])} Post Office'.strip()
 
-        shp = policeRow[1]
+            shp = row[1]
 
-        tarRows.insertRow((NAME, shp))
-
-    print ('Added ' + policePts)
-
-
-    for postOfficeRow in postOfficeRows:
-
-        if postOfficeRow[0] != None:
-            NAME = postOfficeRow[0] + ' Post Office'
-        else:
-            NAME = 'Post Office'
-
-        shp = policeRow[1]
-
-        tarRows.insertRow((NAME, shp))
+            icursor.insertRow((NAME, shp))
 
     print ('Added ' + postOfficePts)
 
 
-    for schoolRow in schoolRows:
+    school_flds = ['SCHOOL', 'SHAPE@']
+    with arcpy.da.SearchCursor(schoolPts, school_flds) as scursor, \
+        arcpy.da.InsertCursor(addedPtsBS, bs_flds) as icursor:
 
-        if schoolRow[0] != None:
-            NAME = schoolRow[0].title()
-        else:
-            NAME = ''
+        for row in scursor:
+            NAME = removeNone(row[0]).title()
 
-        shp = schoolRow[1]
+            shp = row[1]
 
-        tarRows.insertRow((NAME, shp))
+            icursor.insertRow((NAME, shp))
 
     print ('Added ' + schoolPts)
 
 
-    del tarRows
-
 
     #---Copy Added Points to Blue Stakes root level---------------
-    arcpy.CopyFeatures_management(addedPtsBS, outLoc + '\\TGR_StWide_added.shp')
+    arcpy.CopyFeatures_management(addedPtsBS, os.path.join(outLoc, 'TGR_StWide_added.shp'))
 
     #---Clip Blue Stakes Deci Points-----------------------------------------------------------
     clip(addedPtsBS, '', 'added');
@@ -1700,125 +1625,94 @@ def counties():
 
     print ('Starting Counties ' + str(datetime.datetime.now()))
 
-    cnty = sgid_GEO + '\\Counties'
-    utah = sgid_GEO + '\\Utah'
-    cntyBS = stageDB + '\\TGRSSCCCcty00'
-    cntyBS_All = stageDB + '\\CO49_D90'
-    stateBS = stageDB + '\\ST49_D00'
+    cnty = os.path.join(sgid_GEO, 'Counties')
+    utah = os.path.join(sgid_GEO, 'Utah')
+    cntyBS = os.path.join(stageDB, 'TGRSSCCCcty00')
+    cntyBS_All = os.path.join(stageDB, 'CO49_D90')
+    stateBS = os.path.join(stageDB, 'ST49_D00')
 
     #---Move Counties to SGID_GEOGRAPHIC staging area
-    arcpy.CopyFeatures_management('SGID.BOUNDARIES.Counties', cnty)
-    arcpy.CopyFeatures_management('SGID.BOUNDARIES.Utah', utah)
+    with arcpy.EnvManager(workspace=sgid):
+        arcpy.CopyFeatures_management('SGID.BOUNDARIES.Counties', cnty)
+        arcpy.CopyFeatures_management('SGID.BOUNDARIES.Utah', utah)
 
     #---Check for County BlueStakes schema
     if not arcpy.Exists(cntyBS):
-        arcpy.CopyFeatures_management(schemaDB + '\\TGRSSCCCcty00_schema', cntyBS)
+        arcpy.CopyFeatures_management(os.path.join(schemaDB, 'TGRSSCCCcty00_schema'), cntyBS)
     if not arcpy.Exists(cntyBS_All):
-        arcpy.CopyFeatures_management(schemaDB + '\\CO49_D90_schema', cntyBS_All)
+        arcpy.CopyFeatures_management(os.path.join(schemaDB, 'CO49_D90_schema'), cntyBS_All)
     if not arcpy.Exists(stateBS):
-        arcpy.CopyFeatures_management(schemaDB + '\\ST49_D00_schema', stateBS)
+        arcpy.CopyFeatures_management(os.path.join(schemaDB, 'ST49_D00_schema'), stateBS)
     else:
-        arcpy.DeleteFeatures_management(cntyBS)
-        arcpy.DeleteFeatures_management(cntyBS_All)
-        arcpy.DeleteFeatures_management(stateBS)
+        arcpy.TruncateTable_management(cntyBS)
+        arcpy.TruncateTable_management(cntyBS_All)
+        arcpy.TruncateTable_management(stateBS)
 
-    srcFlds = ['NAME', 'FIPS_STR', 'SHAPE@']
-    srcFldsUT = ['STATE', 'SHAPE@']
-    cntyFlds = ['COUNTY', 'SHAPE@']
+    sgid_cnty_flds = ['NAME', 'FIPS_STR', 'SHAPE@']
+    sgid_ut_flds = ['STATE', 'SHAPE@']
     cntyAllFlds = ['NAME', 'ST', 'CO', 'SHAPE@']
     stFlds = ['NAME', 'STATE', 'SHAPE@']
 
-    srcRows = arcpy.da.SearchCursor(cnty, srcFlds)
-    srcRowsUT = arcpy.da.SearchCursor(utah, srcFldsUT)
-    cntyRows = arcpy.da.InsertCursor(cntyBS, cntyFlds)
-    cntyAllRows = arcpy.da.InsertCursor(cntyBS_All, cntyAllFlds)
-    stRows = arcpy.da.InsertCursor(stateBS, stFlds)
+    #---Create individual county shapefiles----------------------
+    with arcpy.da.SearchCursor(cnty, sgid_cnty_flds) as scursor:
 
-    #---Create individual county shapefiles--------------------------------------------------------
-    for srcRow in srcRows:
+        export_count = 0
 
-        if srcRow[0] != None:
-            COUNTY = srcRow[0]
-        else:
-            COUNTY = ''
+        for row in scursor:
 
-        shp = srcRow[2]
+            cnty_name = ''.join(row[0].title().split())
+            out_fldr = os.path.join(outLoc, f'TGR{fipsDict[cnty_name]}')
 
-        cntyRows.insertRow((COUNTY, shp))
+            with arcpy.EnvManager(workspace=out_fldr):
+                out_cnty_shp = f'TGR{fipsDict[cnty_name]}cty00.shp'
+                sql = f'"NAME" = \'{row[0]}\''
+                field_info = "OBJECTID OBJECTID HIDDEN NONE;COUNTYNBR COUNTYNBR HIDDEN NONE;ENTITYNBR ENTITYNBR HIDDEN NONE;" \
+                             "ENTITYYR ENTITYYR HIDDEN NONE;NAME NAME VISIBLE NONE;FIPS FIPS HIDDEN NONE;" \
+                             "STATEPLANE STATEPLANE HIDDEN NONE;POP_LASTCENSUS POP_LASTCENSUS HIDDEN NONE;" \
+                             "POP_CURRESTIMATE POP_CURRESTIMATE HIDDEN NONE;GlobalID GlobalID HIDDEN NONE;" \
+                             "FIPS_STR FIPS_STR HIDDEN NONE;COLOR4 COLOR4 HIDDEN NONE;Shape Shape HIDDEN NONE;" \
+                             "Shape.STArea() Shape.STArea() HIDDEN NONE;Shape.STLength() Shape.STLength() HIDDEN NONE"
 
-    del cntyRows
+                cnty_fl = arcpy.MakeFeatureLayer_management(cnty, f'{cnty_name}_fl', sql, '', field_info)
+                arcpy.CopyFeatures_management(cnty_fl, out_cnty_shp)
 
+                export_count += 1
 
-    #---Copy each county to Bluestakes folder----------
-    cntyBSRows = arcpy.da.SearchCursor(cntyBS, cntyFlds)
+                delete_shape_flds(out_cnty_shp, ['Shape_Area', 'Shape_Leng'])
 
-    for cntyBSRow in cntyBSRows:
+        print(f'{export_count} counties exported to shapefiles')
 
-        cntyName = ''.join(cntyBSRow[0].title().split())
-        fldrPrefix = '\\TGR'
-        outFldr = outLoc + '\\TGR' + fipsDict[cntyName]
-        outCntyShp = fldrPrefix + fipsDict[cntyName] + 'cty00.shp'
+    #---Create Statewide County Shapefile------------------------------
+    with arcpy.da.SearchCursor(cnty, sgid_cnty_flds) as scursor, \
+        arcpy.da.InsertCursor(cntyBS_All, cntyAllFlds) as icursor:
 
-        cntyFL = arcpy.MakeFeatureLayer_management(cntyBS, cntyName + '_FL', " \"COUNTY\" = '{0}' ".format(cntyBSRow[0]))
-        arcpy.CopyFeatures_management(cntyFL, outFldr + outCntyShp)
+        for row in scursor:
+            name = row[0]
+            st = '49'
+            co = row[1][-3:]
+            shp = row[2]
 
-        flds = arcpy.ListFields(outFldr + outCntyShp)
-        for fld in flds:
-            if fld.name == 'Shape_Area':
-                arcpy.DeleteField_management(outFldr + outCntyShp, 'Shape_Area')
-            if fld.name == 'Shape_Leng':
-                arcpy.DeleteField_management(outFldr + outCntyShp, 'Shape_Leng')
+            icursor.insertRow((name, st, co, shp))
 
-
-
-    #---Create Statewide County Shapefile----------------------------------------------------------
-    srcRows = arcpy.da.SearchCursor(cnty, srcFlds)
-    for srcRow in srcRows:
-
-        NAME = srcRow[0]
-        ST = '49'
-        CO = srcRow[1][-3:]
-        shp = srcRow[2]
-
-        cntyAllRows.insertRow((NAME, ST, CO, shp))
-
-    del cntyAllRows
-
-
-    cntyBS_All_shp = outLoc + '\\CO49_D90.shp'
+    cntyBS_All_shp = os.path.join(outLoc, 'CO49_D90.shp')
     arcpy.CopyFeatures_management(cntyBS_All, cntyBS_All_shp)
+    delete_shape_flds(cntyBS_All_shp, ['Shape_Area', 'Shape_Leng'])
 
-    flds = arcpy.ListFields(cntyBS_All_shp)
-    for fld in flds:
-        if fld.name == 'Shape_Area':
-            arcpy.DeleteField_management(cntyBS_All_shp, 'Shape_Area')
-        if fld.name == 'Shape_Leng':
-            arcpy.DeleteField_management(cntyBS_All_shp, 'Shape_Leng')
+    #---Create State shapfile-------------------------------------------
+    with arcpy.da.SearchCursor(utah, sgid_ut_flds) as scursor, \
+        arcpy.da.InsertCursor(stateBS, stFlds) as icursor:
+        for row in scursor:
+            if row[0] == 'Utah':
 
+                name = 'Utah'
+                st = '49'
+                shp = row[1]
 
-    #---Create State shapfile--------------------------------------------------------------------
-    for srcRowUT in srcRowsUT:
-        if srcRowUT[0] == 'Utah':
-
-            NAME = 'Utah'
-            STATE = '49'
-            shp = srcRowUT[1]
-
-            stRows.insertRow((NAME, STATE, shp))
-
-    del stRows
+                icursor.insertRow((name, st, shp))
 
     stateBS_shp = outLoc + '\\ST49_D00.shp'
     arcpy.CopyFeatures_management(stateBS, stateBS_shp)
-
-    flds = arcpy.ListFields(stateBS_shp)
-    for fld in flds:
-        if fld.name == 'Shape_Area':
-            arcpy.DeleteField_management(stateBS_shp, 'Shape_Area')
-        if fld.name == 'Shape_Leng':
-            arcpy.DeleteField_management(stateBS_shp, 'Shape_Leng')
-
-
+    delete_shape_flds(stateBS_shp, ['Shape_Area', 'Shape_Leng'])
 
     print ('Done Translating Counties ' + str(datetime.datetime.now()))
 
@@ -1826,41 +1720,41 @@ def addressZones():
 
     print ('Starting Address Zones  ' + str(datetime.datetime.now()))
 
-    addZones = sgid_GEO + '\\AddressSystemQuadrants'
-    addZonesBS = stageDB + '\\addrsys'
+    addZones = os.path.join(sgid_GEO, 'AddressSystemQuadrants')
+    addZonesBS = os.path.join(stageDB, 'addrsys')
 
     #---Add Address Zones to SGID_GEOGRAPHIC staging area
-    arcpy.CopyFeatures_management('SGID.LOCATION.AddressSystemQuadrants', addZones)
+    with arcpy.EnvManager(workspace=sgid):
+        arcpy.CopyFeatures_management('SGID.LOCATION.AddressSystemQuadrants', addZones)
 
     #---Check for Address Zones BlueStakes schema
     if not arcpy.Exists(addZonesBS):
-        arcpy.CopyFeatures_management(schemaDB + '\\addrsys_schema', addZonesBS)
+        arcpy.CopyFeatures_management(os.path.join(schemaDB, 'addrsys_schema'), addZonesBS)
     else:
-        arcpy.DeleteFeatures_management(addZonesBS)
+        arcpy.TruncateTable_management(addZonesBS)
 
-    srcFlds = ['GRID_NAME', 'QUADRANT', 'SHAPE@']
-    tarFlds = ['NAME', 'SHAPE@']
+    sgid_flds = ['GRID_NAME', 'QUADRANT', 'SHAPE@']
+    bs_flds = ['NAME', 'SHAPE@']
 
-    srcRows = arcpy.da.SearchCursor(addZones, srcFlds)
-    tarRows = arcpy.da.InsertCursor(addZonesBS, tarFlds)
+    empty = [None, '', ' ']
 
-    for srcRow in srcRows:
-        if srcRow[0] != None:
-            if srcRow[1] != None:
-                NAME = srcRow[0] + ' ' + srcRow[1]
-            else:
-                NAME = srcRow[0]
-        shp = srcRow[2]
+    with arcpy.da.SearchCursor(addZones, sgid_flds) as scursor, \
+        arcpy.da.InsertCursor(addZonesBS, bs_flds) as icursor:
+        for row in scursor:
+            if row[0] not in empty:
+                if row[1] not in empty:
+                    name = f'{row[0]} {row[1]}'
+                else:
+                    name = row[0]
+            shp = row[2]
 
-        tarRows.insertRow((NAME, shp))
-
-    del tarRows
+            icursor.insertRow((name, shp))
 
 
     #---Copy Address Zones to Blues Stakes root level
-    arcpy.CopyFeatures_management(addZonesBS, outLoc + '\\addrsys_StWide.shp')
+    arcpy.CopyFeatures_management(addZonesBS, os.path.join(outLoc, 'addrsys_StWide.shp'))
 
-    #---Clip by county-------------------------------------------
+    #---Clip by county--------------------------------
     clip(addZonesBS, 'addrsys', '')
 
     # clpFlds = ['NAME', 'FIPS_STR', 'SHAPE@']
@@ -1896,7 +1790,7 @@ def oilAndGasWells():
     with arcpy.EnvManager(workspace=sgid):
         arcpy.CopyFeatures_management('SGID.ENERGY.OilGasWells', og)
 
-    #---Check for Address Zones BlueStakes schema
+    #---Check for BlueStakes schema
     if not arcpy.Exists(ogBS):
         arcpy.CopyFeatures_management(os.path.join(schemaDB, 'OilGasWells_Schema', ogBS))
     else:
@@ -1922,7 +1816,7 @@ def oilAndGasWells():
 
     del tarRows
 
-     #----Copy Mileposts to shapefile--------------------------------------------------
+     #----Copy Oil & Gas wells to shapefile--------------------------------------------------
     arcpy.CopyFeatures_management(ogBS, outLoc + '\\wells_oil_gas.shp')
 
     #---Clip Blue Stakes Oil and Gas Wells----------------------------------------------------
@@ -1959,6 +1853,8 @@ def clip(clipMe, outNamePrefix, outNameSuffix):
                 outClippedFC = os.path.join(outLoc, outFldr, f'{outNamePrefix}{row[1]}.shp')
                 arcpy.Clip_analysis(clipMe, clpShp, outClippedFC)
 
+            delete_shape_flds(outClippedFC, ['Shape_Area', 'Shape_Leng', 'SHAPE_Leng', 'SHAPE_Area'])
+
             #----Delete shapefiles with no features----
             clpCount = int(arcpy.GetCount_management(outClippedFC).getOutput(0))
             if clpCount < 1:
@@ -1977,25 +1873,25 @@ def cleanOutFldr():
 
 
 
-cleanOutFldr();
+#cleanOutFldr();
 
-parcels();
+#parcels();
 #roads();
 #addressPoints();
-#municipalities();
+#municipalities(); #Last updated 6/23/2020
 #mileposts();
 #milepostsCombined()
-#landownershipLarge();
-#waterPoly();
-#waterLines();
-#railroads();
-#airstrips();
+#landownershipLarge(); #Last updated 6/23/2020
+waterPoly(); #Last updated 6/23/2020
+waterLines();
+#railroads(); #Last updated 6/23/2020
+#airstrips(); #Last updated 6/23/2020
 #miscTransportation();
-#townships();
-#sections();
-#deciPoints();
-#addedPoints();
-#counties();
-#addressZones();
-#oilAndGasWells();
+#townships(); #Last updated 6/23/2020
+#sections(); #Last updated 6/23/2020
+#deciPoints(); #Last updated 6/23/2020
+#addedPoints(); #Last updated 6/23/2020
+#counties(); #Last updated 6/23/2020
+#addressZones(); #Last updated 6/23/2020
+#oilAndGasWells(); #Last updated 6/23/2020
 

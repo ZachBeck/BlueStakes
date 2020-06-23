@@ -23,11 +23,26 @@
       <file leaf-file-name="BlueStakesETL.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/BlueStakesETL.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="17">
-              <caret line="1982" column="0" lean-forward="false" selection-start-line="1982" selection-start-column="0" selection-end-line="1982" selection-end-column="0" />
+            <state relative-caret-position="453">
+              <caret line="1884" column="36" lean-forward="false" selection-start-line="1884" selection-start-column="36" selection-end-line="1884" selection-end-column="36" />
               <folding>
                 <element signature="e#0#36#0" expanded="true" />
-                <element signature="e#8282#10859#0" expanded="false" />
+                <element signature="e#3966#9077#0" expanded="false" />
+                <element signature="e#9105#11128#0" expanded="false" />
+                <element signature="e#11147#24542#0" expanded="false" />
+                <element signature="e#26726#29664#0" expanded="false" />
+                <element signature="e#29695#33883#0" expanded="false" />
+                <element signature="e#39015#42007#0" expanded="false" />
+                <element signature="e#43910#46465#0" expanded="false" />
+                <element signature="e#46489#48013#0" expanded="false" />
+                <element signature="e#48046#53280#0" expanded="false" />
+                <element signature="e#53304#54599#0" expanded="false" />
+                <element signature="e#54622#56149#0" expanded="false" />
+                <element signature="e#56174#57417#0" expanded="false" />
+                <element signature="e#57443#61845#0" expanded="false" />
+                <element signature="e#61868#65917#0" expanded="false" />
+                <element signature="e#65944#68150#0" expanded="false" />
+                <element signature="e#68179#69521#0" expanded="false" />
               </folding>
             </state>
           </provider>
@@ -46,11 +61,33 @@
       <file leaf-file-name="delete.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/../../MISC_WORK/Perdiem/perdiem-master/delete.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="34">
-              <caret line="4" column="0" lean-forward="false" selection-start-line="4" selection-start-column="0" selection-end-line="4" selection-end-column="0" />
+            <state relative-caret-position="366">
+              <caret line="49" column="5" lean-forward="false" selection-start-line="49" selection-start-column="5" selection-end-line="49" selection-end-column="5" />
               <folding>
                 <element signature="e#0#12#0" expanded="true" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="remapper.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/../../SGID/remapper/remapper.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="119">
+              <caret line="9" column="14" lean-forward="false" selection-start-line="9" selection-start-column="14" selection-end-line="9" selection-end-column="14" />
+              <folding>
+                <element signature="e#1#10#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="RemapSGID93toSGID10.py" pinned="false" current-in-tab="false">
+        <entry file="file://C:/PYTHONz/RemapSGID93toSGID10.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="0">
+              <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+              <folding />
             </state>
           </provider>
         </entry>
@@ -162,17 +199,18 @@
         <option value="$PROJECT_DIR$/../../SGID/copy_and_replace/load_and_replace.py" />
         <option value="$PROJECT_DIR$/../../SGID/swapper/load_and_replace.py" />
         <option value="$PROJECT_DIR$/AddressAttributes.py" />
+        <option value="$PROJECT_DIR$/DominionLabelConverter.py" />
+        <option value="$PROJECT_DIR$/../../SGID/remapper/remapper.py" />
         <option value="$PROJECT_DIR$/../../MISC_WORK/Perdiem/perdiem-master/delete.py" />
         <option value="$PROJECT_DIR$/BlueStakesETL.py" />
-        <option value="$PROJECT_DIR$/DominionLabelConverter.py" />
       </list>
     </option>
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="148" />
-    <option name="y" value="53" />
-    <option name="width" value="1621" />
-    <option name="height" value="1026" />
+    <option name="x" value="75" />
+    <option name="y" value="8" />
+    <option name="width" value="1584" />
+    <option name="height" value="1087" />
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectReloadState">
@@ -216,7 +254,7 @@
     <property name="options.splitter.main.proportions" value="0.3" />
     <property name="options.splitter.details.proportions" value="0.2" />
     <property name="options.searchVisible" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/../../Addressing/AddressPointsPython" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../../SGID/sweeper/src/sweeper/sweepers/duplicates.py" />
     <property name="recentsLimit" value="5" />
     <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
   </component>
@@ -238,24 +276,6 @@
     </option>
   </component>
   <component name="RunManager" selected="Python.BlueStakesETL">
-    <configuration default="false" name="CountyAddressPointETL" type="PythonConfigurationType" factoryName="Python" temporary="true">
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/../../Addressing/AddressPointsPython" />
-      <option name="IS_MODULE_SDK" value="false" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <module name="Blue Stakes Python" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/../../Addressing/AddressPointsPython/CountyAddressPointETL.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <method />
-    </configuration>
     <configuration default="false" name="load_and_replace" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -323,6 +343,24 @@
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <module name="Blue Stakes Python" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/../../MISC_WORK/Perdiem/perdiem-master/delete.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <method />
+    </configuration>
+    <configuration default="false" name="remapper" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/../../SGID/remapper" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="Blue Stakes Python" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/../../SGID/remapper/remapper.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -425,19 +463,19 @@
       <method />
     </configuration>
     <list size="5">
-      <item index="0" class="java.lang.String" itemvalue="Python.CountyAddressPointETL" />
-      <item index="1" class="java.lang.String" itemvalue="Python.load_and_replace" />
-      <item index="2" class="java.lang.String" itemvalue="Python.load_and_replace (1)" />
-      <item index="3" class="java.lang.String" itemvalue="Python.BlueStakesETL" />
-      <item index="4" class="java.lang.String" itemvalue="Python.delete" />
+      <item index="0" class="java.lang.String" itemvalue="Python.load_and_replace" />
+      <item index="1" class="java.lang.String" itemvalue="Python.load_and_replace (1)" />
+      <item index="2" class="java.lang.String" itemvalue="Python.BlueStakesETL" />
+      <item index="3" class="java.lang.String" itemvalue="Python.delete" />
+      <item index="4" class="java.lang.String" itemvalue="Python.remapper" />
     </list>
     <recent_temporary>
       <list size="5">
         <item index="0" class="java.lang.String" itemvalue="Python.BlueStakesETL" />
         <item index="1" class="java.lang.String" itemvalue="Python.delete" />
-        <item index="2" class="java.lang.String" itemvalue="Python.load_and_replace (1)" />
-        <item index="3" class="java.lang.String" itemvalue="Python.load_and_replace" />
-        <item index="4" class="java.lang.String" itemvalue="Python.CountyAddressPointETL" />
+        <item index="2" class="java.lang.String" itemvalue="Python.remapper" />
+        <item index="3" class="java.lang.String" itemvalue="Python.load_and_replace (1)" />
+        <item index="4" class="java.lang.String" itemvalue="Python.load_and_replace" />
       </list>
     </recent_temporary>
     <configuration default="true" type="tests" factoryName="Attests">
@@ -486,13 +524,13 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="148" y="53" width="1621" height="1026" extended-state="0" />
+    <frame x="75" y="8" width="1584" height="1087" extended-state="0" />
     <editor active="true" />
     <layout>
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.23676012" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.24744898" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
-      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.27292576" sideWeight="0.123364486" order="7" side_tool="true" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.27292576" sideWeight="0.8766355" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.29785055" sideWeight="0.15816326" order="7" side_tool="true" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.29785055" sideWeight="0.84183675" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.2494929" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
@@ -523,46 +561,11 @@
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
-      <option name="time" value="27" />
+      <option name="time" value="35" />
     </breakpoint-manager>
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$APPLICATION_HOME_DIR$/helpers/pydev/pydevd.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="1732" column="0" lean-forward="false" selection-start-line="1732" selection-start-column="0" selection-end-line="1733" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/BlueStakesETL.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="1376" column="13" lean-forward="false" selection-start-line="1376" selection-start-column="13" selection-end-line="1376" selection-end-column="13" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/BlueStakesETL.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="1362" column="57" lean-forward="false" selection-start-line="1362" selection-start-column="57" selection-end-line="1362" selection-end-column="57" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/BlueStakesETL.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="390" column="26" lean-forward="false" selection-start-line="390" selection-start-column="26" selection-end-line="390" selection-end-column="26" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/BlueStakesETL.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="1809" column="42" lean-forward="false" selection-start-line="1809" selection-start-column="42" selection-end-line="1809" selection-end-column="42" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://C:/sgidout/CreatePackages_json.py" />
     <entry file="file://C:/PYTHONz/LandOwnLoader93-10_Append.py">
       <provider selected="true" editor-type-id="text-editor">
@@ -610,13 +613,6 @@
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/../../SDE/SGID/BuildingsFootprints/module1.py" />
-    <entry file="file://$PROJECT_DIR$/../../MISC_WORK/PLPCO/xmlRoutes.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="287">
-          <caret line="29" column="0" lean-forward="false" selection-start-line="29" selection-start-column="0" selection-end-line="29" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://C:/Program Files/ArcGIS/Pro/bin/Python/envs/arcgispro-py3/Lib/site-packages/agrc/parse_address.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-34">
@@ -728,13 +724,6 @@
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/../../SGID/load_and_replace/load_and_replace.py" />
-    <entry file="file://$PROJECT_DIR$/../../SGID/sweeper/src/sweeper/sweepers/duplicates.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="399">
-          <caret line="23" column="17" lean-forward="false" selection-start-line="23" selection-start-column="17" selection-end-line="23" selection-end-column="17" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/../../SGID/copy_and_replace/load_and_replace.py" />
     <entry file="file://$PROJECT_DIR$/../../SGID/workingPY/validateGeometryTEST.py">
       <provider selected="true" editor-type-id="text-editor">
@@ -786,13 +775,31 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/../../MISC_WORK/Perdiem/perdiem-master/delete.py">
+    <entry file="file://$USER_HOME$/AppData/Local/ESRI/conda/envs/arcgispro-py3-clone/Lib/site-packages/pygsheets/authorization.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="34">
-          <caret line="4" column="0" lean-forward="false" selection-start-line="4" selection-start-column="0" selection-end-line="4" selection-end-column="0" />
-          <folding>
-            <element signature="e#0#12#0" expanded="true" />
-          </folding>
+        <state relative-caret-position="344">
+          <caret line="123" column="38" lean-forward="true" selection-start-line="123" selection-start-column="38" selection-end-line="123" selection-end-column="38" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../../MISC_WORK/PLPCO/xmlRoutes.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="425">
+          <caret line="29" column="0" lean-forward="false" selection-start-line="29" selection-start-column="0" selection-end-line="29" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../../GitHub/backseat-driver/driver.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../../GitHub/backseat-driver/zip_loader.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="255">
+          <caret line="15" column="0" lean-forward="false" selection-start-line="15" selection-start-column="0" selection-end-line="16" selection-end-column="13" />
         </state>
       </provider>
     </entry>
@@ -804,13 +811,63 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://C:/PYTHONz/RemapSGID93toSGID10.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../../SGID/remapper/remapper.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="119">
+          <caret line="9" column="14" lean-forward="false" selection-start-line="9" selection-start-column="14" selection-end-line="9" selection-end-column="14" />
+          <folding>
+            <element signature="e#1#10#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../../SGID/sweeper/src/sweeper/sweepers/duplicates.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-620">
+          <caret line="23" column="17" lean-forward="false" selection-start-line="23" selection-start-column="17" selection-end-line="23" selection-end-column="17" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../../MISC_WORK/Perdiem/perdiem-master/delete.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="366">
+          <caret line="49" column="5" lean-forward="false" selection-start-line="49" selection-start-column="5" selection-end-line="49" selection-end-column="5" />
+          <folding>
+            <element signature="e#0#12#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/BlueStakesETL.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="17">
-          <caret line="1982" column="0" lean-forward="false" selection-start-line="1982" selection-start-column="0" selection-end-line="1982" selection-end-column="0" />
+        <state relative-caret-position="453">
+          <caret line="1884" column="36" lean-forward="false" selection-start-line="1884" selection-start-column="36" selection-end-line="1884" selection-end-column="36" />
           <folding>
             <element signature="e#0#36#0" expanded="true" />
-            <element signature="e#8282#10859#0" expanded="false" />
+            <element signature="e#3966#9077#0" expanded="false" />
+            <element signature="e#9105#11128#0" expanded="false" />
+            <element signature="e#11147#24542#0" expanded="false" />
+            <element signature="e#26726#29664#0" expanded="false" />
+            <element signature="e#29695#33883#0" expanded="false" />
+            <element signature="e#39015#42007#0" expanded="false" />
+            <element signature="e#43910#46465#0" expanded="false" />
+            <element signature="e#46489#48013#0" expanded="false" />
+            <element signature="e#48046#53280#0" expanded="false" />
+            <element signature="e#53304#54599#0" expanded="false" />
+            <element signature="e#54622#56149#0" expanded="false" />
+            <element signature="e#56174#57417#0" expanded="false" />
+            <element signature="e#57443#61845#0" expanded="false" />
+            <element signature="e#61868#65917#0" expanded="false" />
+            <element signature="e#65944#68150#0" expanded="false" />
+            <element signature="e#68179#69521#0" expanded="false" />
           </folding>
         </state>
       </provider>
