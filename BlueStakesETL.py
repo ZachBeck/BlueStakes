@@ -11,16 +11,6 @@ stageDB = r'C:\ZBECK\BlueStakes\stagingBS.gdb'
 schemaDB = r'C:\ZBECK\BlueStakes\schemaBS.gdb'
 outLoc = r'C:\ZBECK\BlueStakes\outBlueStakes'
 
-with arcpy.EnvManager(workspace=sgid_GEO):
-    arcpy.env.overwriteOutput = True
-    clpCnty = os.path.join(sgid_GEO, 'Counties')
-    if arcpy.Exists(clpCnty):
-        arcpy.Delete_management(clpCnty)
-        arcpy.CopyFeatures_management(os.path.join(sgid, 'SGID.BOUNDARIES.Counties'), clpCnty)
-        print('copied new counties')
-    else:
-        arcpy.CopyFeatures_management(os.path.join(sgid, 'SGID.BOUNDARIES.Counties'), clpCnty)
-
 
 fipsNum = ['49001', '49003', '49005', '49007', '49009', '49011', '49013', '49015', '49017', '49019', '49021', \
           '49023', '49025', '49027', '49029', '49031', '49033', '49035', '49037', '49039', '49041', '49043', '49045', \
@@ -94,16 +84,24 @@ def parcels():
     #  'Sevier':'49041', 'Summit':'49043', 'Tooele':'49045', 'Uintah':'49047', 'Utah':'49049',
     #  'Wasatch':'49051', 'Washington':'49053', 'Wayne':'49055', 'Weber':'49057'}
 
-    parFipsDict = {'Iron':'49021', 'Rich':'49033', 'Uintah':'49047'}
+    parFipsDict = {'Utah':'49049'}
 
     for cnty in sorted(parFipsDict):
 
         with arcpy.EnvManager(workspace=stageDB):
             arcpy.env.overwriteOutput = True
-            parBS_out = f'par{parFipsDict[cnty]}'
-            if not arcpy.Exists(parBS_out):
+            #parBS_out = f'par{parFipsDict[cnty]}'
+            parBS_PrimaryOut = f'par{parFipsDict[cnty]}'
+            parBS_SecondaryOut = f'par{parFipsDict[cnty]}_sec'
+            # if not arcpy.Exists(parBS_out):
+            #     schemaFC = os.path.join(schemaDB, 'parSSCCC_schema')
+            #     arcpy.CopyFeatures_management(schemaFC, parBS_out)
+            if not arcpy.Exists(parBS_PrimaryOut):
                 schemaFC = os.path.join(schemaDB, 'parSSCCC_schema')
                 arcpy.CopyFeatures_management(schemaFC, parBS_out)
+            if not arcpy.Exists(parBS_SecondaryOut):
+                schemaFC = os.path.join(schemaDB, 'parSSCCC_schema')
+                arcpy.CopyFeatures_management(schemaFC, parBS_SecondaryOut)
 
         with arcpy.EnvManager(workspace=sgid):
             arcpy.env.overwriteOutput = True
@@ -123,18 +121,55 @@ def parcels():
             arcpy.Dissolve_management(parSGID_geo, parSGID_geoDis, disFLDS, '#', 'MULTI_PART')
             print ('Done with dissolve')
 
-            arcpy.TruncateTable_management(parBS_out)
+            #arcpy.TruncateTable_management(parBS_out)
+            arcpy.TruncateTable_management(parBS_PrimaryOut)
+            arcpy.TruncateTable_management(parBS_SecondaryOut)
 
             srcFlds = ['PARCEL_ID', 'PARCEL_ADD', 'SHAPE@', 'OBJECTID', 'SHAPE@AREA']
             tarFlds = ['ADDR_NUMB', 'ADDR_FULL', 'FEDIRP', 'FENAME', 'FETYPE', 'FEDIRS', 'PARCEL_ID', 'SHAPE@']
 
             count_in_parcels = arcpy.GetCount_management(parSGID_geoDis)
 
-            with arcpy.da.SearchCursor(parSGID_geoDis, srcFlds) as scursor, \
-                arcpy.da.InsertCursor(parBS_out, tarFlds) as icursor:
+            ##Original Parcel Search Cursor
+            # with arcpy.da.SearchCursor(parSGID_geoDis, srcFlds) as scursor, \
+            #     arcpy.da.InsertCursor(parBS_out, tarFlds) as icursor:
+            #
+            #     for row in scursor:
+            #         if row[1] not in idErrors or (row[0] not in idErrors and row[4] < .00007):
+            #
+            #             parID = row[0]
+            #             addNum = ''
+            #             addFull = ''
+            #             preDir = ''
+            #             fename = ''
+            #             stype = ''
+            #             suf = ''
+            #
+            #             if row[1] not in idErrors:
+            #
+            #                 addFull = row[1]
+            #                 address = parse_address.parse(row[1])
+            #                 addNum = address.houseNumber
+            #                 if len(addNum) > 10:
+            #                     addNum = ''
+            #                 preDir = address.prefixDirection
+            #                 fename = address.streetName
+            #                 stype = address.suffixType
+            #                 suf = address.suffixDirection
+            #
+            #             shp = row[2]
+            #
+            #             icursor.insertRow((addNum, addFull, preDir, fename, stype, suf, parID, shp))
+
+            edit = arcpy.da.Editor(stageDB)
+            icursor_primary = arcpy.da.InsertCursor(parBS_PrimaryOut, tarFlds)
+            icursor_secondary = arcpy.da.InsertCursor(parBS_SecondaryOut, tarFlds)
+            edit.startEditing()
+            edit.startOperation()
+            with arcpy.da.SearchCursor(parSGID_geoDis, srcFlds) as scursor:
 
                 for row in scursor:
-                    if row[1] not in idErrors or (row[0] not in idErrors and row[4] < .00007):
+                    if row[1] not in idErrors or row[0] not in idErrors:
 
                         parID = row[0]
                         addNum = ''
@@ -157,37 +192,35 @@ def parcels():
                             suf = address.suffixDirection
 
                         shp = row[2]
-                        # if row[1] not in idErrors:
 
-                        #     addFull = row[1]
-                        #     address = Address(row[1])
-                        #     addNum = address.address_number
-                        #     if len(addNum) > 10:
-                        #         addNum = ''
-                        #     preDir = address.prefix_direction
-                        #     fename = address.street_name
-                        #     print(row[3])
-                        #     stype = address.street_type
-                        #     suf = address.street_direction
+                        if addFull != '':
+                            icursor_primary.insertRow((addNum, addFull, preDir, fename, stype, suf, parID, shp))
+                        else:
+                            icursor_secondary.insertRow((addNum, addFull, preDir, fename, stype, suf, parID, shp))
 
-                        # shp = row[2]
+            edit.stopOperation()
+            edit.stopEditing(True)
 
-                        icursor.insertRow((addNum, addFull, preDir, fename, stype, suf, parID, shp))
-
-        count_out_parcels = arcpy.GetCount_management(os.path.join(stageDB, parBS_out))
-        count_difference = int(count_in_parcels[0]) - int(count_out_parcels[0])
-        count_percent_diff = int(count_out_parcels[0]) / int(count_in_parcels[0]) * 100
-
-        print(f'-----In parcels {count_in_parcels}')
-        print(f'-----Out parcels {count_out_parcels}')
-        print(f'-----Parcel difference {count_difference} or {count_percent_diff}%')
+        # count_out_parcels = arcpy.GetCount_management(os.path.join(stageDB, parBS_out))
+        # count_difference = int(count_in_parcels[0]) - int(count_out_parcels[0])
+        # count_percent_diff = int(count_out_parcels[0]) / int(count_in_parcels[0]) * 100
+        #
+        # print(f'-----In parcels {count_in_parcels}')
+        # print(f'-----Out parcels {count_out_parcels}')
+        # print(f'-----Parcel difference {count_difference} or {count_percent_diff}%')
 
         parFips = parFipsDict[cnty]
         with arcpy.EnvManager(workspace=os.path.join(outLoc, f'TGR{parFips}')):
             arcpy.env.overwriteOutput = True
-            parBS_outShp = os.path.join(outLoc, f'TGR{parFips}', f'par{parFips}.shp')
-            arcpy.CopyFeatures_management(os.path.join(stageDB, parBS_out), parBS_outShp)
-            print(f'Copied {parBS_out} to county folder')
+            #parBS_outShp = os.path.join(outLoc, f'TGR{parFips}', f'par{parFips}.shp')
+            parBS_PrimOutShp = os.path.join(outLoc, f'TGR{parFips}', f'par{parFips}.shp')
+            parBS_ScndOutShp = os.path.join(outLoc, f'TGR{parFips}', f'par{parFips}_sec.shp')
+            #arcpy.CopyFeatures_management(os.path.join(stageDB, parBS_out), parBS_outShp)
+            arcpy.CopyFeatures_management(os.path.join(stageDB, parBS_PrimaryOut), parBS_PrimOutShp)
+            arcpy.CopyFeatures_management(os.path.join(stageDB, parBS_SecondaryOut), parBS_ScndOutShp)
+
+            #print(f'Copied {parBS_out} to county folder')
+            print(f'Copied {parBS_PrimaryOut} to county folder')
             print('')
 
     print ('Done Parcels  ' + str(datetime.datetime.now()))
@@ -323,7 +356,7 @@ def roads():
     manilaRds = ['1ST', '2ND', '3RD', '4TH', '5TH']
     CartoToCFCC = {'1':'A15', '2':'A20', '3':'A21', '4':'A25', '5':'A20', '6':'A41', '7':'A20', '8':'A31',
                    '9':'A41', '10':'A41', '11':'A41', '12':'A41', '13':'A65', '14':'A74', '15':'A99',
-                   '16':'A41', '17':'A41', '18':'A41'}
+                   '16':'A41', '17':'A41', '18':'A41', '99':'A99'}
 
     with arcpy.da.SearchCursor(roadsSGID, srcFlds) as srcRows:
         for srcRow in srcRows:
@@ -1287,7 +1320,7 @@ def miscTransportation():
 
 
     with arcpy.EnvManager(workspace=sgid):
-
+        arcpy.env.overwriteOutput = True
         arcpy.CopyFeatures_management('SGID.RECREATION.SkiLifts', ski_lifts)
         arcpy.CopyFeatures_management('SGID.UTILITIES.TransmissionLines', transmission_lines)
         arcpy.CopyFeatures_management('SGID.UTILITIES.ElectricalLines', electric_lines)
@@ -1513,7 +1546,8 @@ def addedPoints():
     liquorPts = os.path.join(sgid_GEO, 'LiquorStores')
     policePts = os.path.join(sgid_GEO, 'PoliceStations')
     postOfficePts = os.path.join(sgid_GEO, 'PostOffices')
-    schoolPts = os.path.join(sgid_GEO, 'Schools')
+    schoolPts = os.path.join(sgid_GEO, 'Schools_preKto12')
+    schoolHigherEdPts = os.path.join(sgid_GEO, 'Schools_HigherEd')
     healthCarePts = os.path.join(sgid_GEO, 'HealthCareFacilities')
     # churchPts = os.path.join(sgid_GEO, 'PlacesOfWorship') No longer in SGID
     # mallPts = os.path.join(sgid_GEO, 'ShoppingMalls') No longer in SGID
@@ -1528,7 +1562,8 @@ def addedPoints():
         arcpy.CopyFeatures_management('SGID.SOCIETY.LiquorStores', liquorPts)
         arcpy.CopyFeatures_management('SGID.SOCIETY.LawEnforcement', policePts)
         arcpy.CopyFeatures_management('SGID.SOCIETY.PostOffices', postOfficePts)
-        arcpy.CopyFeatures_management('SGID.SOCIETY.Schools', schoolPts)
+        arcpy.CopyFeatures_management('SGID.SOCIETY.Schools_PreKto12', schoolPts)
+        arcpy.CopyFeatures_management('SGID.SOCIETY.Schools_HigherEducation', schoolHigherEdPts)
         arcpy.CopyFeatures_management('SGID.HEALTH.HealthCareFacilities', healthCarePts)
         # arcpy.CopyFeatures_management('SGID.SOCIETY.PlacesOfWorship', churchPts) No longer in SGID
         # arcpy.CopyFeatures_management('SGID.SOCIETY.ShoppingMalls', mallPts) No longer in SGID
@@ -1597,18 +1632,37 @@ def addedPoints():
     print ('Added ' + postOfficePts)
 
 
-    school_flds = ['SCHOOL', 'SHAPE@']
+    school_flds = ['SchoolName', 'SHAPE@']
     with arcpy.da.SearchCursor(schoolPts, school_flds) as scursor, \
         arcpy.da.InsertCursor(addedPtsBS, bs_flds) as icursor:
 
         for row in scursor:
             NAME = removeNone(row[0]).title()
+            if len(NAME) > 79:
+                print(f'truncating {NAME}')
+                NAME = NAME[:79]
 
             shp = row[1]
 
             icursor.insertRow((NAME, shp))
 
     print ('Added ' + schoolPts)
+
+
+    with arcpy.da.SearchCursor(schoolHigherEdPts, school_flds) as scursor, \
+        arcpy.da.InsertCursor(addedPtsBS, bs_flds) as icursor:
+
+        for row in scursor:
+            NAME = removeNone(row[0]).title()
+            if len(NAME) > 79:
+                print(f'truncating {NAME}')
+                NAME = NAME[:79]
+
+            shp = row[1]
+
+            icursor.insertRow((NAME, shp))
+
+    print ('Added ' + schoolHigherEdPts)
 
 
 
@@ -1631,10 +1685,10 @@ def counties():
     cntyBS_All = os.path.join(stageDB, 'CO49_D90')
     stateBS = os.path.join(stageDB, 'ST49_D00')
 
-    #---Move Counties to SGID_GEOGRAPHIC staging area
-    with arcpy.EnvManager(workspace=sgid):
-        arcpy.CopyFeatures_management('SGID.BOUNDARIES.Counties', cnty)
-        arcpy.CopyFeatures_management('SGID.BOUNDARIES.Utah', utah)
+    #---Move Utah boundary to SGID_GEOGRAPHIC staging area
+    with arcpy.EnvManager(workspace=sgid_GEO):
+        arcpy.env.overwriteOutput = True
+        arcpy.CopyFeatures_management(os.path.join(sgid, 'SGID.BOUNDARIES.Utah'), utah)
 
     #---Check for County BlueStakes schema
     if not arcpy.Exists(cntyBS):
@@ -1648,39 +1702,43 @@ def counties():
         arcpy.TruncateTable_management(cntyBS_All)
         arcpy.TruncateTable_management(stateBS)
 
-    sgid_cnty_flds = ['NAME', 'FIPS_STR', 'SHAPE@']
+    sgid_cnty_flds = ['NAME', 'SHAPE@']
     sgid_ut_flds = ['STATE', 'SHAPE@']
+    cntySingleFlds = ['COUNTY', 'SHAPE@']
     cntyAllFlds = ['NAME', 'ST', 'CO', 'SHAPE@']
     stFlds = ['NAME', 'STATE', 'SHAPE@']
 
     #---Create individual county shapefiles----------------------
-    with arcpy.da.SearchCursor(cnty, sgid_cnty_flds) as scursor:
+    with arcpy.da.SearchCursor(cnty, sgid_cnty_flds) as scursor, \
+        arcpy.da.InsertCursor(cntyBS, cntySingleFlds) as icursor:
+
+        for row in scursor:
+            county = row[0]
+            shp = row[1]
+            icursor.insertRow((county, shp))
+
+    with arcpy.da.SearchCursor(cntyBS, cntySingleFlds) as scursor:
 
         export_count = 0
-
         for row in scursor:
 
             cnty_name = ''.join(row[0].title().split())
             out_fldr = os.path.join(outLoc, f'TGR{fipsDict[cnty_name]}')
 
             with arcpy.EnvManager(workspace=out_fldr):
-                out_cnty_shp = f'TGR{fipsDict[cnty_name]}cty00.shp'
-                sql = f'"NAME" = \'{row[0]}\''
-                field_info = "OBJECTID OBJECTID HIDDEN NONE;COUNTYNBR COUNTYNBR HIDDEN NONE;ENTITYNBR ENTITYNBR HIDDEN NONE;" \
-                             "ENTITYYR ENTITYYR HIDDEN NONE;NAME NAME VISIBLE NONE;FIPS FIPS HIDDEN NONE;" \
-                             "STATEPLANE STATEPLANE HIDDEN NONE;POP_LASTCENSUS POP_LASTCENSUS HIDDEN NONE;" \
-                             "POP_CURRESTIMATE POP_CURRESTIMATE HIDDEN NONE;GlobalID GlobalID HIDDEN NONE;" \
-                             "FIPS_STR FIPS_STR HIDDEN NONE;COLOR4 COLOR4 HIDDEN NONE;Shape Shape HIDDEN NONE;" \
-                             "Shape.STArea() Shape.STArea() HIDDEN NONE;Shape.STLength() Shape.STLength() HIDDEN NONE"
+                arcpy.env.overwriteOutput = True
 
-                cnty_fl = arcpy.MakeFeatureLayer_management(cnty, f'{cnty_name}_fl', sql, '', field_info)
+                out_cnty_shp = f'TGR{fipsDict[cnty_name]}cty00.shp'
+                sql = f'"COUNTY" = \'{row[0]}\''
+
+                cnty_fl = arcpy.MakeFeatureLayer_management(cntyBS, f'{cnty_name}_fl', sql)
                 arcpy.CopyFeatures_management(cnty_fl, out_cnty_shp)
 
                 export_count += 1
 
-                delete_shape_flds(out_cnty_shp, ['Shape_Area', 'Shape_Leng'])
+                delete_shape_flds(out_cnty_shp, ['Shape_Area', 'SHAPE_Area', 'Shape_Leng', 'SHAPE_Leng'])
 
-        print(f'{export_count} counties exported to shapefiles')
+    print(f'{export_count} counties exported to shapefiles')
 
     #---Create Statewide County Shapefile------------------------------
     with arcpy.da.SearchCursor(cnty, sgid_cnty_flds) as scursor, \
@@ -1788,6 +1846,7 @@ def oilAndGasWells():
     ogBS = os.path.join(stageDB, 'wells_oil_gas')
 
     with arcpy.EnvManager(workspace=sgid):
+        arcpy.env.overwriteOutput = True
         arcpy.CopyFeatures_management('SGID.ENERGY.OilGasWells', og)
 
     #---Check for BlueStakes schema
@@ -1820,16 +1879,12 @@ def oilAndGasWells():
     arcpy.CopyFeatures_management(ogBS, outLoc + '\\wells_oil_gas.shp')
 
     #---Clip Blue Stakes Oil and Gas Wells----------------------------------------------------
-    #clip(ogBS, '', 'ogw')
+    clip(ogBS, '', 'ogw')
 
 
 def clip(clipMe, outNamePrefix, outNameSuffix):
 
-    clpCnty = os.path.join(sgid_GEO, 'Counties')
-    with arcpy.EnvManager(workspace=sgid):
-        arcpy.env.overwriteOutput = True
-        if not arcpy.Exists(clpCnty):
-            arcpy.CopyFeatures_management('SGID.BOUNDARIES.Counties', clpCnty)
+    counties = os.path.join(sgid_GEO, 'Counties')
 
     with arcpy.EnvManager(workspace=outLoc):
         arcpy.env.overwriteOutput = True
@@ -1838,7 +1893,7 @@ def clip(clipMe, outNamePrefix, outNameSuffix):
         print ('Clipping ' + clipMe)
 
         clpFlds = ['NAME', 'FIPS_STR', 'SHAPE@']
-        clpRows = arcpy.da.SearchCursor(clpCnty, clpFlds)
+        clpRows = arcpy.da.SearchCursor(counties, clpFlds)
         fldrPrefix = 'TGR'
 
         for row in clpRows:
@@ -1870,23 +1925,31 @@ def cleanOutFldr():
             print ('Deleted ' + deleteme)
             os.remove(deleteme)
 
+def copyCounties():
+    #----Copy SGID county boundaries to staging DB----
+    print('Moving county boundaries to staging area')
+    counties = os.path.join(sgid_GEO, 'Counties')
+    with arcpy.EnvManager(workspace=sgid_GEO):
+        arcpy.env.overwriteOutput = True
+
+        arcpy.CopyFeatures_management(os.path.join(sgid, 'SGID.BOUNDARIES.Counties'), counties)
 
 
+cleanOutFldr();
+#copyCounties()
 
-#cleanOutFldr();
-
-#parcels();
-#roads();
-#addressPoints();
+parcels();
+#roads(); #Last updated 6/24/2020
+#addressPoints(); #Last updated 6/24/2020
 #municipalities(); #Last updated 6/23/2020
-#mileposts();
-#milepostsCombined()
+#mileposts(); #Last updated 6/24/2020
+#milepostsCombined() #Last updated 6/24/2020
 #landownershipLarge(); #Last updated 6/23/2020
-waterPoly(); #Last updated 6/23/2020
-waterLines();
+#waterPoly(); #Last updated 6/24/2020
+#waterLines(); #Last updated 6/23/2020
 #railroads(); #Last updated 6/23/2020
 #airstrips(); #Last updated 6/23/2020
-#miscTransportation();
+#miscTransportation(); #Last updated 6/24/2020
 #townships(); #Last updated 6/23/2020
 #sections(); #Last updated 6/23/2020
 #deciPoints(); #Last updated 6/23/2020
