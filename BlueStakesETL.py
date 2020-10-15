@@ -71,8 +71,9 @@ def delete_shape_flds(fc, shp_flds):
             arcpy.DeleteField_management(fc, fld)
             print(f'Deleted {fld} in {fc}')
 
+
 def parcels():
-    print ('Starting Parcels  ' + str(datetime.datetime.now()))
+    print('Starting Parcels  ' + str(datetime.datetime.now()))
 
     idErrors = ['', None, '00-0000-000', '00-0000-0000', '0000000', '0', '00']
 
@@ -84,18 +85,22 @@ def parcels():
     #  'Sevier':'49041', 'Summit':'49043', 'Tooele':'49045', 'Uintah':'49047', 'Utah':'49049',
     #  'Wasatch':'49051', 'Washington':'49053', 'Wayne':'49055', 'Weber':'49057'}
 
-    parFipsDict = {'Utah':'49049'}
+    parFipsDict = {'Beaver':'49001', 'BoxElder':'49003', 'Cache':'49005', 'Carbon':'49007', 'Daggett':'49009',
+            'Davis':'49011', 'Duchesne':'49013', 'Emery':'49015', 'Garfield':'49017', 'Grand':'49019',
+            'Iron':'49021', 'Juab':'49023', 'Kane':'49025', 'Millard':'49027', 'Morgan':'49029',
+            'Piute':'49031', 'Rich':'49033', 'SaltLake':'49035', 'SanJuan':'49037', 'Sanpete':'49039',
+            'Sevier':'49041', 'Summit':'49043', 'Tooele':'49045', 'Uintah':'49047', 'Utah':'49049',
+            'Wasatch':'49051', 'Washington':'49053', 'Wayne':'49055', 'Weber':'49057'}
+
 
     for cnty in sorted(parFipsDict):
 
         with arcpy.EnvManager(workspace=stageDB):
             arcpy.env.overwriteOutput = True
-            #parBS_out = f'par{parFipsDict[cnty]}'
+
             parBS_PrimaryOut = f'par{parFipsDict[cnty]}'
             parBS_SecondaryOut = f'par{parFipsDict[cnty]}_sec'
-            # if not arcpy.Exists(parBS_out):
-            #     schemaFC = os.path.join(schemaDB, 'parSSCCC_schema')
-            #     arcpy.CopyFeatures_management(schemaFC, parBS_out)
+
             if not arcpy.Exists(parBS_PrimaryOut):
                 schemaFC = os.path.join(schemaDB, 'parSSCCC_schema')
                 arcpy.CopyFeatures_management(schemaFC, parBS_out)
@@ -106,11 +111,11 @@ def parcels():
         with arcpy.EnvManager(workspace=sgid):
             arcpy.env.overwriteOutput = True
 
-            parSGID = 'SGID.CADASTRE.Parcels_' + cnty # + '_LIR'
+            parSGID = 'SGID.CADASTRE.Parcels_' + cnty
             parSGID_geo = os.path.join(sgid_GEO, f'Parcels_{cnty}')
             arcpy.CopyFeatures_management(parSGID, parSGID_geo)
 
-            print (f'Repair Geometry {parSGID_geo}')
+            print(f'Repair Geometry {parSGID_geo}')
             arcpy.RepairGeometry_management(parSGID_geo)
 
             #-----Add address point addresses-----
@@ -119,54 +124,24 @@ def parcels():
             disFLDS = ['PARCEL_ID', 'PARCEL_ADD']
             parSGID_geoDis = os.path.join(sgid_GEO, f'Parcels_{cnty}DIS')
             arcpy.Dissolve_management(parSGID_geo, parSGID_geoDis, disFLDS, '#', 'MULTI_PART')
-            print ('Done with dissolve')
+            print('Done with dissolve')
 
-            #arcpy.TruncateTable_management(parBS_out)
             arcpy.TruncateTable_management(parBS_PrimaryOut)
             arcpy.TruncateTable_management(parBS_SecondaryOut)
 
-            srcFlds = ['PARCEL_ID', 'PARCEL_ADD', 'SHAPE@', 'OBJECTID', 'SHAPE@AREA']
-            tarFlds = ['ADDR_NUMB', 'ADDR_FULL', 'FEDIRP', 'FENAME', 'FETYPE', 'FEDIRS', 'PARCEL_ID', 'SHAPE@']
+            sgid_flds = ['PARCEL_ID', 'PARCEL_ADD', 'SHAPE@', 'OBJECTID', 'SHAPE@AREA']
+            bs_flds = ['ADDR_NUMB', 'ADDR_FULL', 'FEDIRP', 'FENAME', 'FETYPE', 'FEDIRS', 'PARCEL_ID', 'SHAPE@']
 
             count_in_parcels = arcpy.GetCount_management(parSGID_geoDis)
 
-            ##Original Parcel Search Cursor
-            # with arcpy.da.SearchCursor(parSGID_geoDis, srcFlds) as scursor, \
-            #     arcpy.da.InsertCursor(parBS_out, tarFlds) as icursor:
-            #
-            #     for row in scursor:
-            #         if row[1] not in idErrors or (row[0] not in idErrors and row[4] < .00007):
-            #
-            #             parID = row[0]
-            #             addNum = ''
-            #             addFull = ''
-            #             preDir = ''
-            #             fename = ''
-            #             stype = ''
-            #             suf = ''
-            #
-            #             if row[1] not in idErrors:
-            #
-            #                 addFull = row[1]
-            #                 address = parse_address.parse(row[1])
-            #                 addNum = address.houseNumber
-            #                 if len(addNum) > 10:
-            #                     addNum = ''
-            #                 preDir = address.prefixDirection
-            #                 fename = address.streetName
-            #                 stype = address.suffixType
-            #                 suf = address.suffixDirection
-            #
-            #             shp = row[2]
-            #
-            #             icursor.insertRow((addNum, addFull, preDir, fename, stype, suf, parID, shp))
-
             edit = arcpy.da.Editor(stageDB)
-            icursor_primary = arcpy.da.InsertCursor(parBS_PrimaryOut, tarFlds)
-            icursor_secondary = arcpy.da.InsertCursor(parBS_SecondaryOut, tarFlds)
             edit.startEditing()
             edit.startOperation()
-            with arcpy.da.SearchCursor(parSGID_geoDis, srcFlds) as scursor:
+
+            icursor_primary = arcpy.da.InsertCursor(parBS_PrimaryOut, bs_flds)
+            icursor_secondary = arcpy.da.InsertCursor(parBS_SecondaryOut, bs_flds)
+
+            with arcpy.da.SearchCursor(parSGID_geoDis, sgid_flds) as scursor:
 
                 for row in scursor:
                     if row[1] not in idErrors or row[0] not in idErrors:
@@ -201,25 +176,24 @@ def parcels():
             edit.stopOperation()
             edit.stopEditing(True)
 
-        # count_out_parcels = arcpy.GetCount_management(os.path.join(stageDB, parBS_out))
-        # count_difference = int(count_in_parcels[0]) - int(count_out_parcels[0])
-        # count_percent_diff = int(count_out_parcels[0]) / int(count_in_parcels[0]) * 100
-        #
-        # print(f'-----In parcels {count_in_parcels}')
-        # print(f'-----Out parcels {count_out_parcels}')
-        # print(f'-----Parcel difference {count_difference} or {count_percent_diff}%')
+        count_out_parcels = arcpy.GetCount_management(os.path.join(stageDB, parBS_PrimaryOut))
+        count_difference = int(count_in_parcels[0]) - int(count_out_parcels[0])
+        count_percent_diff = int(count_out_parcels[0]) / int(count_in_parcels[0]) * 100
+
+        print(f'-----In parcels {count_in_parcels}')
+        print(f'-----Out parcels {count_out_parcels}')
+        print(f'-----Parcel difference {count_difference} or {count_percent_diff}%')
 
         parFips = parFipsDict[cnty]
         with arcpy.EnvManager(workspace=os.path.join(outLoc, f'TGR{parFips}')):
             arcpy.env.overwriteOutput = True
-            #parBS_outShp = os.path.join(outLoc, f'TGR{parFips}', f'par{parFips}.shp')
-            parBS_PrimOutShp = os.path.join(outLoc, f'TGR{parFips}', f'par{parFips}.shp')
-            parBS_ScndOutShp = os.path.join(outLoc, f'TGR{parFips}', f'par{parFips}_sec.shp')
-            #arcpy.CopyFeatures_management(os.path.join(stageDB, parBS_out), parBS_outShp)
-            arcpy.CopyFeatures_management(os.path.join(stageDB, parBS_PrimaryOut), parBS_PrimOutShp)
-            arcpy.CopyFeatures_management(os.path.join(stageDB, parBS_SecondaryOut), parBS_ScndOutShp)
 
-            #print(f'Copied {parBS_out} to county folder')
+            parBS_PrimaryOutShp = os.path.join(outLoc, f'TGR{parFips}', f'par{parFips}.shp')
+            parBS_SecondaryOutShp = os.path.join(outLoc, f'TGR{parFips}', f'par{parFips}_sec.shp')
+
+            arcpy.CopyFeatures_management(os.path.join(stageDB, parBS_PrimaryOut), parBS_PrimaryOutShp)
+            arcpy.CopyFeatures_management(os.path.join(stageDB, parBS_SecondaryOut), parBS_SecondaryOutShp)
+
             print(f'Copied {parBS_PrimaryOut} to county folder')
             print('')
 
@@ -244,7 +218,7 @@ def addressPoints():
             arcpy.CopyFeatures_management(os.path.join(schemaDB, 'adrSSCCC_schema'), addPtsBS)
         else:
             arcpy.TruncateTable_management(addPtsBS)
-            print ('Empty bluestakes address points ready')
+            print('Empty bluestakes address points ready')
 
         flds = ['FullAdd', 'AddNum', 'PrefixDir', 'StreetName', 'StreetType', 'SuffixDir', 'SHAPE@']
         outFlds = ['ADDR_NUMB', 'ADDR_FULL', 'FEDIRP', 'FENAME', 'FETYPE', 'FEDIRS', 'OWNER', 'SHAPE@']
@@ -269,7 +243,6 @@ def addressPoints():
 
         #---Clip by county-------------------------------------------
         clip(addPtsBS, 'adr', '')
-
 
     print('Done Translating Address Points  ' + str(datetime.datetime.now()))
     print()
@@ -397,7 +370,6 @@ def roads():
             #----CFCC----
             if srcRow[0] != None:
                 CFCC = CartoToCFCC[srcRow[0]]
-
                 CFCC1 = 'A'
                 CFCC2 = CFCC[:2]
 
@@ -619,7 +591,6 @@ def municipalities():
     muniFlds = ['NAME', 'SHAPE@']
     outFlds = ['NAME', 'SHAPE@']
     twnshipFlds = ['NAME', 'SHAPE@']
-    cntyFlds = ['NAME', 'FIPS_STR', 'SHAPE@']
 
     with arcpy.da.SearchCursor(muni, muniFlds) as scursor, \
         arcpy.da.InsertCursor(muniBS, outFlds) as icursor:
@@ -755,11 +726,6 @@ def milepostsCombined():
     exit_flds = ['EXITNAME', 'SHAPE@', 'EXITNBR']
     RRmp_flds = ['DIVISION', 'RR_Milepos', 'SHAPE@']
     bs_flds = ['NAME', 'LABEL', 'CFCC', 'SHAPE@']
-
-    # srcMP_Rows = arcpy.da.SearchCursor(milePosts, srcMP_Flds)
-    # srcEX_Rows = arcpy.da.SearchCursor(exits, srcEX_Flds)
-    # srcMPrr_Rows = arcpy.da.SearchCursor(rr_MilePosts, srcMPrr_Flds)
-    # tarRows = arcpy.da.InsertCursor(milePostsHwyRR_BS, tarFlds)
 
     # ----Add RR Mileposts-----------------------------------------------
     with arcpy.da.SearchCursor(rr_MilePosts, RRmp_flds) as scursor, \
@@ -1894,7 +1860,6 @@ def clip(clipMe, outNamePrefix, outNameSuffix):
 
         clpFlds = ['NAME', 'FIPS_STR', 'SHAPE@']
         clpRows = arcpy.da.SearchCursor(counties, clpFlds)
-        fldrPrefix = 'TGR'
 
         for row in clpRows:
             clpShp = row[2]
