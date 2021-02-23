@@ -72,7 +72,7 @@ def delete_shape_flds(fc, shp_flds):
             print(f'Deleted {fld} in {fc}')
 
 
-def parcels():
+def parcels_primary_and_secondary():
     print('Starting Parcels  ' + str(datetime.datetime.now()))
 
     idErrors = ['', None, '00-0000-000', '00-0000-0000', '0000000', '0', '00']
@@ -85,12 +85,7 @@ def parcels():
     #  'Sevier':'49041', 'Summit':'49043', 'Tooele':'49045', 'Uintah':'49047', 'Utah':'49049',
     #  'Wasatch':'49051', 'Washington':'49053', 'Wayne':'49055', 'Weber':'49057'}
 
-    parFipsDict = {'Beaver':'49001', 'BoxElder':'49003', 'Cache':'49005', 'Carbon':'49007', 'Daggett':'49009',
-            'Davis':'49011', 'Duchesne':'49013', 'Emery':'49015', 'Garfield':'49017', 'Grand':'49019',
-            'Iron':'49021', 'Juab':'49023', 'Kane':'49025', 'Millard':'49027', 'Morgan':'49029',
-            'Piute':'49031', 'Rich':'49033', 'SaltLake':'49035', 'SanJuan':'49037', 'Sanpete':'49039',
-            'Sevier':'49041', 'Summit':'49043', 'Tooele':'49045', 'Uintah':'49047', 'Utah':'49049',
-            'Wasatch':'49051', 'Washington':'49053', 'Wayne':'49055', 'Weber':'49057'}
+    parFipsDict = {'Davis':'49011', 'Grand':'49019', 'SaltLake':'49035', 'Summit':'49043', 'Utah':'49049', 'Washington':'49053', 'Weber':'49057'}
 
 
     for cnty in sorted(parFipsDict):
@@ -198,6 +193,95 @@ def parcels():
             print('')
 
     print ('Done Parcels  ' + str(datetime.datetime.now()))
+
+def parcels_v1():
+    print ('Starting Version One Code of Parcels  ' + str(datetime.datetime.now()))
+
+    idErrors = ['', None, '00-0000-000', '00-0000-0000', '0000000', '0', '00']
+
+    parFipsDict = {'Garfield':'49017', 'Rich':'49033', 'SanJuan':'49037'}
+
+    for cnty in sorted(parFipsDict):
+
+        with arcpy.EnvManager(workspace=stageDB):
+            arcpy.env.overwriteOutput = True
+            parBS_out = f'par{parFipsDict[cnty]}'
+            if not arcpy.Exists(parBS_out):
+                schemaFC = os.path.join(schemaDB, 'parSSCCC_schema')
+                arcpy.CopyFeatures_management(schemaFC, parBS_out)
+
+        with arcpy.EnvManager(workspace=sgid):
+            arcpy.env.overwriteOutput = True
+
+            parSGID = 'SGID.CADASTRE.Parcels_' + cnty # + '_LIR'
+            parSGID_geo = os.path.join(sgid_GEO, f'Parcels_{cnty}')
+            arcpy.CopyFeatures_management(parSGID, parSGID_geo)
+
+            print (f'Repair Geometry {parSGID_geo}')
+            arcpy.RepairGeometry_management(parSGID_geo)
+
+            #-----Add address point addresses-----
+            addAddressAttributes(sgid, parSGID_geo, cnty, parFipsDict, stageDB)
+
+            disFLDS = ['PARCEL_ID', 'PARCEL_ADD']
+            parSGID_geoDis = os.path.join(sgid_GEO, f'Parcels_{cnty}DIS')
+            arcpy.Dissolve_management(parSGID_geo, parSGID_geoDis, disFLDS, '#', 'MULTI_PART')
+            print ('Done with dissolve')
+
+            arcpy.TruncateTable_management(parBS_out)
+
+            srcFlds = ['PARCEL_ID', 'PARCEL_ADD', 'SHAPE@', 'OBJECTID', 'SHAPE@AREA']
+            tarFlds = ['ADDR_NUMB', 'ADDR_FULL', 'FEDIRP', 'FENAME', 'FETYPE', 'FEDIRS', 'PARCEL_ID', 'SHAPE@']
+
+            count_in_parcels = arcpy.GetCount_management(parSGID_geoDis)
+
+            with arcpy.da.SearchCursor(parSGID_geoDis, srcFlds) as scursor, \
+                arcpy.da.InsertCursor(parBS_out, tarFlds) as icursor:
+
+                for row in scursor:
+                    if row[1] not in idErrors or (row[0] not in idErrors and row[4] < .00007):
+
+                        parID = row[0]
+                        addNum = ''
+                        addFull = ''
+                        preDir = ''
+                        fename = ''
+                        stype = ''
+                        suf = ''
+
+                        if row[1] not in idErrors:
+
+                            addFull = row[1]
+                            address = parse_address.parse(row[1])
+                            addNum = address.houseNumber
+                            if len(addNum) > 10:
+                                addNum = ''
+                            preDir = address.prefixDirection
+                            fename = address.streetName
+                            stype = address.suffixType
+                            suf = address.suffixDirection
+
+                        shp = row[2]
+
+                        icursor.insertRow((addNum, addFull, preDir, fename, stype, suf, parID, shp))
+
+        count_out_parcels = arcpy.GetCount_management(os.path.join(stageDB, parBS_out))
+        count_difference = int(count_in_parcels[0]) - int(count_out_parcels[0])
+        count_percent_diff = int(count_out_parcels[0]) / int(count_in_parcels[0]) * 100
+
+        print(f'-----In parcels {count_in_parcels}')
+        print(f'-----Out parcels {count_out_parcels}')
+        print(f'-----Parcel difference {count_difference} or {count_percent_diff}%')
+
+        parFips = parFipsDict[cnty]
+        with arcpy.EnvManager(workspace=os.path.join(outLoc, f'TGR{parFips}')):
+            arcpy.env.overwriteOutput = True
+            parBS_outShp = os.path.join(outLoc, f'TGR{parFips}', f'par{parFips}.shp')
+            arcpy.CopyFeatures_management(os.path.join(stageDB, parBS_out), parBS_outShp)
+            print(f'Copied {parBS_out} to county folder')
+            print('')
+
+    print ('Done with Version One Code of Parcels  ' + str(datetime.datetime.now()))
 
 def addressPoints():
 
@@ -546,7 +630,7 @@ def roads():
     createDominionAnnoRds()
     outputSelectDominionRdSegs(roadsSGID)
 
-     #---Add Questar Road Segments------------
+     #---Add Dominion Road Segments------------
     count = int(arcpy.GetCount_management(annoRdSegsSELECT).getOutput(0))
     if count > 1:
         print('Appending {} Dominion Road Segments'.format(count))
@@ -1243,11 +1327,11 @@ def miscTransportation():
     ski_lifts = os.path.join(sgid_GEO, 'SkiLifts')
     transmission_lines = os.path.join(sgid_GEO, 'TransmissionLines')
     electric_lines = os.path.join(sgid_GEO, 'ElectricLines')
-    dominion_parcelsBS = os.path.join(stageDB, 'DOMINION_GEOGRAPHIC\Parcels_Questar')
+    dominion_parcelsBS = os.path.join(stageDB, 'DOMINION_GEOGRAPHIC\Parcels_Dominion')
     source_dominion = r'C:\ZBECK\BlueStakes\DominionEnergy\OneCall.gdb\Property'
     miscTransBS = os.path.join(stageDB, 'TGR_StWide_lkC')
 
-    #---Load Questar parcels from past year---
+    #---Load Dominion parcels from past year---
     count = int(arcpy.GetCount_management(dominion_parcelsBS).getOutput(0))
     if count > 1:
         print (count)
@@ -1347,7 +1431,7 @@ def miscTransportation():
             icursor.insertRow((fename, cfcc2, shp))
 
 
-    #--------Questar Parcels---------
+    #--------Dominion Parcels---------
     dominion_roads = r'C:\ZBECK\BlueStakes\stagingBS.gdb\DOMINION_GEOGRAPHIC\RoadSegs_DominionSelect'
     dominion_roads_FL = arcpy.MakeFeatureLayer_management(dominion_roads, 'dominion_roads_FL')
 
@@ -1668,7 +1752,7 @@ def counties():
         arcpy.TruncateTable_management(cntyBS_All)
         arcpy.TruncateTable_management(stateBS)
 
-    sgid_cnty_flds = ['NAME', 'SHAPE@']
+    sgid_cnty_flds = ['NAME', 'SHAPE@', 'FIPS_STR']
     sgid_ut_flds = ['STATE', 'SHAPE@']
     cntySingleFlds = ['COUNTY', 'SHAPE@']
     cntyAllFlds = ['NAME', 'ST', 'CO', 'SHAPE@']
@@ -1713,8 +1797,8 @@ def counties():
         for row in scursor:
             name = row[0]
             st = '49'
-            co = row[1][-3:]
-            shp = row[2]
+            co = row[2][-3:]
+            shp = row[1]
 
             icursor.insertRow((name, st, co, shp))
 
@@ -1833,11 +1917,11 @@ def oilAndGasWells():
         name = srow[1]
         field = srow[2]
         operator = srow[3]
-        lat = srow[4]
-        long = srow[5]
+        latitude = srow[4]
+        longitude = srow[5]
         shp = srow[6]
 
-        tarRows.insertRow((api, name, field, operator, lat, long, shp))
+        tarRows.insertRow((api, name, field, operator, latitude, longitude, shp))
 
     del tarRows
 
@@ -1856,14 +1940,14 @@ def clip(clipMe, outNamePrefix, outNameSuffix):
         arcpy.env.overwriteOutput = True
 
         #---Clip Blue Stakes output, delete empty shapefiles, delete Shape_Leng field----
-        print ('Clipping ' + clipMe)
+        print (f'Clipping {clipMe}')
 
         clpFlds = ['NAME', 'FIPS_STR', 'SHAPE@']
         clpRows = arcpy.da.SearchCursor(counties, clpFlds)
 
         for row in clpRows:
             clpShp = row[2]
-            print ('Clipping ' + row[0] + ' County')
+            print (f'Clipping {row[0]} County')
 
             outFldr = f'TGR{row[1]}'
             if outNamePrefix == '':
@@ -1887,7 +1971,7 @@ def cleanOutFldr():
     for root, dirs, files in os.walk(outLoc):
         for f in files:
             deleteme = os.path.join(root, f)
-            print ('Deleted ' + deleteme)
+            print (f'Deleted {deleteme}')
             os.remove(deleteme)
 
 def copyCounties():
@@ -1900,21 +1984,22 @@ def copyCounties():
         arcpy.CopyFeatures_management(os.path.join(sgid, 'SGID.BOUNDARIES.Counties'), counties)
 
 
-cleanOutFldr();
+#cleanOutFldr();
 #copyCounties()
 
-parcels();
-#roads(); #Last updated 6/24/2020
+#parcels_primary_and_secondary();
+#parcels_v1();
+roads(); #Last updated 6/24/2020
 #addressPoints(); #Last updated 6/24/2020
 #municipalities(); #Last updated 6/23/2020
-#mileposts(); #Last updated 6/24/2020
-#milepostsCombined() #Last updated 6/24/2020
+mileposts(); #Last updated 6/24/2020
+milepostsCombined() #Last updated 6/24/2020
 #landownershipLarge(); #Last updated 6/23/2020
 #waterPoly(); #Last updated 6/24/2020
 #waterLines(); #Last updated 6/23/2020
 #railroads(); #Last updated 6/23/2020
 #airstrips(); #Last updated 6/23/2020
-#miscTransportation(); #Last updated 6/24/2020
+miscTransportation(); #Last updated 6/24/2020
 #townships(); #Last updated 6/23/2020
 #sections(); #Last updated 6/23/2020
 #deciPoints(); #Last updated 6/23/2020
