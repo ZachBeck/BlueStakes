@@ -23,7 +23,8 @@ def addAddressAttributes(sgid, parcels, county, cntyFipsDict, ws):
     nearFLDS = ['IN_FID', 'NEAR_FID', 'NEAR_DIST']
 
     nearTBL = os.path.join(ws, 'NearTbl_{}'.format(county))
-    sql =  """"{}" = '{}'""".format('CountyID', cntyFipsDict[county])
+    #sql =  """"{}" = '{}'""".format('CountyID', cntyFipsDict[county])
+    sql = f'"CountyID" = \'{cntyFipsDict[county]}\''
     cntyPts_FL = arcpy.MakeFeatureLayer_management(pts, 'cntyPts_FL', sql)
 
     print('Adding Address Attributes')

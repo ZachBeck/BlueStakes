@@ -77,7 +77,7 @@ def parcels_primary_and_secondary():
 
     idErrors = ['', None, '00-0000-000', '00-0000-0000', '0000000', '0', '00']
 
-    #-----Copy Parcels to SGID_GEOGRAPHIC staging area-----
+    '''-----Copy Parcels to SGID_GEOGRAPHIC staging area-----'''
     # {'Beaver':'49001', 'BoxElder':'49003', 'Cache':'49005', 'Carbon':'49007', 'Daggett':'49009',
     #  'Davis':'49011', 'Duchesne':'49013', 'Emery':'49015', 'Garfield':'49017', 'Grand':'49019',
     #  'Iron':'49021', 'Juab':'49023', 'Kane':'49025', 'Millard':'49027', 'Morgan':'49029',
@@ -85,7 +85,8 @@ def parcels_primary_and_secondary():
     #  'Sevier':'49041', 'Summit':'49043', 'Tooele':'49045', 'Uintah':'49047', 'Utah':'49049',
     #  'Wasatch':'49051', 'Washington':'49053', 'Wayne':'49055', 'Weber':'49057'}
 
-    parFipsDict = {'Davis':'49011', 'Grand':'49019', 'SaltLake':'49035', 'Summit':'49043', 'Utah':'49049', 'Washington':'49053', 'Weber':'49057'}
+    parFipsDict = {'Davis':'49011', 'Kane':'49025', 'SaltLake':'49035', 'Tooele':'49045', 'Utah':'49049', 'Washington':'49053',
+                   'Weber':'49057'}
 
 
     for cnty in sorted(parFipsDict):
@@ -163,7 +164,7 @@ def parcels_primary_and_secondary():
 
                         shp = row[2]
 
-                        if addFull != '':
+                        if addFull != '' and row[4] <= .0003:
                             icursor_primary.insertRow((addNum, addFull, preDir, fename, stype, suf, parID, shp))
                         else:
                             icursor_secondary.insertRow((addNum, addFull, preDir, fename, stype, suf, parID, shp))
@@ -348,6 +349,7 @@ def roads():
 
     #----Move Roads to SGID_GEOGRAPHIC staging area
     with arcpy.EnvManager(workspace=sgid):
+        arcpy.env.overwriteOutput = True
         arcpy.CopyFeatures_management('SGID.TRANSPORTATION.Roads', roadsSGID)
         print('Copied roads to StagingDB')
 
@@ -657,8 +659,10 @@ def municipalities():
     muniBS = os.path.join(stageDB, 'TGR_StWide_plc00')
     hillAFB = os.path.join(sgid_GEO, 'HillAFB')
     metroTownships = os.path.join(sgid_GEO, 'MetroTownships')
+    cedarHighlandsBS = os.path.join(sgid_GEO, 'CedarHighlands_plc00')
 
     with arcpy.EnvManager(workspace=sgid):
+        arcpy.env.overwriteOutput = True
         #---Copy Municipalites and Townships to SGID_GEOGRAPHIC staging area
         arcpy.CopyFeatures_management('SGID.BOUNDARIES.Municipalities', munisWithAFB)
         arcpy.CopyFeatures_management('SGID.BOUNDARIES.MetroTownships', metroTownships)
@@ -689,6 +693,8 @@ def municipalities():
                 name = row[0].title()
                 shp = row[1]
                 icursor.insertRow((name, shp))
+
+    arcpy.Append_management(cedarHighlandsBS, muniBS, 'NO_TEST')
 
     #---Copy Municipalities to Blues Stakes root level
     arcpy.CopyFeatures_management(muniBS, os.path.join(outLoc, 'TGR_StWide_plc00.shp'))
@@ -1213,6 +1219,7 @@ def railroads():
 
 
     with arcpy.EnvManager(workspace=sgid):
+        arcpy.env.overwriteOutput = True
 
         arcpy.CopyFeatures_management('SGID.TRANSPORTATION.Railroads', rail)
         arcpy.CopyFeatures_management('SGID.TRANSPORTATION.LightRail_UTA', railTrax)
@@ -1263,7 +1270,7 @@ def railroads():
     #---Copy Railroads to Blue Stakes root level----------------------
     arcpy.CopyFeatures_management(railBS, os.path.join(outLoc, 'TGR_StWide_lkB.shp'))
 
-    delete_shape_flds(os.path.join(outLoc, 'TRG_StWide_lkD.shp'), ['Shape_Leng', 'SHAPE_Leng'])
+    delete_shape_flds(os.path.join(outLoc, 'TGR_StWide_lkB.shp'), ['Shape_Leng', 'SHAPE_Leng'])
 
 
     #---Clip Blue Stakes Railroads-----------------------------------------------------------
@@ -1592,7 +1599,7 @@ def addedPoints():
 
     correctionsPts = os.path.join(sgid_GEO, 'CorrectionalFacilities')
     fireStnPts = os.path.join(sgid_GEO, 'FireStations')
-    libraryPts = os.path.join(sgid_GEO, 'Libraries')
+    libraryPts = os.path.join(sgid_GEO, 'PublicLibraries')
     liquorPts = os.path.join(sgid_GEO, 'LiquorStores')
     policePts = os.path.join(sgid_GEO, 'PoliceStations')
     postOfficePts = os.path.join(sgid_GEO, 'PostOffices')
@@ -1606,9 +1613,11 @@ def addedPoints():
 
     #---Move Points to SGID_GEOGRAPHIC staging area
     with arcpy.EnvManager(workspace=sgid):
+        arcpy.env.overwriteOutput = True
+
         arcpy.CopyFeatures_management('SGID.SOCIETY.CorrectionalFacilities', correctionsPts)
         arcpy.CopyFeatures_management('SGID.SOCIETY.FireStations', fireStnPts)
-        arcpy.CopyFeatures_management('SGID.SOCIETY.Libraries', libraryPts)
+        arcpy.CopyFeatures_management('SGID.SOCIETY.PublicLibraries', libraryPts)
         arcpy.CopyFeatures_management('SGID.SOCIETY.LiquorStores', liquorPts)
         arcpy.CopyFeatures_management('SGID.SOCIETY.LawEnforcement', policePts)
         arcpy.CopyFeatures_management('SGID.SOCIETY.PostOffices', postOfficePts)
@@ -1628,7 +1637,7 @@ def addedPoints():
 
     bs_flds = ['NAME', 'SHAPE@']
 
-    pointFC_List = [correctionsPts, policePts, fireStnPts, libraryPts, healthCarePts]
+    pointFC_List = [correctionsPts, policePts, fireStnPts, healthCarePts]
 
     #---Loop through feature classes that have common fields-------
     for pointFC in pointFC_List:
@@ -1650,6 +1659,21 @@ def addedPoints():
                 icursor.insertRow((NAME, shp))
 
             print ('Added ' + pointFC)
+
+    library_flds = ['LIBRARY', 'SHAPE@']
+    with arcpy.da.SearchCursor(libraryPts, library_flds) as scursor, \
+        arcpy.da.InsertCursor(addedPtsBS, bs_flds) as icursor:
+        for row in scursor:
+            if row[0] != None:
+                NAME = row[0]
+            else:
+                NAME = 'Public Library'
+
+            shp = row[1]
+
+            icursor.insertRow((NAME, shp))
+
+    print ('Added ' + libraryPts)
 
 
     liquor_flds = ['TYPE', 'SHAPE@']
@@ -1833,6 +1857,7 @@ def addressZones():
 
     #---Add Address Zones to SGID_GEOGRAPHIC staging area
     with arcpy.EnvManager(workspace=sgid):
+        arcpy.env.overwriteOutput = True
         arcpy.CopyFeatures_management('SGID.LOCATION.AddressSystemQuadrants', addZones)
 
     #---Check for Address Zones BlueStakes schema
@@ -1988,12 +2013,13 @@ def copyCounties():
 #copyCounties()
 
 #parcels_primary_and_secondary();
-#parcels_v1();
+#parcels_v1(); '''old parcel version, don't run unless requested'''
+#counties(); #Last updated 6/23/2020
 roads(); #Last updated 6/24/2020
 #addressPoints(); #Last updated 6/24/2020
 #municipalities(); #Last updated 6/23/2020
-mileposts(); #Last updated 6/24/2020
-milepostsCombined() #Last updated 6/24/2020
+#mileposts(); #Last updated 6/24/2020
+#milepostsCombined() #Last updated 6/24/2020
 #landownershipLarge(); #Last updated 6/23/2020
 #waterPoly(); #Last updated 6/24/2020
 #waterLines(); #Last updated 6/23/2020
@@ -2004,7 +2030,6 @@ miscTransportation(); #Last updated 6/24/2020
 #sections(); #Last updated 6/23/2020
 #deciPoints(); #Last updated 6/23/2020
 #addedPoints(); #Last updated 6/23/2020
-#counties(); #Last updated 6/23/2020
 #addressZones(); #Last updated 6/23/2020
 #oilAndGasWells(); #Last updated 6/23/2020
 
