@@ -85,8 +85,8 @@ def parcels_primary_and_secondary():
     #  'Sevier':'49041', 'Summit':'49043', 'Tooele':'49045', 'Uintah':'49047', 'Utah':'49049',
     #  'Wasatch':'49051', 'Washington':'49053', 'Wayne':'49055', 'Weber':'49057'}
 
-    parFipsDict = {'Davis':'49011', 'Kane':'49025', 'SaltLake':'49035', 'Tooele':'49045', 'Utah':'49049', 'Washington':'49053',
-                   'Weber':'49057'}
+    parFipsDict = {'BoxElder':'49003', 'Davis':'49011', 'Garfield':'49017', 'Iron':'49021', 'Kane':'49025',
+                   'Uintah':'49047', 'Utah':'49049', 'Washington':'49053', 'Weber':'49057'}
 
 
     for cnty in sorted(parFipsDict):
@@ -178,7 +178,7 @@ def parcels_primary_and_secondary():
 
         print(f'-----In parcels {count_in_parcels}')
         print(f'-----Out parcels {count_out_parcels}')
-        print(f'-----Parcel difference {count_difference} or {count_percent_diff}%')
+        print(f'-----Parcel difference {count_difference} or {round(count_percent_diff, 1)}%')
 
         parFips = parFipsDict[cnty]
         with arcpy.EnvManager(workspace=os.path.join(outLoc, f'TGR{parFips}')):
@@ -1356,16 +1356,17 @@ def miscTransportation():
             oid = row[0]
 
             dateC = row[1]
-            if dateC == None:
+            if dateC in [None, '']:
                 dateC = datetime.datetime.strptime('9/9/1973', '%m/%d/%Y')
             dateM = row[2]
-            if dateM == None:
+            if dateM in [None, '']:
                 dateM = datetime.datetime.strptime('9/9/1973', '%m/%d/%Y')
 
             propType = row[4]
 
             if dateC >= dateM:
                 dateC_delta = today - dateC
+                #print(row[0], today, dateC, dateC_delta)
                 if int(str(dateC_delta).split()[0]) < 366:
                     icursor.insertRow((dateC, None, propType, row[3]))
             elif dateM != '9/9/1973':
@@ -2025,7 +2026,7 @@ roads(); #Last updated 6/24/2020
 #waterLines(); #Last updated 6/23/2020
 #railroads(); #Last updated 6/23/2020
 #airstrips(); #Last updated 6/23/2020
-miscTransportation(); #Last updated 6/24/2020
+#miscTransportation(); #Last updated 6/24/2020
 #townships(); #Last updated 6/23/2020
 #sections(); #Last updated 6/23/2020
 #deciPoints(); #Last updated 6/23/2020
