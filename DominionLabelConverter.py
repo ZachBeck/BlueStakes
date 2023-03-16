@@ -7,7 +7,7 @@ annoRdSegsALL = r'C:\ZBECK\BlueStakes\stagingBS.gdb\DOMINION_STAGING\RoadSegs_Do
 
 def createDominionAnnoRds():
     dominionFldr = r'C:\ZBECK\BlueStakes\DominionEnergy'
-    streetAnnotation = r'C:\ZBECK\BlueStakes\DominionEnergy\OneCall.gdb\Street_Name_Anno'
+    streetAnnotation = r'C:\ZBECK\BlueStakes\DominionEnergy\DEUWI_BlueStakes_UGRC.gdb\Street_Name_Anno'
     annoPolygons = r'C:\ZBECK\BlueStakes\DominionEnergy\Street_Name_Anno.shp'
 
     if arcpy.Exists(annoPolygons):

@@ -85,8 +85,10 @@ def parcels_primary_and_secondary():
     #  'Sevier':'49041', 'Summit':'49043', 'Tooele':'49045', 'Uintah':'49047', 'Utah':'49049',
     #  'Wasatch':'49051', 'Washington':'49053', 'Wayne':'49055', 'Weber':'49057'}
 
-    parFipsDict = {'BoxElder':'49003', 'Davis':'49011', 'Garfield':'49017', 'Iron':'49021', 'Kane':'49025',
-                   'Uintah':'49047', 'Utah':'49049', 'Washington':'49053', 'Weber':'49057'}
+    # parFipsDict = {'Davis':'49011', 'Morgan':'49029', 'SaltLake':'49035', 'Tooele':'49045', 'Utah':'49049',
+    #                'Washington':'49053', 'Weber':'49057'}
+
+    parFipsDict = {'Cache':'49005', 'Davis':'49011', 'Tooele':'49045', 'Utah':'49049', 'Washington':'49053', 'Weber':'49057'}
 
 
     for cnty in sorted(parFipsDict):
@@ -1335,7 +1337,7 @@ def miscTransportation():
     transmission_lines = os.path.join(sgid_GEO, 'TransmissionLines')
     electric_lines = os.path.join(sgid_GEO, 'ElectricLines')
     dominion_parcelsBS = os.path.join(stageDB, 'DOMINION_GEOGRAPHIC\Parcels_Dominion')
-    source_dominion = r'C:\ZBECK\BlueStakes\DominionEnergy\OneCall.gdb\Property'
+    source_dominion = r'C:\ZBECK\BlueStakes\DominionEnergy\DEUWI_BlueStakes_UGRC.gdb\Property'
     miscTransBS = os.path.join(stageDB, 'TGR_StWide_lkC')
 
     #---Load Dominion parcels from past year---
@@ -1983,7 +1985,7 @@ def clip(clipMe, outNamePrefix, outNameSuffix):
                 outClippedFC = os.path.join(outLoc, outFldr, f'{outNamePrefix}{row[1]}.shp')
                 arcpy.Clip_analysis(clipMe, clpShp, outClippedFC)
 
-            delete_shape_flds(outClippedFC, ['Shape_Area', 'Shape_Leng', 'SHAPE_Leng', 'SHAPE_Area'])
+            delete_shape_flds(outClippedFC, ['Shape_Area', 'SHAPE_Area', 'Shape_Leng', 'SHAPE_Leng', 'SHAPE_Le_1'])
 
             #----Delete shapefiles with no features----
             clpCount = int(arcpy.GetCount_management(outClippedFC).getOutput(0))
@@ -2010,27 +2012,27 @@ def copyCounties():
         arcpy.CopyFeatures_management(os.path.join(sgid, 'SGID.BOUNDARIES.Counties'), counties)
 
 
-#cleanOutFldr();
-#copyCounties()
+# cleanOutFldr()
+# copyCounties()
 
-#parcels_primary_and_secondary();
+parcels_primary_and_secondary();
 #parcels_v1(); '''old parcel version, don't run unless requested'''
-#counties(); #Last updated 6/23/2020
+# counties(); #Last updated 6/23/2020
 roads(); #Last updated 6/24/2020
-#addressPoints(); #Last updated 6/24/2020
-#municipalities(); #Last updated 6/23/2020
-#mileposts(); #Last updated 6/24/2020
-#milepostsCombined() #Last updated 6/24/2020
-#landownershipLarge(); #Last updated 6/23/2020
-#waterPoly(); #Last updated 6/24/2020
-#waterLines(); #Last updated 6/23/2020
-#railroads(); #Last updated 6/23/2020
-#airstrips(); #Last updated 6/23/2020
-#miscTransportation(); #Last updated 6/24/2020
-#townships(); #Last updated 6/23/2020
-#sections(); #Last updated 6/23/2020
-#deciPoints(); #Last updated 6/23/2020
-#addedPoints(); #Last updated 6/23/2020
-#addressZones(); #Last updated 6/23/2020
-#oilAndGasWells(); #Last updated 6/23/2020
+# addressPoints(); #Last updated 6/24/2020
+# municipalities(); #Last updated 6/23/2020
+# mileposts(); #Last updated 6/24/2020
+# milepostsCombined() #Last updated 6/24/2020
+# landownershipLarge(); #Last updated 6/23/2020
+# waterPoly(); #Last updated 6/24/2020
+# waterLines(); #Last updated 6/23/2020
+# railroads(); #Last updated 6/23/2020
+# airstrips(); #Last updated 6/23/2020
+miscTransportation(); #Last updated 6/24/2020
+# townships(); #Last updated 6/23/2020
+# sections(); #Last updated 6/23/2020
+# deciPoints(); #Last updated 6/23/2020
+# addedPoints(); #Last updated 6/23/2020
+# addressZones(); #Last updated 6/23/2020
+# oilAndGasWells(); #Last updated 6/23/2020
 
