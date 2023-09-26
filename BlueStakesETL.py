@@ -12,30 +12,30 @@ schemaDB = r'C:\ZBECK\BlueStakes\schemaBS.gdb'
 outLoc = r'C:\ZBECK\BlueStakes\outBlueStakes'
 
 
-fipsNum = ['49001', '49003', '49005', '49007', '49009', '49011', '49013', '49015', '49017', '49019', '49021', \
-          '49023', '49025', '49027', '49029', '49031', '49033', '49035', '49037', '49039', '49041', '49043', '49045', \
+fipsNum = ['49001', '49003', '49005', '49007', '49009', '49011', '49013', '49015', '49017', '49019', '49021', 
+          '49023', '49025', '49027', '49029', '49031', '49033', '49035', '49037', '49039', '49041', '49043', '49045',
           '49047', '49049', '49051', '49053', '49055', '49057']
 
-fipsDict = {'Beaver': '49001', 'BoxElder': '49003', 'Cache': '49005', 'Carbon': '49007', 'Daggett': '49009', \
-           'Davis': '49011', 'Duchesne': '49013', 'Emery': '49015', 'Garfield': '49017', 'Grand': '49019', \
-           'Iron': '49021', 'Juab': '49023', 'Kane': '49025', 'Millard': '49027', 'Morgan': '49029', \
-           'Piute': '49031', 'Rich': '49033', 'SaltLake': '49035', 'SanJuan': '49037', 'Sanpete': '49039', \
-           'Sevier': '49041', 'Summit': '49043', 'Tooele': '49045', 'Uintah': '49047', 'Utah': '49049', \
+fipsDict = {'Beaver': '49001', 'BoxElder': '49003', 'Cache': '49005', 'Carbon': '49007', 'Daggett': '49009',
+           'Davis': '49011', 'Duchesne': '49013', 'Emery': '49015', 'Garfield': '49017', 'Grand': '49019',
+           'Iron': '49021', 'Juab': '49023', 'Kane': '49025', 'Millard': '49027', 'Morgan': '49029',
+           'Piute': '49031', 'Rich': '49033', 'SaltLake': '49035', 'SanJuan': '49037', 'Sanpete': '49039',
+           'Sevier': '49041', 'Summit': '49043', 'Tooele': '49045', 'Uintah': '49047', 'Utah': '49049',
            'Wasatch': '49051', 'Washington': '49053', 'Wayne': '49055', 'Weber': '49057'}
 
-typeList = ('ALY', 'AVE', 'BLVD', 'CIR', 'CT', 'CV', 'DR', 'EST', 'ESTS', 'EXPY', 'FWY', 'HWY', 'HOLW', \
-            'JCT', 'LN', 'LOOP', 'PKWY', 'PL', 'PLZ', 'PT', 'RAMP', 'RNCH', 'RD', 'RTE', 'RUN', 'RW', 'SQ', \
+typeList = ('ALY', 'AVE', 'BLVD', 'CIR', 'CT', 'CV', 'DR', 'EST', 'ESTS', 'EXPY', 'FWY', 'HWY', 'HOLW',
+            'JCT', 'LN', 'LOOP', 'PKWY', 'PL', 'PLZ', 'PT', 'RAMP', 'RNCH', 'RD', 'RTE', 'RUN', 'RW', 'SQ',
             'ST', 'TER', 'TRL', 'WAY', 'HTS', 'COR')
 
-typeList2 = ('ALLEY', 'AVENUE', 'BOULEVARD', 'CIRCLE', 'COURT', 'COVE', 'DRIVE', 'ESTATE', 'ESTATES', 'EXPRESSWAY', \
-             'FREEWAY', 'HEIGHTS', 'HIGHWAY', 'HOLLOW', 'JUNCTION', 'LANE', 'LOOP', 'PARKWAY', 'PLACE', 'PLAZA', \
+typeList2 = ('ALLEY', 'AVENUE', 'BOULEVARD', 'CIRCLE', 'COURT', 'COVE', 'DRIVE', 'ESTATE', 'ESTATES', 'EXPRESSWAY',
+             'FREEWAY', 'HEIGHTS', 'HIGHWAY', 'HOLLOW', 'JUNCTION', 'LANE', 'LOOP', 'PARKWAY', 'PLACE', 'PLAZA',
              'POINT', 'RAMP', 'RANCH', 'ROAD', 'ROUTE', 'RUN', 'ROW', 'SQUARE', 'STREET', 'TERRACE', 'TRAIL', 'WAY', 'CORNER')
 
-typeDict = {'ALLEY': 'ALY', 'AVENUE': 'AVE', 'BOULEVARD': 'BLVD', 'CIRCLE': 'CIR', 'COURT': 'CT', 'COVE': 'CV', \
-            'DRIVE': 'DR', 'ESTATE': 'EST', 'ESTATES': 'ESTS', 'EXPRESSWAY': 'EXPY', 'FREEWAY': 'FWY', 'HIGHWAY': 'HWY', \
-            'HOLLOW': 'HOLW', 'JUNCTION': 'JCT', 'LANE': 'LN', 'LOOP': 'LOOP', 'PARKWAY': 'PKWY', 'PLACE': 'PL', \
-            'PLAZA': 'PLZ', 'POINT': 'PT', 'RAMP': 'RAMP', 'RANCH': 'RNCH', 'ROAD': 'RD', 'ROUTE': 'RTE', 'RUN': 'RUN', \
-            'ROW': 'RW', 'SQUARE': 'SQ', 'STREET': 'ST', 'TERRACE': 'TER', 'TRAIL': 'TRL', 'WAY': 'WAY', 'HEIGHTS': 'HTS', \
+typeDict = {'ALLEY': 'ALY', 'AVENUE': 'AVE', 'BOULEVARD': 'BLVD', 'CIRCLE': 'CIR', 'COURT': 'CT', 'COVE': 'CV',
+            'DRIVE': 'DR', 'ESTATE': 'EST', 'ESTATES': 'ESTS', 'EXPRESSWAY': 'EXPY', 'FREEWAY': 'FWY', 'HIGHWAY': 'HWY',
+            'HOLLOW': 'HOLW', 'JUNCTION': 'JCT', 'LANE': 'LN', 'LOOP': 'LOOP', 'PARKWAY': 'PKWY', 'PLACE': 'PL',
+            'PLAZA': 'PLZ', 'POINT': 'PT', 'RAMP': 'RAMP', 'RANCH': 'RNCH', 'ROAD': 'RD', 'ROUTE': 'RTE', 'RUN': 'RUN',
+            'ROW': 'RW', 'SQUARE': 'SQ', 'STREET': 'ST', 'TERRACE': 'TER', 'TRAIL': 'TRL', 'WAY': 'WAY', 'HEIGHTS': 'HTS',
             'CORNER': 'COR'}
 
 dirList = ('N', 'S', 'E', 'W')
@@ -77,7 +77,7 @@ def parcels_primary_and_secondary():
 
     idErrors = ['', None, '00-0000-000', '00-0000-0000', '0000000', '0', '00']
 
-    '''-----Copy Parcels to SGID_GEOGRAPHIC staging area-----'''
+    # '''-----Copy Parcels to SGID_GEOGRAPHIC staging area-----'''
     # {'Beaver':'49001', 'BoxElder':'49003', 'Cache':'49005', 'Carbon':'49007', 'Daggett':'49009',
     #  'Davis':'49011', 'Duchesne':'49013', 'Emery':'49015', 'Garfield':'49017', 'Grand':'49019',
     #  'Iron':'49021', 'Juab':'49023', 'Kane':'49025', 'Millard':'49027', 'Morgan':'49029',
@@ -85,10 +85,7 @@ def parcels_primary_and_secondary():
     #  'Sevier':'49041', 'Summit':'49043', 'Tooele':'49045', 'Uintah':'49047', 'Utah':'49049',
     #  'Wasatch':'49051', 'Washington':'49053', 'Wayne':'49055', 'Weber':'49057'}
 
-    # parFipsDict = {'Davis':'49011', 'Morgan':'49029', 'SaltLake':'49035', 'Tooele':'49045', 'Utah':'49049',
-    #                'Washington':'49053', 'Weber':'49057'}
-
-    parFipsDict = {'Cache':'49005', 'Davis':'49011', 'Tooele':'49045', 'Utah':'49049', 'Washington':'49053', 'Weber':'49057'}
+    parFipsDict = {'Davis':'49011', 'SaltLake':'49035', 'Tooele':'49045', 'Utah':'49049', 'Washington':'49053', 'Weber':'49057'}
 
 
     for cnty in sorted(parFipsDict):
@@ -109,7 +106,7 @@ def parcels_primary_and_secondary():
         with arcpy.EnvManager(workspace=sgid):
             arcpy.env.overwriteOutput = True
 
-            parSGID = 'SGID.CADASTRE.Parcels_' + cnty
+            parSGID = f'SGID.CADASTRE.Parcels_{cnty}'
             parSGID_geo = os.path.join(sgid_GEO, f'Parcels_{cnty}')
             arcpy.CopyFeatures_management(parSGID, parSGID_geo)
 
@@ -349,7 +346,7 @@ def roads():
     roadsSGID = os.path.join(sgid_GEO, 'Roads')
     roadsBS = os.path.join(stageDB, 'TGR_StWide_lkA')
 
-    #----Move Roads to SGID_GEOGRAPHIC staging area
+    # #----Move Roads to SGID_GEOGRAPHIC staging area
     with arcpy.EnvManager(workspace=sgid):
         arcpy.env.overwriteOutput = True
         arcpy.CopyFeatures_management('SGID.TRANSPORTATION.Roads', roadsSGID)
@@ -387,7 +384,7 @@ def roads():
         alias1 = srcRow[9]
         alias2 = srcRow[10]
         aname = srcRow[11]
-        acsname = '{} {}'.format(srcRow[11], srcRow[12])
+        acsname = f'{srcRow[11]} {srcRow[12]}'
 
         if alias1 not in errorList:
             return '1'
@@ -432,10 +429,10 @@ def roads():
 
             #----Root and Full Street Name----
             if srcRow[2] not in errorList:
-                FULLNAME = '{} {}'.format(FEDIRP, srcRow[2].title()).strip()
+                FULLNAME = f'{FEDIRP} {srcRow[2].title()}'.strip()
 
                 if srcRow[23] == 'Manila' and srcRow[2].strip() in manilaRds:
-                    FULLNAME = '{} {} {}'.format(FEDIRP, srcRow[2].title().strip(), FEDIRS)
+                    FULLNAME = f'{FEDIRP} {srcRow[2].title().strip()} {FEDIRS}'
 
             elif srcRow[3] == 'RAMP':
                 FULLNAME = srcRow[2].title()
@@ -503,7 +500,7 @@ def roads():
 
             #----Address System----
             if srcRow[16] != srcRow[22]:
-                ADDRESS_SY = '{} / {} BORDER'.format(srcRow[16], srcRow[22])
+                ADDRESS_SY = f'{srcRow[16]} / {srcRow[22]} BORDER'
             else:
                 ADDRESS_SY = returnEmpty(srcRow[16], errorList)
 
@@ -522,7 +519,7 @@ def roads():
                 addHWY = srcRow[14]
 
                 if FEDIRP != None:
-                    FULLNAME_hwy = '{} {}'.format(FEDIRP, addHWY).strip() #FEDIRP + ' ' + addHWY
+                    FULLNAME_hwy = f'{FEDIRP} {addHWY}'.strip() #FEDIRP + ' ' + addHWY
                 else:
                     FULLNAME_hwy = addHWY.strip()
 
@@ -559,16 +556,16 @@ def roads():
                         FETYPE = srcRow[19].title()
 
                     if FEDIRP != None:
-                        FULLNAME_a1 = '{} {}'.format(FEDIRP, alsFENAME).strip()  #FEDIRP + ' ' + alsFENAME #+ ' ZZ4'
+                        FULLNAME_a1 = f'{FEDIRP} {alsFENAME}'.strip()  #FEDIRP + ' ' + alsFENAME #+ ' ZZ4'
 
                     if FEDIRP != None and srcRow[12] != None:
-                        FULLNAME_a1 = '{} {} {}'.format(FEDIRP, alsFENAME, srcRow[12][:1]).strip()   #FEDIRP + ' ' + alsFENAME + ' ' + srcRow[12][:1]
+                        FULLNAME_a1 = f'{FEDIRP} {alsFENAME} {srcRow[12][:1]}'.strip()   #FEDIRP + ' ' + alsFENAME + ' ' + srcRow[12][:1]
 
                     if FEDIRP != None and FETYPE != None:
-                        FULLNAME_a1 = '{} {} {}'.format(FEDIRP, alsFENAME, FETYPE).strip()       #FEDIRP + ' ' + alsFENAME + ' ' + FETYPE
+                        FULLNAME_a1 = f'{FEDIRP} {alsFENAME} {FETYPE}'.strip()       #FEDIRP + ' ' + alsFENAME + ' ' + FETYPE
 
                     if FEDIRP == None and FETYPE != None:
-                        FULLNAME_a1 = '{} {}'.format(alsFENAME, FETYPE).strip()  #alsFENAME + ' ' + FETYPE
+                        FULLNAME_a1 = f'{alsFENAME} {FETYPE}'.strip()  #alsFENAME + ' ' + FETYPE
 
                     FULLNAME_a1 = re.sub('\W(nb|sb|eb|wb)\\b', upperAbrev, FULLNAME_a1, flags=re.IGNORECASE).strip()
                     FULLNAME_a1 = replacePropCase(FULLNAME_a1, replaceDict)
@@ -588,16 +585,16 @@ def roads():
                         FETYPE = srcRow[20].title()
 
                     if FEDIRP != None:
-                        FULLNAME_a2 = '{} {}'.format(FEDIRP, FENAME2).strip()  #FEDIRP + ' ' + modFENAME2
+                        FULLNAME_a2 = f'{FEDIRP} {FENAME2}'.strip()  #FEDIRP + ' ' + modFENAME2
 
                     if FEDIRP != None and srcRow[12] != None:
-                        FULLNAME_a2 = '{} {} {}'.format(FEDIRP, FENAME2, srcRow[12][:1]).strip()  #FEDIRP + ' ' + modFENAME2 + ' ' + srcRow[12][:1]
+                        FULLNAME_a2 = f'{FEDIRP} {FENAME2} {srcRow[12][:1]}'.strip()  #FEDIRP + ' ' + modFENAME2 + ' ' + srcRow[12][:1]
 
                     if FEDIRP != None and FETYPE != None:
-                        FULLNAME_a2 = '{} {} {}'.format(FEDIRP, FENAME2, FETYPE).strip()  #FEDIRP + ' ' + modFENAME2 + ' ' + FETYPE
+                        FULLNAME_a2 = f'{FEDIRP} {FENAME2} {FETYPE}'.strip()  #FEDIRP + ' ' + modFENAME2 + ' ' + FETYPE
 
                     if FEDIRP == None and FETYPE != None:
-                        FULLNAME_a2 = '{} {}'.format(FENAME2, FETYPE)  #modFENAME2 + ' ' + FETYPE
+                        FULLNAME_a2 = f'{FENAME2} {FETYPE}'  #modFENAME2 + ' ' + FETYPE
 
                     FULLNAME_a2 = re.sub('\W(nb|sb|eb|wb)\\b', upperAbrev, FULLNAME_a2, flags=re.IGNORECASE)
                     FULLNAME_a2 = replacePropCase(FULLNAME_a2, replaceDict)
@@ -612,9 +609,9 @@ def roads():
                     acsFENAME = srcRow[11]
 
                     if FEDIRP not in errorList and srcRow[12] != None:
-                        FULLNAME_acs = '{} {} {}'.format(srcRow[1], acsFENAME, srcRow[12][:1])   #srcRow[1] + ' ' + acsFENAME + ' ' + srcRow[12][:1]
+                        FULLNAME_acs = f'{srcRow[1]} {acsFENAME} {srcRow[12][:1]}'   #srcRow[1] + ' ' + acsFENAME + ' ' + srcRow[12][:1]
                     elif srcRow[12] != None:
-                        FULLNAME_acs = '{} {}'.format(acsFENAME, srcRow[12][:1]) #acsFENAME + ' ' + srcRow[12][:1]
+                        FULLNAME_acs = f'{acsFENAME} {srcRow[12][:1]}' #acsFENAME + ' ' + srcRow[12][:1]
                     else:
                         FULLNAME_acs = acsFENAME
 
@@ -637,7 +634,7 @@ def roads():
      #---Add Dominion Road Segments------------
     count = int(arcpy.GetCount_management(annoRdSegsSELECT).getOutput(0))
     if count > 1:
-        print('Appending {} Dominion Road Segments'.format(count))
+        print(f'Appending {count} Dominion Road Segments')
         arcpy.Append_management(annoRdSegsSELECT, roadsBS, 'NO_TEST')
     else:
         print('NO DOMINION ROAD SEGMENTS ADDED')
@@ -1596,6 +1593,45 @@ def deciPoints():
 
     print ('Done Translating Deci Points (GNIS) ' + str(datetime.datetime.now()))
 
+def deci_points_test():
+
+    print ('Starting Deci Test Points (Open Source Places) ' + str(datetime.datetime.now()))
+
+    osp_pts = os.path.join(sgid_GEO, 'OpenSourcePlaces')
+    test_deci = os.path.join(stageDB, 'TGR_StWide_TestDeci')
+
+    #---Move Open Source Places to SGID_GEOGRAPHIC staging area
+    with arcpy.EnvManager(workspace=sgid):
+        arcpy.CopyFeatures_management('SGID.SOCIETY.OpenSourcePlaces', osp_pts)
+
+    #---Check for statewide Deci Points BlueStakes schema
+    if not arcpy.Exists(test_deci):
+        arcpy.CopyFeatures_management(os.path.join(schemaDB, 'TGRSSCCCdeci_schema'), test_deci)
+    else:
+        arcpy.TruncateTable_management(test_deci)
+
+    flds = ['NAME', 'SHAPE@']
+
+    with arcpy.da.SearchCursor(osp_pts, flds) as scursor, \
+        arcpy.da.InsertCursor(test_deci, flds) as icursor:
+        for row in scursor:
+
+            name = removeNone(row[0])
+
+            shp = row[1]
+
+            icursor.insertRow((name, shp))
+
+
+    #---Copy Deci Points to Blue Stakes root level---------------
+    arcpy.CopyFeatures_management(test_deci, os.path.join(outLoc, 'TGR_StWide_deciTEST.shp'))
+
+    #---Clip Blue Stakes Deci Points-----------------------------------------------------------
+    #clip(test_deci, '', 'deci_test')
+
+
+    print ('Ending Deci Test Points (Open Source Places) ' + str(datetime.datetime.now()))   
+
 def addedPoints():
 
     print ('Starting Added Points ' + str(datetime.datetime.now()))
@@ -1740,7 +1776,6 @@ def addedPoints():
             icursor.insertRow((NAME, shp))
 
     print ('Added ' + schoolHigherEdPts)
-
 
 
     #---Copy Added Points to Blue Stakes root level---------------
@@ -2012,17 +2047,17 @@ def copyCounties():
         arcpy.CopyFeatures_management(os.path.join(sgid, 'SGID.BOUNDARIES.Counties'), counties)
 
 
-# cleanOutFldr()
-# copyCounties()
+#cleanOutFldr()
+#copyCounties()
 
-parcels_primary_and_secondary();
-#parcels_v1(); '''old parcel version, don't run unless requested'''
-# counties(); #Last updated 6/23/2020
+#parcels_primary_and_secondary();
+# #parcels_v1(); '''old parcel version, don't run unless requested'''
+#counties(); #Last updated 6/23/2020
 roads(); #Last updated 6/24/2020
-# addressPoints(); #Last updated 6/24/2020
-# municipalities(); #Last updated 6/23/2020
-# mileposts(); #Last updated 6/24/2020
-# milepostsCombined() #Last updated 6/24/2020
+#addressPoints(); #Last updated 6/24/2020
+#municipalities(); #Last updated 6/23/2020
+#mileposts(); #Last updated 6/24/2020
+#milepostsCombined() #Last updated 6/24/2020
 # landownershipLarge(); #Last updated 6/23/2020
 # waterPoly(); #Last updated 6/24/2020
 # waterLines(); #Last updated 6/23/2020
@@ -2032,7 +2067,8 @@ miscTransportation(); #Last updated 6/24/2020
 # townships(); #Last updated 6/23/2020
 # sections(); #Last updated 6/23/2020
 # deciPoints(); #Last updated 6/23/2020
+# deci_points_test()
 # addedPoints(); #Last updated 6/23/2020
 # addressZones(); #Last updated 6/23/2020
-# oilAndGasWells(); #Last updated 6/23/2020
+#oilAndGasWells(); #Last updated 6/23/2020
 

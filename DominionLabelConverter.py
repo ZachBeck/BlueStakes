@@ -115,7 +115,7 @@ def outputSelectDominionRdSegs(rdsSGID):
 
     selected = arcpy.GetCount_management(annoRdSegsALL_Selected)
     selected_Count = int(selected.getOutput(0))
-    print('Dominion Road Segments Selected = {}'.format(selected_Count))
+    print(f'Dominion Road Segments Selected = {selected_Count}')
 
     outLocation = r'C:\ZBECK\BlueStakes\stagingBS.gdb\DOMINION_GEOGRAPHIC'
     with arcpy.EnvManager(workspace=outLocation):
