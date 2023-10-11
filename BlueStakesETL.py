@@ -85,7 +85,8 @@ def parcels_primary_and_secondary():
     #  'Sevier':'49041', 'Summit':'49043', 'Tooele':'49045', 'Uintah':'49047', 'Utah':'49049',
     #  'Wasatch':'49051', 'Washington':'49053', 'Wayne':'49055', 'Weber':'49057'}
 
-    parFipsDict = {'Davis':'49011', 'SaltLake':'49035', 'Tooele':'49045', 'Utah':'49049', 'Washington':'49053', 'Weber':'49057'}
+    parFipsDict = {'Cache':'49005', 'Davis':'49011', 'Iron':'49021', 'Kane':'49025', 'SaltLake':'49035',
+                   'Utah':'49049', 'Washington':'49053', 'Weber':'49057'}
 
 
     for cnty in sorted(parFipsDict):
@@ -2053,17 +2054,17 @@ def copyCounties():
 #parcels_primary_and_secondary();
 # #parcels_v1(); '''old parcel version, don't run unless requested'''
 #counties(); #Last updated 6/23/2020
-roads(); #Last updated 6/24/2020
+#roads(); #Last updated 6/24/2020
 #addressPoints(); #Last updated 6/24/2020
 #municipalities(); #Last updated 6/23/2020
-#mileposts(); #Last updated 6/24/2020
-#milepostsCombined() #Last updated 6/24/2020
+mileposts(); #Last updated 6/24/2020
+milepostsCombined() #Last updated 6/24/2020
 # landownershipLarge(); #Last updated 6/23/2020
 # waterPoly(); #Last updated 6/24/2020
 # waterLines(); #Last updated 6/23/2020
 # railroads(); #Last updated 6/23/2020
 # airstrips(); #Last updated 6/23/2020
-miscTransportation(); #Last updated 6/24/2020
+#miscTransportation(); #Last updated 6/24/2020
 # townships(); #Last updated 6/23/2020
 # sections(); #Last updated 6/23/2020
 # deciPoints(); #Last updated 6/23/2020
