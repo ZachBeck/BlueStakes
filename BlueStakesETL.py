@@ -71,6 +71,12 @@ def delete_shape_flds(fc, shp_flds):
             arcpy.DeleteField_management(fc, fld)
             print(f'Deleted {fld} in {fc}')
 
+def agol_to_fgdb(in_url, ws, out_fc):
+    with arcpy.EnvManager(workspace=ws):
+        arcpy.env.overwriteOutput = True
+        arcpy.conversion.ExportFeatures(in_url, out_fc)
+    
+
 
 def parcels_primary_and_secondary():
     print('Starting Parcels  ' + str(datetime.datetime.now()))
@@ -85,7 +91,7 @@ def parcels_primary_and_secondary():
     #  'Sevier':'49041', 'Summit':'49043', 'Tooele':'49045', 'Uintah':'49047', 'Utah':'49049',
     #  'Wasatch':'49051', 'Washington':'49053', 'Wayne':'49055', 'Weber':'49057'}
 
-    parFipsDict = {'Cache':'49005', 'Davis':'49011', 'Iron':'49021', 'Kane':'49025', 'SaltLake':'49035',
+    parFipsDict = {'Davis':'49011', 'Grand':'49019', 'Kane':'49025',
                    'Utah':'49049', 'Washington':'49053', 'Weber':'49057'}
 
 
@@ -787,11 +793,94 @@ def mileposts():
 
     print('Done Translating Mileposts  ' + str(datetime.datetime.now()))
 
+def mileposts_RP():
+
+    print ('Starting Reference Mileposts  ' + str(datetime.datetime.now()))
+    
+    milePosts = os.path.join(sgid_GEO, 'UDOT_MileReferencePosts')
+    exits = os.path.join(sgid_GEO, 'Roads_FreewayExits')
+    exits_agol = 'https://roads.udot.utah.gov/server/rest/services/Public/Freeway_Exits/MapServer/0'
+    milePostsBS = os.path.join(stageDB, 'Hwy_MPM')
+
+    with arcpy.EnvManager(workspace=sgid):
+        arcpy.env.overwriteOutput = True
+        #---Copy new Exits and Mileposts to Staging DB
+        agol_to_fgdb(exits_agol, sgid_GEO, 'Roads_FreewayExits')
+        arcpy.CopyFeatures_management('SGID.TRANSPORTATION.UDOT_MileReferencePosts', milePosts)
+        print('Copied UDOT AGOL Exits to staging DB')
+        print('Copied SGID.TRANSPORTATION.UDOT_MileReferencePosts to staging DB')
+
+
+    #---Check for Mileposts BlueStakes schema
+    if not arcpy.Exists(milePostsBS):
+        arcpy.CopyFeatures_management(os.path.join(schemaDB, 'Hwy_MPM', milePostsBS))
+    else:
+        arcpy.TruncateTable_management(milePostsBS)
+
+    mp_flds = ['ROUTE_ID', 'Legend', 'SHAPE@']
+    exit_flds = ['EXITNAME', 'SHAPE@']
+    bs_flds = ['Type', 'Label_Name', 'SHAPE@']
+
+    interstates = ['15', '70', '80', '84', '215']
+
+    with arcpy.da.SearchCursor(milePosts, mp_flds) as scursor, \
+        arcpy.da.InsertCursor(milePostsBS, bs_flds) as icursor:
+
+        for row in scursor:
+            mp_type = 'mpm'
+            route_id = row[0]
+            mp = row[1]
+
+            if route_id[0] != '0':
+                route = route_id[:4]
+            elif route_id[:2] != '00':
+                route = route_id[1:4]
+            elif route_id[:3] != '000':
+                route = route_id[2:4]
+            else:
+                route = route_id[3:4]
+                
+            if route in interstates:
+                label = f'I-{route} milepost {mp}'
+            else:
+                label = f'Hwy {route} milepost {mp}'
+
+            if route_id[-2:] == 'NM':
+                label = ''
+
+            shp = row[2]
+
+            icursor.insertRow((mp_type, label, shp))
+
+    #----Add Exit Records--------------------------------------------
+    with arcpy.da.SearchCursor(exits, exit_flds) as scursor, \
+        arcpy.da.InsertCursor(milePostsBS, bs_flds) as icursor:
+        for row in scursor:
+
+            Type = 'epm'
+
+            if row[0].split()[0] == 'SR':
+                Label_Name = 'Hwy ' + ' '.join(row[0].split()[1:])
+            elif row[0].split()[0] == 'US':
+                Label_Name = 'Hwy ' + ' '.join(row[0].split()[1:])
+            else:
+                Label_Name = row[0]
+
+            shp = row[1]
+
+            icursor.insertRow((Type, Label_Name, shp))
+
+    #----Copy Mileposts to shapefile---------------------------------
+    arcpy.CopyFeatures_management(milePostsBS, os.path.join(outLoc, 'Hwy_MPM.shp'))
+
+    print('Done Translating Reference Mileposts  ' + str(datetime.datetime.now()))
+
 def milepostsCombined():
     print('Starting Mileposts  ' + str(datetime.datetime.now()))
 
-    milePosts = os.path.join(sgid_GEO, 'UDOTMilePosts')
+    milePosts = os.path.join(sgid_GEO, 'UDOT_MileReferencePosts')
     exits = os.path.join(sgid_GEO, 'Roads_FreewayExits')
+    exits_agol = 'https://roads.udot.utah.gov/server/rest/services/Public/Freeway_Exits/MapServer/0'
     rr_MilePosts = os.path.join(sgid_GEO, 'Railroad_Mileposts')
     milePostsHwyRR_BS = os.path.join(stageDB, 'HwyRR_MPM')
 
@@ -799,11 +888,11 @@ def milepostsCombined():
         arcpy.env.overwriteOutput = True
 
         # ---Copy new Exits and Mileposts to Staging DB
-        arcpy.CopyFeatures_management('SGID.TRANSPORTATION.Roads_FreewayExits', exits)
-        arcpy.CopyFeatures_management('SGID.TRANSPORTATION.UDOTMileposts', milePosts)
+        agol_to_fgdb(exits_agol, sgid_GEO, 'Roads_FreewayExits')
+        arcpy.CopyFeatures_management('SGID.TRANSPORTATION.UDOT_MileReferencePosts', milePosts)
         arcpy.CopyFeatures_management('SGID.TRANSPORTATION.Railroad_Mileposts', rr_MilePosts)
-        print('Copied SGID.TRANSPORTATION.Roads_FreewayExits to staging DB')
-        print('Copied SGID.TRANSPORTATION.UDOTMileposts to staging DB')
+        print('Copied UDOT AGOL Exits to staging DB')
+        print('SGID.TRANSPORTATION.UDOT_MileReferencePosts to staging DB')
         print('Copied SGID.TRANSPORTATION.Railroad_Mileposts to staging DB')
 
     # ---Check for Mileposts BlueStakes schema
@@ -812,7 +901,7 @@ def milepostsCombined():
     else:
         arcpy.TruncateTable_management(milePostsHwyRR_BS)
 
-    mp_flds = ['LABEL', 'MP', 'CARTO', 'RT_DIR', 'SHAPE@']
+    mp_flds = ['ROUTE_ID', 'Legend', 'SHAPE@']
     exit_flds = ['EXITNAME', 'SHAPE@', 'EXITNBR']
     RRmp_flds = ['DIVISION', 'RR_Milepos', 'SHAPE@']
     bs_flds = ['NAME', 'LABEL', 'CFCC', 'SHAPE@']
@@ -830,33 +919,34 @@ def milepostsCombined():
                 icursor.insertRow((name, lbl, cfcc, shp))
 
     # ----Add Milepost Records-------------------------------------------
+    interstates = ['15', '70', '80', '84', '215']
+    
     with arcpy.da.SearchCursor(milePosts, mp_flds) as scursor, \
         arcpy.da.InsertCursor(milePostsHwyRR_BS, bs_flds) as icursor:
 
         for row in scursor:
             cfcc = 'P10'
+            route_id = row[0]
+            mp = row[1]
 
-            hwyDig1 = row[0][3:4]
-            hwyDig2 = row[0][2:4]
-            hwyDig3 = row[0][1:4]
-            mp = str(row[1]).split('.')[0]
-
-            if row[3] == 'N':
-                name = ''
-            elif row[2] == '1' and row[3] == 'P':
-                if row[0][1:4] == '215':
-                    name = f'I-{hwyDig3} milepost {mp}'
-                else:
-                    name = f'I-{hwyDig2} milepost {mp}'
+            if route_id[0] != '0':
+                route = route_id[:4]
+            elif route_id[:2] != '00':
+                route = route_id[1:4]
+            elif route_id[:3] != '000':
+                route = route_id[2:4]
             else:
-                if row[0][:3] == '000':
-                    name = f'Hwy {hwyDig1} milepost {mp}'
-                elif row[0][:2] == '00':
-                    name = f'Hwy {hwyDig2} milepost {mp}'
-                else:
-                    name = f'Hwy {hwyDig3} milepost {mp}'
+                route = route_id[3:4]
+                
+            if route in interstates:
+                name = f'I-{route} milepost {mp}'
+            else:
+                name = f'Hwy {route} milepost {mp}'
 
-            shp = row[4]
+            if route_id[-2:] == 'NM':
+                name = ''
+
+            shp = row[2]
 
             icursor.insertRow((name, mp, cfcc, shp))
 
@@ -2049,7 +2139,7 @@ def copyCounties():
 
 
 #cleanOutFldr()
-#copyCounties()
+copyCounties()
 
 #parcels_primary_and_secondary();
 # #parcels_v1(); '''old parcel version, don't run unless requested'''
@@ -2057,7 +2147,8 @@ def copyCounties():
 #roads(); #Last updated 6/24/2020
 #addressPoints(); #Last updated 6/24/2020
 #municipalities(); #Last updated 6/23/2020
-mileposts(); #Last updated 6/24/2020
+# mileposts(); #Old deprecated mileposts DON'T USE
+mileposts_RP(); #Last updated 6/24/2020
 milepostsCombined() #Last updated 6/24/2020
 # landownershipLarge(); #Last updated 6/23/2020
 # waterPoly(); #Last updated 6/24/2020
