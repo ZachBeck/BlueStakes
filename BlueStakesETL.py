@@ -75,6 +75,8 @@ def agol_to_fgdb(in_url, ws, out_fc):
     with arcpy.EnvManager(workspace=ws):
         arcpy.env.overwriteOutput = True
         arcpy.conversion.ExportFeatures(in_url, out_fc)
+
+        return out_fc
     
 
 
@@ -91,9 +93,11 @@ def parcels_primary_and_secondary():
     #  'Sevier':'49041', 'Summit':'49043', 'Tooele':'49045', 'Uintah':'49047', 'Utah':'49049',
     #  'Wasatch':'49051', 'Washington':'49053', 'Wayne':'49055', 'Weber':'49057'}
 
-    parFipsDict = {'Davis':'49011', 'Grand':'49019', 'Kane':'49025',
-                   'Utah':'49049', 'Washington':'49053', 'Weber':'49057'}
+    parFipsDict = {'Uintah':'49047'}
+    
+    #{'Piute':'49031', 'Sevier':'49041', 'Utah':'49049', 'Wasatch':'49051', 'Washington':'49053'}
 
+    explode_polygons = ['Uintah']
 
     for cnty in sorted(parFipsDict):
 
@@ -115,7 +119,12 @@ def parcels_primary_and_secondary():
 
             parSGID = f'SGID.CADASTRE.Parcels_{cnty}'
             parSGID_geo = os.path.join(sgid_GEO, f'Parcels_{cnty}')
-            arcpy.CopyFeatures_management(parSGID, parSGID_geo)
+
+            if cnty in explode_polygons:
+                print(f'Exploding {cnty}')
+                arcpy.management.MultipartToSinglepart(parSGID, parSGID_geo)
+            else:
+                arcpy.CopyFeatures_management(parSGID, parSGID_geo)
 
             print(f'Repair Geometry {parSGID_geo}')
             arcpy.RepairGeometry_management(parSGID_geo)
@@ -354,10 +363,10 @@ def roads():
     roadsBS = os.path.join(stageDB, 'TGR_StWide_lkA')
 
     # #----Move Roads to SGID_GEOGRAPHIC staging area
-    with arcpy.EnvManager(workspace=sgid):
-        arcpy.env.overwriteOutput = True
-        arcpy.CopyFeatures_management('SGID.TRANSPORTATION.Roads', roadsSGID)
-        print('Copied roads to StagingDB')
+    # with arcpy.EnvManager(workspace=sgid):
+    #     arcpy.env.overwriteOutput = True
+    #     arcpy.CopyFeatures_management('SGID.TRANSPORTATION.Roads', roadsSGID)
+    #     print('Copied roads to StagingDB')
 
     # ----Check for statewide BlueStakes roads
     if not arcpy.Exists(roadsBS):
@@ -712,7 +721,7 @@ def municipalities():
 
     print ('Done Translating Municipalities  ' + str(datetime.datetime.now()))
 
-def mileposts():
+def mileposts():  # DEPRECATED old SGID mileposts
 
     print ('Starting Mileposts  ' + str(datetime.datetime.now()))
     
@@ -818,7 +827,7 @@ def mileposts_RP():
         arcpy.TruncateTable_management(milePostsBS)
 
     mp_flds = ['ROUTE_ID', 'Legend', 'SHAPE@']
-    exit_flds = ['EXITNAME', 'SHAPE@']
+    exit_flds = ['exitname', 'SHAPE@']
     bs_flds = ['Type', 'Label_Name', 'SHAPE@']
 
     interstates = ['15', '70', '80', '84', '215']
@@ -887,10 +896,10 @@ def milepostsCombined():
     with arcpy.EnvManager(workspace=sgid):
         arcpy.env.overwriteOutput = True
 
-        # ---Copy new Exits and Mileposts to Staging DB
-        agol_to_fgdb(exits_agol, sgid_GEO, 'Roads_FreewayExits')
+        # ---Copy new Mileposts to Staging DB
         arcpy.CopyFeatures_management('SGID.TRANSPORTATION.UDOT_MileReferencePosts', milePosts)
         arcpy.CopyFeatures_management('SGID.TRANSPORTATION.Railroad_Mileposts', rr_MilePosts)
+        agol_to_fgdb(exits_agol, sgid_GEO, 'Roads_FreewayExits')
         print('Copied UDOT AGOL Exits to staging DB')
         print('SGID.TRANSPORTATION.UDOT_MileReferencePosts to staging DB')
         print('Copied SGID.TRANSPORTATION.Railroad_Mileposts to staging DB')
@@ -902,7 +911,8 @@ def milepostsCombined():
         arcpy.TruncateTable_management(milePostsHwyRR_BS)
 
     mp_flds = ['ROUTE_ID', 'Legend', 'SHAPE@']
-    exit_flds = ['EXITNAME', 'SHAPE@', 'EXITNBR']
+    #exit_flds = ['EXITNAME', 'SHAPE@', 'EXITNBR']
+    exit_flds = ['exitname', 'SHAPE@', 'exitnbr']
     RRmp_flds = ['DIVISION', 'RR_Milepos', 'SHAPE@']
     bs_flds = ['NAME', 'LABEL', 'CFCC', 'SHAPE@']
 
@@ -2138,29 +2148,34 @@ def copyCounties():
         arcpy.CopyFeatures_management(os.path.join(sgid, 'SGID.BOUNDARIES.Counties'), counties)
 
 
-#cleanOutFldr()
-copyCounties()
+# cleanOutFldr()
+# copyCounties()
 
-#parcels_primary_and_secondary();
-# #parcels_v1(); '''old parcel version, don't run unless requested'''
-#counties(); #Last updated 6/23/2020
-#roads(); #Last updated 6/24/2020
-#addressPoints(); #Last updated 6/24/2020
-#municipalities(); #Last updated 6/23/2020
-# mileposts(); #Old deprecated mileposts DON'T USE
-mileposts_RP(); #Last updated 6/24/2020
-milepostsCombined() #Last updated 6/24/2020
+# addressPoints(); #Last updated 6/24/2020
+# counties(); #Last updated 6/23/2020
+# mileposts_RP(); #Last updated 6/24/2020
+# milepostsCombined() #Last updated 6/24/2020
+# miscTransportation(); #Last updated 6/24/2020
+# municipalities(); #Last updated 6/23/2020
+# oilAndGasWells(); #Last updated 6/23/2020
+parcels_primary_and_secondary();
+# roads(); #Last updated 6/24/2020
+
+
 # landownershipLarge(); #Last updated 6/23/2020
 # waterPoly(); #Last updated 6/24/2020
 # waterLines(); #Last updated 6/23/2020
 # railroads(); #Last updated 6/23/2020
 # airstrips(); #Last updated 6/23/2020
-#miscTransportation(); #Last updated 6/24/2020
 # townships(); #Last updated 6/23/2020
 # sections(); #Last updated 6/23/2020
 # deciPoints(); #Last updated 6/23/2020
-# deci_points_test()
 # addedPoints(); #Last updated 6/23/2020
 # addressZones(); #Last updated 6/23/2020
-#oilAndGasWells(); #Last updated 6/23/2020
+
+# deci_points_test()
+
+
+# #parcels_v1(); '''old parcel version, don't run unless requested'''
+# mileposts(); #Old deprecated mileposts DON'T USE
 
