@@ -93,9 +93,8 @@ def parcels_primary_and_secondary():
     #  'Sevier':'49041', 'Summit':'49043', 'Tooele':'49045', 'Uintah':'49047', 'Utah':'49049',
     #  'Wasatch':'49051', 'Washington':'49053', 'Wayne':'49055', 'Weber':'49057'}
 
-    parFipsDict = {'Uintah':'49047'}
-    
-    #{'Piute':'49031', 'Sevier':'49041', 'Utah':'49049', 'Wasatch':'49051', 'Washington':'49053'}
+    parFipsDict = {'BoxElder':'49003', 'Davis':'49011', 'Iron':'49021', 'SaltLake':'49035', 'Tooele':'49045',
+                    'Utah':'49049', 'Washington':'49053', 'Weber':'49057'}
 
     explode_polygons = ['Uintah']
 
@@ -362,11 +361,11 @@ def roads():
     roadsSGID = os.path.join(sgid_GEO, 'Roads')
     roadsBS = os.path.join(stageDB, 'TGR_StWide_lkA')
 
-    # #----Move Roads to SGID_GEOGRAPHIC staging area
-    # with arcpy.EnvManager(workspace=sgid):
-    #     arcpy.env.overwriteOutput = True
-    #     arcpy.CopyFeatures_management('SGID.TRANSPORTATION.Roads', roadsSGID)
-    #     print('Copied roads to StagingDB')
+    #----Move Roads to SGID_GEOGRAPHIC staging area
+    with arcpy.EnvManager(workspace=sgid):
+        arcpy.env.overwriteOutput = True
+        arcpy.CopyFeatures_management('SGID.TRANSPORTATION.Roads', roadsSGID)
+        print('Copied roads to StagingDB')
 
     # ----Check for statewide BlueStakes roads
     if not arcpy.Exists(roadsBS):
@@ -673,14 +672,14 @@ def municipalities():
     muni = os.path.join(sgid_GEO, 'Municipalities_AFBclipped')
     muniBS = os.path.join(stageDB, 'TGR_StWide_plc00')
     hillAFB = os.path.join(sgid_GEO, 'HillAFB')
-    metroTownships = os.path.join(sgid_GEO, 'MetroTownships')
+    #metroTownships = os.path.join(sgid_GEO, 'MetroTownships')
     cedarHighlandsBS = os.path.join(sgid_GEO, 'CedarHighlands_plc00')
 
     with arcpy.EnvManager(workspace=sgid):
         arcpy.env.overwriteOutput = True
         #---Copy Municipalites and Townships to SGID_GEOGRAPHIC staging area
         arcpy.CopyFeatures_management('SGID.BOUNDARIES.Municipalities', munisWithAFB)
-        arcpy.CopyFeatures_management('SGID.BOUNDARIES.MetroTownships', metroTownships)
+        #arcpy.CopyFeatures_management('SGID.BOUNDARIES.MetroTownships', metroTownships)
 
     #---Clip out Hill Air force Base
     arcpy.Erase_analysis(munisWithAFB, hillAFB, muni)
@@ -699,15 +698,17 @@ def municipalities():
         arcpy.da.InsertCursor(muniBS, outFlds) as icursor:
             for row in scursor:
                 name = row[0].replace('St.', 'St')
+                if name == 'Magna City':
+                    name = 'Magna'
                 shp = row[1]
                 icursor.insertRow((name, shp))
 
-    with arcpy.da.SearchCursor(metroTownships, twnshipFlds) as scursor, \
-        arcpy.da.InsertCursor(muniBS, outFlds) as icursor:
-            for row in scursor:
-                name = row[0].title()
-                shp = row[1]
-                icursor.insertRow((name, shp))
+    # with arcpy.da.SearchCursor(metroTownships, twnshipFlds) as scursor, \
+    #     arcpy.da.InsertCursor(muniBS, outFlds) as icursor:
+    #         for row in scursor:
+    #             name = row[0].title()
+    #             shp = row[1]
+    #             icursor.insertRow((name, shp))
 
     arcpy.Append_management(cedarHighlandsBS, muniBS, 'NO_TEST')
 
@@ -1763,7 +1764,7 @@ def addedPoints():
         arcpy.CopyFeatures_management('SGID.SOCIETY.PostOffices', postOfficePts)
         arcpy.CopyFeatures_management('SGID.SOCIETY.Schools_PreKto12', schoolPts)
         arcpy.CopyFeatures_management('SGID.SOCIETY.Schools_HigherEducation', schoolHigherEdPts)
-        arcpy.CopyFeatures_management('SGID.HEALTH.HealthCareFacilities', healthCarePts)
+        arcpy.CopyFeatures_management('SGID.HEALTH.LicensedHealthCareFacilities', healthCarePts)
         # arcpy.CopyFeatures_management('SGID.SOCIETY.PlacesOfWorship', churchPts) No longer in SGID
         # arcpy.CopyFeatures_management('SGID.SOCIETY.ShoppingMalls', mallPts) No longer in SGID
         print ('Done copying features from SGID to staging area')
@@ -1777,7 +1778,7 @@ def addedPoints():
 
     bs_flds = ['NAME', 'SHAPE@']
 
-    pointFC_List = [correctionsPts, policePts, fireStnPts, healthCarePts]
+    pointFC_List = [correctionsPts, policePts, fireStnPts]
 
     #---Loop through feature classes that have common fields-------
     for pointFC in pointFC_List:
@@ -1814,6 +1815,21 @@ def addedPoints():
             icursor.insertRow((NAME, shp))
 
     print ('Added ' + libraryPts)
+
+    healthCare_flds = ['FACILITY_NAME', 'SHAPE@']
+    with arcpy.da.SearchCursor(healthCarePts, healthCare_flds) as scursor, \
+        arcpy.da.InsertCursor(addedPtsBS, bs_flds) as icursor:
+        for row in scursor:
+            if row[0] != None:
+                NAME = row[0]
+            else:
+                NAME = 'Healthcare Facility'
+
+            shp = row[1]
+
+            icursor.insertRow((NAME, shp))
+
+    print ('Added ' + healthCarePts)
 
 
     liquor_flds = ['TYPE', 'SHAPE@']
@@ -2151,15 +2167,15 @@ def copyCounties():
 # cleanOutFldr()
 # copyCounties()
 
-# addressPoints(); #Last updated 6/24/2020
-# counties(); #Last updated 6/23/2020
-# mileposts_RP(); #Last updated 6/24/2020
-# milepostsCombined() #Last updated 6/24/2020
-# miscTransportation(); #Last updated 6/24/2020
-# municipalities(); #Last updated 6/23/2020
-# oilAndGasWells(); #Last updated 6/23/2020
-parcels_primary_and_secondary();
-# roads(); #Last updated 6/24/2020
+#addressPoints(); #Last updated 6/24/2020
+#counties(); #Last updated 6/23/2020
+#mileposts_RP(); #Last updated 6/24/2020
+#milepostsCombined() #Last updated 6/24/2020
+#miscTransportation(); #Last updated 6/24/2020
+#municipalities(); #Last updated 6/23/2020
+#oilAndGasWells(); #Last updated 6/23/2020
+#parcels_primary_and_secondary();
+#roads(); #Last updated 6/24/2020
 
 
 # landownershipLarge(); #Last updated 6/23/2020
@@ -2170,7 +2186,7 @@ parcels_primary_and_secondary();
 # townships(); #Last updated 6/23/2020
 # sections(); #Last updated 6/23/2020
 # deciPoints(); #Last updated 6/23/2020
-# addedPoints(); #Last updated 6/23/2020
+addedPoints(); #Last updated 6/23/2020
 # addressZones(); #Last updated 6/23/2020
 
 # deci_points_test()
