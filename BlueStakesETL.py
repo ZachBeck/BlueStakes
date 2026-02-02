@@ -93,8 +93,12 @@ def parcels_primary_and_secondary():
     #  'Sevier':'49041', 'Summit':'49043', 'Tooele':'49045', 'Uintah':'49047', 'Utah':'49049',
     #  'Wasatch':'49051', 'Washington':'49053', 'Wayne':'49055', 'Weber':'49057'}
 
-    parFipsDict = {'BoxElder':'49003', 'Davis':'49011', 'Iron':'49021', 'SaltLake':'49035', 'Tooele':'49045',
-                    'Utah':'49049', 'Washington':'49053', 'Weber':'49057'}
+    # parFipsDict = {'Emery':'49015', 'Daggett':'49009', 'Davis':'49011', 'Juab':'49023', 'Kane':'49025',
+    #                'SanJuan':'49037', 'Sevier':'49041', 'Utah':'49049', 'Washington':'49053',
+    #                'Wayne':'49055', 'Weber':'49057'}
+
+    parFipsDict = {'Davis':'49011', 'Grand':'49019',
+                   'Utah':'49049', 'Wasatch':'49051', 'Washington':'49053', 'Weber':'49057'}
 
     explode_polygons = ['Uintah']
 
@@ -373,8 +377,8 @@ def roads():
     else:
         arcpy.TruncateTable_management(roadsBS)
 
-    srcFlds = ['CARTOCODE', 'PREDIR', 'FULLNAME', 'POSTTYPE', 'POSTDIR', 'FROMADDR_L', 'TOADDR_L', 'FROMADDR_R', \
-               'TOADDR_R', 'A1_NAME', 'A2_NAME', 'AN_NAME', 'AN_POSTDIR', 'COUNTY_L', 'DOT_HWYNAM', 'UPDATED', \
+    srcFlds = ['CARTOCODE', 'PREDIR', 'FULLNAME', 'POSTTYPE', 'POSTDIR', 'FROMADDR_L', 'TOADDR_L', 'FROMADDR_R',
+               'TOADDR_R', 'A1_NAME', 'A2_NAME', 'AN_NAME', 'AN_POSTDIR', 'COUNTY_L', 'DOT_HWYNAM', 'UPDATED',
                'ADDRSYS_L', 'NAME', 'SHAPE@', 'A1_POSTTYPE', 'A2_POSTTYPE', 'COUNTY_R', 'ADDRSYS_R', 'INCMUNI_L']
 
     tarFlds = ['FEDIRP', 'FENAME', 'FETYPE', 'FEDIRS', 'CFCC', 'FRADDL', 'TOADDL', 'FRADDR', 'TOADDR', 'CFCC1',
@@ -452,15 +456,15 @@ def roads():
             elif srcRow[3] == 'RAMP':
                 FULLNAME = srcRow[2].title()
 
-            FULLNAME = re.sub('\d+(st|nd|rd|th)\\b', lowerAbrev, FULLNAME, flags=re.IGNORECASE)
-            FULLNAME = re.sub('\W(nb|sb|eb|wb)\\b', upperAbrev, FULLNAME, flags=re.IGNORECASE)
+            FULLNAME = re.sub('\\d+(st|nd|rd|th)\\b', lowerAbrev, FULLNAME, flags=re.IGNORECASE)
+            FULLNAME = re.sub('\\W(nb|sb|eb|wb)\\b', upperAbrev, FULLNAME, flags=re.IGNORECASE)
             FULLNAME = replacePropCase(FULLNAME, replaceDict)
 
             if srcRow[17] != None:
                 FENAME =  srcRow[17].title()
                 FENAME = replacePropCase(FENAME, replaceDict)
-                FENAME = re.sub('\d+(st|nd|rd|th)\\b', lowerAbrev, FENAME, flags=re.IGNORECASE)
-                FENAME = re.sub('\W(nb|sb|eb|wb)\\b', upperAbrev, FENAME, flags=re.IGNORECASE)
+                FENAME = re.sub('\\d+(st|nd|rd|th)\\b', lowerAbrev, FENAME, flags=re.IGNORECASE)
+                FENAME = re.sub('\\W(nb|sb|eb|wb)\\b', upperAbrev, FENAME, flags=re.IGNORECASE)
             else:
                 FENAME = ''
 
@@ -565,7 +569,7 @@ def roads():
                 if srcRow[9][:7] != 'HIGHWAY':
                     alsFENAME = srcRow[9].title()
                     alsFENAME = replacePropCase(alsFENAME, replaceDict)
-                    alsFENAME = re.sub('\W(nb|sb|eb|wb)\\b', upperAbrev, alsFENAME, flags=re.IGNORECASE)
+                    alsFENAME = re.sub('\\W(nb|sb|eb|wb)\\b', upperAbrev, alsFENAME, flags=re.IGNORECASE)
 
                     if srcRow[19] != None:
                         FETYPE = srcRow[19].title()
@@ -582,7 +586,7 @@ def roads():
                     if FEDIRP == None and FETYPE != None:
                         FULLNAME_a1 = f'{alsFENAME} {FETYPE}'.strip()  #alsFENAME + ' ' + FETYPE
 
-                    FULLNAME_a1 = re.sub('\W(nb|sb|eb|wb)\\b', upperAbrev, FULLNAME_a1, flags=re.IGNORECASE).strip()
+                    FULLNAME_a1 = re.sub('\\W(nb|sb|eb|wb)\\b', upperAbrev, FULLNAME_a1, flags=re.IGNORECASE).strip()
                     FULLNAME_a1 = replacePropCase(FULLNAME_a1, replaceDict)
 
                     tarRows.insertRow((FEDIRP, alsFENAME, FETYPE, '', CFCC, FRADDL, TOADDL, FRADDR, TOADDR, CFCC1, CFCC2, \
@@ -594,7 +598,7 @@ def roads():
                 if srcRow[10][:7] != 'HIGHWAY':
                     als2FENAME = srcRow[10].title()
                     FENAME2 = replacePropCase(als2FENAME, replaceDict)
-                    FENAME2 = re.sub('\W(nb|sb|eb|wb)\\b', upperAbrev, FENAME2, flags=re.IGNORECASE)
+                    FENAME2 = re.sub('\\W(nb|sb|eb|wb)\\b', upperAbrev, FENAME2, flags=re.IGNORECASE)
 
                     if srcRow[20] != None:
                         FETYPE = srcRow[20].title()
@@ -611,7 +615,7 @@ def roads():
                     if FEDIRP == None and FETYPE != None:
                         FULLNAME_a2 = f'{FENAME2} {FETYPE}'  #modFENAME2 + ' ' + FETYPE
 
-                    FULLNAME_a2 = re.sub('\W(nb|sb|eb|wb)\\b', upperAbrev, FULLNAME_a2, flags=re.IGNORECASE)
+                    FULLNAME_a2 = re.sub('\\W(nb|sb|eb|wb)\\b', upperAbrev, FULLNAME_a2, flags=re.IGNORECASE)
                     FULLNAME_a2 = replacePropCase(FULLNAME_a2, replaceDict)
 
 
@@ -1322,9 +1326,17 @@ def railroads():
     with arcpy.EnvManager(workspace=sgid):
         arcpy.env.overwriteOutput = True
 
+        trax_agol = 'https://maps.rideuta.com/server/rest/services/Hosted/UTA_TRAX_Light_Rail_Routes/FeatureServer/0'
+        agol_to_fgdb(trax_agol, sgid_GEO, 'LightRail_UTA')
+        print('copied agol trax')
+        #arcpy.CopyFeatures_management('SGID.TRANSPORTATION.LightRail_UTA', railTrax)
+
         arcpy.CopyFeatures_management('SGID.TRANSPORTATION.Railroads', rail)
-        arcpy.CopyFeatures_management('SGID.TRANSPORTATION.LightRail_UTA', railTrax)
-        arcpy.CopyFeatures_management('SGID.TRANSPORTATION.CommuterRailRoutes_UTA', railCommuter)
+
+        commuter_rail_agol = 'https://maps.rideuta.com/server/rest/services/Hosted/UTA_FrontRunner_Commuter_Rail_Centerline/FeatureServer/0'
+        agol_to_fgdb(commuter_rail_agol, sgid_GEO, 'railCommuter')
+        print('copied agol light rail')
+        #arcpy.CopyFeatures_management('SGID.TRANSPORTATION.CommuterRailRoutes_UTA', railCommuter)
 
 
     rr_flds = ['RAILROAD', 'SHAPE@']
@@ -1435,7 +1447,7 @@ def miscTransportation():
     ski_lifts = os.path.join(sgid_GEO, 'SkiLifts')
     transmission_lines = os.path.join(sgid_GEO, 'TransmissionLines')
     electric_lines = os.path.join(sgid_GEO, 'ElectricLines')
-    dominion_parcelsBS = os.path.join(stageDB, 'DOMINION_GEOGRAPHIC\Parcels_Dominion')
+    dominion_parcelsBS = os.path.join(stageDB, r'DOMINION_GEOGRAPHIC\Parcels_Dominion')
     source_dominion = r'C:\ZBECK\BlueStakes\DominionEnergy\DEUWI_BlueStakes_UGRC.gdb\Property'
     miscTransBS = os.path.join(stageDB, 'TGR_StWide_lkC')
 
@@ -2167,15 +2179,16 @@ def copyCounties():
 # cleanOutFldr()
 # copyCounties()
 
-#addressPoints(); #Last updated 6/24/2020
-#counties(); #Last updated 6/23/2020
-#mileposts_RP(); #Last updated 6/24/2020
-#milepostsCombined() #Last updated 6/24/2020
-#miscTransportation(); #Last updated 6/24/2020
-#municipalities(); #Last updated 6/23/2020
-#oilAndGasWells(); #Last updated 6/23/2020
-#parcels_primary_and_secondary();
-#roads(); #Last updated 6/24/2020
+# addressPoints(); #Last updated 6/24/2020
+counties(); #Last updated 6/23/2020
+# mileposts_RP(); #Last updated 6/24/2020
+# milepostsCombined() #Last updated 6/24/2020
+# municipalities(); #Last updated 6/23/2020
+# oilAndGasWells(); #Last updated 6/23/2020
+# parcels_primary_and_secondary()
+
+# roads(); #Last updated 6/24/2020
+# miscTransportation(); #Last updated 6/24/2020
 
 
 # landownershipLarge(); #Last updated 6/23/2020
@@ -2186,7 +2199,7 @@ def copyCounties():
 # townships(); #Last updated 6/23/2020
 # sections(); #Last updated 6/23/2020
 # deciPoints(); #Last updated 6/23/2020
-addedPoints(); #Last updated 6/23/2020
+# addedPoints(); #Last updated 6/23/2020
 # addressZones(); #Last updated 6/23/2020
 
 # deci_points_test()
